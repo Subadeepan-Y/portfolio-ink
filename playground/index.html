@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>manim-ts — PLAYGROUND</title>
+<style>
+  :root { color-scheme: dark; --bg:#0a0a0a; --panel:#101014; --line:#23232b; --text:#f0ebe0; --dim:#98907f; --red:#c0392b; }
+  * { box-sizing:border-box; }
+  html,body { height:100%; margin:0; }
+  body { background:var(--bg); color:var(--text); font-family:"DM Sans","Segoe UI",system-ui,sans-serif; display:flex; overflow:hidden; }
+  #stage { flex:1.25; display:flex; flex-direction:column; min-width:0; background:#08080a; }
+  #cvwrap { flex:1; display:flex; align-items:center; justify-content:center; overflow:hidden; padding:12px; }
+  canvas { max-width:100%; max-height:100%; background:#101016; border-radius:8px; border:1px solid var(--line); }
+  #transport { display:flex; gap:8px; align-items:center; padding:9px 12px; border-top:1px solid var(--line); background:var(--panel); }
+  button, select { background:#1a1a20; color:var(--text); border:1px solid var(--line); border-radius:6px; padding:6px 11px; font-size:12.5px; cursor:pointer; font-family:inherit; }
+  button.primary { background:var(--red); border-color:var(--red); color:#fff; font-weight:700; }
+  button:disabled { opacity:.4; cursor:default; }
+  input[type=range] { flex:1; accent-color:var(--red); }
+  #time { font-family:Consolas,monospace; font-size:11.5px; color:var(--dim); min-width:92px; text-align:right; }
+  #status { padding:7px 12px; font-size:11.5px; letter-spacing:.04em; color:var(--dim); background:#0c0c10; border-top:1px solid var(--line); }
+  #side { width:295px; flex:none; background:var(--panel); border-left:1px solid var(--line); display:flex; flex-direction:column; overflow-y:auto; }
+  #side h3 { margin:0; padding:13px 14px 8px; font-size:10.5px; letter-spacing:.2em; color:var(--dim); }
+  .ex { margin:0 10px 7px; padding:10px 12px; font-family:Consolas,monospace; font-size:11.5px; cursor:pointer;
+    background:#0c0c10; border:1px solid var(--line); border-radius:8px; color:#c9c4b8; text-align:left; width:calc(100% - 20px); }
+  .ex:hover { border-color:var(--red); }
+  .ex.active { border-color:var(--red); background:rgba(192,57,43,.12); color:#fff; }
+  .ex small { display:block; font-family:"DM Sans",sans-serif; font-size:11px; color:var(--dim); margin-top:4px; }
+  #ai { margin:4px 10px 14px; padding:12px; background:#0c0c10; border:1px dashed #4a4a56; border-radius:8px; }
+  #ai input { width:100%; background:#16161c; border:1px solid var(--line); border-radius:6px; color:var(--text);
+    padding:8px 10px; font-size:12.5px; font-family:inherit; }
+  #ai button { width:100%; margin-top:8px; }
+  #code { margin:0; padding:12px 14px; font-family:Consolas,monospace; font-size:11px; line-height:1.55; white-space:pre;
+    background:#0c0c10; border-top:1px solid var(--line); max-height:220px; overflow:auto; }
+  .kw { color:#e05545; } .fn { color:#9db4e0; } .str { color:#c9a86a; } .cm { color:#5c5c6a; } .en { color:#e0b45c; font-style:italic; }
+</style>
+</head>
+<body>
+  <div id="stage">
+    <div id="cvwrap"><canvas id="cv" width="900" height="506"></canvas></div>
+    <div id="transport">
+      <button id="play" class="primary">▶ PLAY</button>
+      <button id="pause">⏸ PAUSE</button>
+      <button id="restart">↺ REPLAY</button>
+      <select id="speed"><option>0.5</option><option selected>1</option><option>2</option><option>4</option></select>
+      <input id="seek" type="range" min="0" max="0" step="0.01" value="0" />
+      <span id="time">0.00 / 0.00s</span>
+    </div>
+    <div id="status">PICK A SCENE ON THE RIGHT.</div>
+  </div>
+  <div id="side">
+    <h3>// PRESET SCENES — CLICK TO RUN</h3>
+    <div id="exList"></div>
+    <h3>// ASK AI — PLAIN ENGLISH IN</h3>
+    <div id="ai">
+      <input id="aiInput" placeholder="Describe it — e.g. spin a star…" maxlength="140" />
+      <button id="aiGo" class="primary">✦ ANIMATE</button>
+    </div>
+    <h3>// CODE — TYPED LIVE</h3>
+    <pre id="code"></pre>
+  </div>
+
+<script type="module">
+import { CreateCircle, TextScene, AxesPlot, LaggedExample, TriangleChase, StarSpin } from "./scenes.js";
+
+/* ================= AI HOOK =================
+   After Vercel deploy, set (e.g. in a script tag before this module):
+     window.MANIM_AI_ENDPOINT = "https://your-app.vercel.app/api/animate";
+   Contract: POST { prompt } -> JSON { scene, blurb }
+     - scene: must match a preset key below (CreateCircle, TextScene,
+       AxesPlot, LaggedExample, TriangleChase, StarSpin)
+     - blurb: one plain-English line shown above the render
+   Unknown scene keys are shown as text only — never eval'd. */
+const AI_ENDPOINT = window.MANIM_AI_ENDPOINT || null;
+
+const SCENES = {
+  CreateCircle:  { cls: CreateCircle,  blurb: "Draw a blue circle, then a red square beside it, then let the circle turn into the square." },
+  TextScene:     { cls: TextScene,     blurb: "Write a title onto the scene, fade a circle in, then point at it." },
+  AxesPlot:      { cls: AxesPlot,      blurb: "Build axes, plot y = x², and slide a red dot along the curve." },
+  LaggedExample: { cls: LaggedExample, blurb: "Grow seven squares one after another, each a beat after the last." },
+  TriangleChase: { cls: TriangleChase, blurb: "Draw a path, fade in a triangle and a dot, then move the dot along the path." },
+  StarSpin:      { cls: StarSpin,      blurb: "Draw a ring, grow a star from its center, spin it, then wiggle it." },
+};
+
+const $ = (id) => document.getElementById(id);
+const list = $("exList"), codeEl = $("code"), statusEl = $("status");
+const canvas = $("cv"), playBtn = $("play"), pauseBtn = $("pause"), restartBtn = $("restart"),
+      speedSel = $("speed"), seek = $("seek"), timeEl = $("time");
+
+let scene = null, busy = null, scrubbing = false, pendingSeek = null, typing = false, activeName = null;
+
+const CODE = {
+  CreateCircle: `import { Scene, Circle, Square, Create, Transform, BLUE, RED, RIGHT } from "manim-ts";
+
+export class CreateCircle extends Scene {
+  async construct() {
+    const circle = new Circle({ radius: 1.5, color: BLUE });
+    const square = new Square({ side_length: 2.5, color: RED });
+    square.next_to(circle, RIGHT, 1);
+
+    await this.play(new Create(circle));
+    await this.play(new Create(square));
+    await this.play(new Transform(circle, square));
+    await this.wait(1);
+  }
+}`,
+  TextScene: `import { Scene, Text, Circle, Write, FadeIn, Indicate, WHITE, YELLOW, UP, DOWN } from "manim-ts";
+
+export class TextScene extends Scene {
+  async construct() {
+    const title = new Text("Manim in TypeScript", { font_size: 56, color: WHITE });
+    title.to_edge(UP, 1);
+    const circle = new Circle({ radius: 1.2, color: YELLOW });
+    circle.to_edge(DOWN, 1.5);
+
+    await this.play(new Write(title));
+    await this.play(new FadeIn(circle, { scale: 0.5 }));
+    await this.play(new Indicate(circle));
+    await this.wait(1);
+  }
+}`,
+  AxesPlot: `import { Scene, Axes, Dot, Create, FadeIn, GREEN, RED } from "manim-ts";
+
+export class AxesPlot extends Scene {
+  async construct() {
+    const axes = new Axes({ x_range: [-3, 3, 1], y_range: [-2, 8, 2], x_length: 10, y_length: 5 });
+    const graph = axes.plot((x) => x * x, { color: GREEN });
+    const dot = new Dot(axes.c2p(1, 1), { radius: 0.1, color: RED });
+
+    await this.play(new Create(axes));
+    await this.play(new Create(graph));
+    await this.play(new FadeIn(dot, { scale: 1.5 }));
+    await this.play(dot.animate.move_to(axes.c2p(2, 4)).build());
+    await this.wait(1);
+  }
+}`,
+  LaggedExample: `import { Scene, Square, VGroup, GrowFromCenter, LaggedStart, RIGHT, BLUE } from "manim-ts";
+
+export class LaggedExample extends Scene {
+  async construct() {
+    const group = new VGroup(
+      ...Array.from({ length: 7 }, () => new Square({ side_length: 0.7, color: BLUE }))
+    );
+    group.arrange(RIGHT, 0.3);
+
+    await this.play(
+      new LaggedStart(
+        ...group.submobjects.map((s) => new GrowFromCenter(s)),
+        { lag_ratio: 0.15 }
+      )
+    );
+    await this.wait(0.5);
+  }
+}`,
+  TriangleChase: `import { Scene, Triangle, Dot, Line, add, Create, FadeIn, MoveAlongPath, Indicate, YELLOW, RED, BLUE } from "manim-ts";
+
+export class TriangleChase extends Scene {
+  async construct() {
+    const tri = new Triangle({ color: YELLOW }).scale(0.8);
+    const dot = new Dot(undefined, { radius: 0.14, color: RED });
+    dot.move_to(tri.get_center());
+    const start = tri.get_center();
+    const path = new Line(start, add(start, [4, 1, 0]), { color: BLUE });
+
+    await this.play(new Create(path));
+    await this.play(new FadeIn(tri), new FadeIn(dot));
+    await this.play(new MoveAlongPath(dot, path));
+    await this.play(new Indicate(tri));
+    await this.wait(0.6);
+  }
+}`,
+  StarSpin: `import { Scene, Star, Circle, Create, GrowFromCenter, Rotating, Wiggle, YELLOW, GREEN } from "manim-ts";
+
+export class StarSpin extends Scene {
+  async construct() {
+    const star = new Star({ n: 5, color: YELLOW }).scale(1.4);
+    const ring = new Circle({ radius: 2.4, color: GREEN });
+
+    await this.play(new Create(ring));
+    await this.play(new GrowFromCenter(star));
+    await this.play(new Rotating(star, { angle: Math.PI * 2, about_point: star.get_center() }));
+    await this.play(new Wiggle(star));
+    await this.wait(0.6);
+  }
+}`,
+};
+
+function highlight(src) {
+  const esc = src.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return esc
+    .replace(/(\/\/[^\n]*)/g, '<span class="cm">$1</span>')
+    .replace(/\b(class|const|new|await|async|export|from|import|return|this)\b/g, '<span class="kw">$1</span>')
+    .replace(/\b(Scene|Circle|Square|Triangle|Star|Line|Dot|Text|Axes|VGroup|Create|Write|FadeIn|Indicate|GrowFromCenter|LaggedStart|MoveAlongPath|Rotating|Wiggle)\b/g, '<span class="fn">$1</span>')
+    .replace(/("[^"]*")/g, '<span class="str">$1</span>');
+}
+
+async function typeCode(name, blurb) {
+  typing = true;
+  codeEl.innerHTML = "";
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  codeEl.innerHTML += `<span class="en">// In plain English: ${blurb}</span>\n`;
+  await sleep(120);
+  for (const line of CODE[name].split("\n")) {
+    codeEl.innerHTML += highlight(line) + "\n";
+    codeEl.scrollTop = codeEl.scrollHeight;
+    await sleep(10);
+  }
+  typing = false;
+}
+
+function buildScene(name) {
+  const s = new SCENES[name].cls(canvas);
+  s.directed = true;
+  s.speed = parseFloat(speedSel.value);
+  return s;
+}
+function runExclusive(job) {
+  if (busy) return;
+  busy = job().catch((e) => { statusEl.textContent = "ERROR: " + (e?.message || e); })
+    .finally(() => {
+      busy = null;
+      if (pendingSeek !== null && scene) {
+        const t = pendingSeek; pendingSeek = null;
+        runExclusive(async () => { await scene.seek(t); refresh(); });
+      } else refresh();
+    });
+}
+function refresh() {
+  if (!scene) return;
+  const dur = scene.getDuration();
+  seek.max = String(dur);
+  if (!scrubbing) seek.value = String(Math.min(scene.time, dur));
+  timeEl.textContent = `${scene.time.toFixed(2)} / ${dur.toFixed(2)}s`;
+  pauseBtn.disabled = !dur; restartBtn.disabled = !dur;
+  pauseBtn.textContent = scene.paused ? "▶ RESUME" : "⏸ PAUSE";
+}
+setInterval(refresh, 100);
+
+async function select(name, blurb) {
+  activeName = name;
+  [...list.children].forEach((c) => c.classList.toggle("active", c.dataset.name === name));
+  scene = null;
+  seek.value = "0"; seek.max = "0"; timeEl.textContent = "0.00 / 0.00s";
+  const line = blurb || SCENES[name].blurb;
+  statusEl.textContent = line.toUpperCase();
+  await typeCode(name, line);
+  runExclusive(async () => {
+    scene = buildScene(name);
+    statusEl.textContent = "RENDERING " + name.toUpperCase() + "…";
+    await scene.render();
+    statusEl.textContent = name.toUpperCase() + " DONE — SCRUB, REPLAY, OR PICK ANOTHER.";
+  });
+}
+
+Object.keys(SCENES).forEach((name) => {
+  const d = document.createElement("button");
+  d.className = "ex"; d.dataset.name = name;
+  d.innerHTML = `▶ ${name}<small>${SCENES[name].blurb}</small>`;
+  d.onclick = () => { if (!typing) select(name); };
+  list.appendChild(d);
+});
+
+playBtn.onclick = () => {
+  if (!activeName) return select(Object.keys(SCENES)[0]);
+  runExclusive(async () => {
+    if (!scene || scene.getDuration() === 0) {
+      scene = buildScene(activeName);
+      await scene.render();
+      statusEl.textContent = "DONE.";
+      return;
+    }
+    if (scene.paused) { scene.paused = false; statusEl.textContent = "RESUMED."; return; }
+    await scene.playTimeline(scene.time >= scene.getDuration() ? 0 : scene.time);
+    statusEl.textContent = "DONE.";
+  });
+};
+pauseBtn.onclick = () => { if (scene && scene.getDuration()) { scene.paused = !scene.paused; refresh(); } };
+restartBtn.onclick = () => runExclusive(async () => { if (scene) { scene.paused = false; await scene.playTimeline(0); } });
+speedSel.onchange = () => { if (scene) scene.speed = parseFloat(speedSel.value); };
+seek.addEventListener("pointerdown", () => { scrubbing = true; });
+seek.addEventListener("pointerup", () => { scrubbing = false; });
+seek.addEventListener("input", () => {
+  if (!scene || !scene.getDuration()) return;
+  scene.paused = true;
+  const t = parseFloat(seek.value);
+  timeEl.textContent = `${t.toFixed(2)} / ${scene.getDuration().toFixed(2)}s`;
+  if (busy) { pendingSeek = t; return; }
+  runExclusive(async () => { await scene.seek(t); refresh(); });
+});
+
+/* ---------- ASK AI ---------- */
+$("aiGo").onclick = async () => {
+  const prompt = $("aiInput").value.trim();
+  if (!prompt) return;
+  if (!AI_ENDPOINT) {
+    statusEl.textContent = "AI NOT CONNECTED YET — SET window.MANIM_AI_ENDPOINT AFTER VERCEL DEPLOY.";
+    return;
+  }
+  statusEl.textContent = "ASKING AI…";
+  try {
+    const res = await fetch(AI_ENDPOINT, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt }),
+    });
+    const data = await res.json();
+    if (data && data.scene && SCENES[data.scene]) {
+      select(data.scene, data.blurb || prompt);
+    } else {
+      statusEl.textContent = "AI RETURNED AN UNKNOWN SCENE — SHOWING AS TEXT ONLY.";
+      codeEl.innerHTML = `<span class="en">// AI said: ${String(data?.blurb || prompt)}</span>\n<span class="cm">// no matching preset — nothing rendered.</span>`;
+    }
+  } catch (e) {
+    statusEl.textContent = "AI REQUEST FAILED: " + (e?.message || e);
+  }
+};
+
+select(Object.keys(SCENES)[0]);
+</script>
+</body>
+</html>

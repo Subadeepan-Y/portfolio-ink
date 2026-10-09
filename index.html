@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SUBADEEPAN — From scratch. Every time.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root {
+    --bg:#080808; --ink:#f0ebe0; --dim:#98907f; --faint:#3a352c;
+    --red:#c0392b; --red-deep:#991b1b; --amber:#b89b4a;
+    --display:"Bebas Neue","Arial Narrow",Impact,sans-serif;
+    --body:"DM Sans","Segoe UI",system-ui,sans-serif;
+  }
+  html { scroll-behavior:smooth; }
+  body { background:var(--bg); color:var(--ink); font-family:var(--body); overflow-x:hidden; }
+
+  /* ---------- FILM GRAIN ---------- */
+  #grain { position:fixed; inset:-50%; width:200%; height:200%; pointer-events:none; z-index:9000; opacity:.04;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+    animation:grain 8s steps(10) infinite; }
+  @keyframes grain {
+    0%,100%{transform:translate(0,0)} 10%{transform:translate(-2%,-3%)} 20%{transform:translate(3%,2%)}
+    30%{transform:translate(-3%,1%)} 40%{transform:translate(2%,-2%)} 50%{transform:translate(-1%,3%)}
+    60%{transform:translate(3%,-1%)} 70%{transform:translate(-2%,2%)} 80%{transform:translate(1%,-3%)} 90%{transform:translate(2%,3%)}
+  }
+
+  /* ---------- PETALS ---------- */
+  #leaves { position:fixed; inset:0; pointer-events:none; z-index:8000; overflow:hidden; }
+  .leaf { position:absolute; top:-40px; animation-name:fall; animation-timing-function:linear; animation-iteration-count:infinite; }
+  .leaf > div { animation:sway ease-in-out infinite alternate; }
+  @keyframes fall { to { transform:translateY(112vh); } }
+  @keyframes sway { from { transform:translateX(-30px) rotate(-30deg);} to { transform:translateX(30px) rotate(30deg);} }
+
+  /* ---------- CHROME ---------- */
+  #brand { position:fixed; top:24px; left:32px; z-index:9500; display:flex; align-items:center; gap:12px;
+    text-decoration:none; color:var(--ink); }
+  #brand svg { width:32px; height:32px; }
+  #brand span { font-family:var(--display); font-size:19px; letter-spacing:.28em; }
+  #topnav { position:fixed; top:30px; right:36px; z-index:9500; display:flex; gap:34px; }
+  #topnav a { color:var(--dim); text-decoration:none; font-size:11px; letter-spacing:.2em; transition:color .2s; }
+  #topnav a:hover, #topnav a.on { color:var(--ink); }
+  #topnav a.on { border-bottom:1px solid var(--red); padding-bottom:3px; }
+  #chapters { position:fixed; left:32px; bottom:28px; z-index:9500; display:flex; gap:14px; align-items:center; }
+  #chapters a { color:var(--faint); text-decoration:none; font-size:9px; transition:color .25s; }
+  #chapters a.on { color:var(--red); }
+
+  section.chapter { position:relative; min-height:100vh; display:flex; flex-direction:column; justify-content:center;
+    padding:110px 8vw 90px; overflow:hidden; }
+  .kanji { position:absolute; right:2vw; top:50%; transform:translateY(-50%); font-size:26vw; line-height:1;
+    color:var(--ink); opacity:.045; pointer-events:none; user-select:none; }
+  .clabel { font-size:11px; letter-spacing:.2em; color:var(--dim); margin-bottom:34px; }
+  .reveal { opacity:0; transform:translateY(28px); transition:opacity .4s ease, transform .4s ease; will-change:opacity, transform; }
+  .reveal.in { opacity:1; transform:translateY(0); transition:opacity .65s cubic-bezier(0.16, 1, 0.3, 1), transform .65s cubic-bezier(0.16, 1, 0.3, 1); }
+  .proj.reveal.in:hover { transform:translateX(6px); }
+
+  /* ---------- HERO ---------- */
+  #hero { padding:0; justify-content:flex-end; }
+  #sky { position:absolute; inset:0;
+    background:linear-gradient(180deg,#150B14 0%,#2C1526 22%,#4E2337 44%,#7A3B52 62%,#A85C6C 76%,#6B3040 100%); }
+  #stars { position:absolute; inset:0; opacity:.7;
+    background-image:
+      radial-gradient(1px 1px at 12% 8%, #FBE9EC, transparent),
+      radial-gradient(1px 1px at 32% 18%, #FBE9EC, transparent),
+      radial-gradient(1px 1px at 55% 6%, #FBE9EC, transparent),
+      radial-gradient(1.5px 1.5px at 66% 26%, #FBE9EC, transparent),
+      radial-gradient(1px 1px at 44% 32%, #FBE9EC, transparent),
+      radial-gradient(1px 1px at 8% 40%, #FBE9EC, transparent),
+      radial-gradient(1px 1px at 24% 52%, #FBE9EC, transparent); }
+  #moon { position:absolute; top:9%; right:11%; width:19vmin; height:19vmin; border-radius:50%;
+    background:radial-gradient(circle at 42% 38%, #FFF6F6, #FDF0F0 38%, #F3D2D6 62%, #E4AFB8 82%, #C98A98 100%);
+    box-shadow:0 0 24px 6px rgba(246,201,206,.5), 0 0 70px 26px rgba(224,139,155,.28), 0 0 150px 60px rgba(142,58,80,.2);
+    border:1px solid rgba(255,240,240,.65); }
+  #ridges { position:absolute; bottom:9vh; left:0; width:100%; height:34vh; }
+  #mist { position:absolute; bottom:8vh; left:0; width:100%; height:9vh;
+    background:linear-gradient(180deg, transparent, rgba(201,127,146,.28), transparent); filter:blur(6px); }
+  #ground { position:absolute; bottom:0; left:0; width:100%; height:9vh; background:#140A11; }
+  #heroInner { position:relative; z-index:5; padding:0 8vw 21vh; }
+  #hero h1 { font-family:var(--display); font-size:clamp(64px, 11vw, 168px); line-height:.94; letter-spacing:.01em; max-width:70vw; }
+  #hero h1 .dot { color:var(--red); }
+  #hero .sub { margin-top:20px; font-size:15px; letter-spacing:.06em; color:#cbb9bd; }
+  #heroFoot { position:relative; z-index:5; display:flex; justify-content:space-between; align-items:flex-end; padding:0 8vw 34px; }
+  #heroFoot .ch { font-size:11px; letter-spacing:.2em; color:#cbb9bd; }
+  #heroFoot .ch::before { content:"● "; color:var(--red); font-size:9px; }
+  #scrollcue { position:absolute; left:50%; bottom:30px; transform:translateX(-50%); z-index:5;
+    font-size:10px; letter-spacing:.3em; color:#cbb9bd; display:flex; align-items:center; gap:14px; }
+  #scrollcue::after { content:""; width:60px; height:1px; background:#7A3B52; }
+  #scrollcue i { width:5px; height:5px; border-radius:50%; background:var(--red); animation:blink 1.8s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.15} }
+
+  /* ---------- WORK LIST ---------- */
+  #work .list { display:flex; flex-direction:column; gap:6px; max-width:1020px; }
+  .proj { position:relative; display:block; width:100%; text-align:left; font-family:inherit; background:#0e0e0e;
+    border:1px solid #161616; border-left:1px solid #222; padding:28px 26px 28px 30px; color:var(--ink);
+    cursor:pointer; transition:border-color .2s, transform .2s, box-shadow .2s; }
+  .proj:hover { border-left-color:var(--red); transform:translateX(6px); box-shadow:-14px 0 44px -18px rgba(192,57,43,.55); }
+  .proj h3 { font-family:var(--display); font-size:clamp(30px, 3.6vw, 50px); letter-spacing:.02em; transition:transform .2s; }
+  .proj:hover h3 { transform:translateX(6px); }
+  .proj p { margin-top:8px; font-size:14px; color:var(--dim); max-width:660px; line-height:1.6; }
+  .tags { margin-top:14px; display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .pill { font-size:10.5px; letter-spacing:.12em; border:1px solid #2c2c2c; border-radius:20px; padding:4px 12px; color:var(--dim); }
+  .badge { margin-left:auto; font-size:10.5px; letter-spacing:.18em; }
+  .badge.live { color:#e05545; } .badge.dev { color:var(--amber); } .badge.priv { color:var(--dim); }
+  .open-hint { margin-left:14px; font-size:10.5px; letter-spacing:.18em; color:var(--faint); }
+  .proj:hover .open-hint { color:var(--red); }
+
+  /* ---------- ABOUT / PROCESS / CONTACT ---------- */
+  #aboutInner { display:flex; gap:6vw; align-items:center; max-width:1100px; position:relative; z-index:2; }
+  #aboutText { flex:1.2; }
+  #aboutText .big { font-size:clamp(20px, 2.6vw, 30px); line-height:1.5; font-weight:600; }
+  #aboutText .big em { color:var(--red); font-style:normal; }
+  .cols2 { display:flex; gap:5vw; margin-top:44px; }
+  .cols2 h4 { font-size:11px; letter-spacing:.2em; color:var(--dim); margin-bottom:14px; }
+  .cols2 li { list-style:none; font-size:14px; padding:5px 0; }
+  .cols2 li::before { content:"— "; color:var(--red); }
+  #portrait { flex:.8; display:flex; justify-content:center; }
+  #portrait .ring { width:min(300px, 34vw); height:min(300px, 34vw); border-radius:50%; display:flex; align-items:center;
+    justify-content:center; font-size:64px; border:3px solid transparent;
+    background:linear-gradient(#0b0b0b,#0b0b0b) padding-box,
+      conic-gradient(from 20deg, var(--red), #3a3a3a 30%, var(--red-deep) 55%, #2a2a2a 80%, var(--red)) border-box; }
+  .step { display:flex; gap:4vw; align-items:baseline; padding:34px 0; border-top:1px solid #1c1c1c; max-width:1000px; }
+  .step:last-child { border-bottom:1px solid #1c1c1c; }
+  .step .n { font-family:var(--display); font-size:clamp(44px, 5vw, 76px); color:transparent;
+    -webkit-text-stroke:1px var(--faint); min-width:2.2em; transition:.25s; }
+  .step:hover .n { -webkit-text-stroke:1px var(--red); }
+  .step h3 { font-family:var(--display); font-size:24px; letter-spacing:.04em; }
+  .step p { margin-top:8px; font-size:14px; color:var(--dim); line-height:1.7; max-width:560px; }
+  #contact { text-align:center; align-items:center; }
+  #contact h2 { font-family:var(--display); font-size:clamp(52px, 9vw, 132px); line-height:.95; letter-spacing:.01em; }
+  #contact h2 .thin { display:block; color:transparent; -webkit-text-stroke:1.5px var(--ink); }
+  .clinks { margin-top:44px; display:flex; gap:44px; justify-content:center; flex-wrap:wrap; }
+  .clinks a { color:var(--dim); text-decoration:none; font-size:12px; letter-spacing:.25em; padding-bottom:5px;
+    border-bottom:1px solid transparent; transition:.2s; }
+  .clinks a:hover { color:var(--ink); border-bottom-color:var(--red); }
+  footer { position:absolute; bottom:0; left:0; right:0; display:flex; justify-content:space-between; align-items:flex-end; padding:24px 8vw; }
+  footer small { font-size:10px; letter-spacing:.25em; color:var(--dim); }
+  footer .fkanji { font-size:64px; color:var(--ink); opacity:.07; line-height:1; }
+
+  /* ---------- MODAL ---------- */
+  #scrim { position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:9600; opacity:0; pointer-events:none; transition:opacity .35s; }
+  #scrim.open { opacity:1; pointer-events:auto; }
+  #modal { position:fixed; inset:0; z-index:9650; background:#0a0a0a; transform:translateY(100%); transition:transform .5s cubic-bezier(.22,.9,.24,1);
+    display:flex; flex-direction:column; }
+  #modal.open { transform:translateY(0); }
+  #mHead { display:flex; align-items:center; gap:18px; padding:22px 4vw; border-bottom:1px solid #1b1b1b; }
+  #mHead .mk { font-size:11px; letter-spacing:.2em; color:var(--red); }
+  #mHead h2 { font-family:var(--display); font-size:34px; letter-spacing:.03em; }
+  #mHead .mcount { margin-left:auto; font-size:12px; letter-spacing:.2em; color:var(--dim); }
+  #mClose { background:none; border:1px solid #333; color:var(--ink); width:38px; height:38px; border-radius:50%;
+    font-size:16px; cursor:pointer; transition:.2s; }
+  #mClose:hover { border-color:var(--red); color:var(--red); }
+  #mBody { flex:1; overflow:hidden; position:relative; }
+  #mSlide { height:100%; overflow-y:auto; padding:34px 4vw 30px; display:flex; gap:5vw; align-items:flex-start; }
+  #mArt { flex:1.25; min-width:0; }
+  #mText { flex:1; min-width:260px; padding-top:6px; }
+  #mText .feat { font-family:var(--display); font-size:clamp(34px, 4.4vw, 62px); line-height:.95; letter-spacing:.01em; }
+  #mText .desc { margin-top:16px; font-size:14.5px; line-height:1.75; color:var(--dim); }
+  #mText .tech { margin-top:20px; display:inline-block; font-size:10.5px; letter-spacing:.14em; color:#e05545;
+    border:1px solid rgba(192,57,43,.5); border-radius:20px; padding:5px 14px; }
+  #mFoot { display:flex; align-items:center; gap:16px; padding:18px 4vw 24px; border-top:1px solid #1b1b1b; }
+  .mnav { background:#161616; border:1px solid #2a2a2a; color:var(--ink); border-radius:8px; padding:10px 20px;
+    font-size:13px; letter-spacing:.1em; cursor:pointer; transition:.2s; font-family:inherit; }
+  .mnav:hover:not(:disabled) { border-color:var(--red); }
+  .mnav:disabled { opacity:.3; cursor:default; }
+  #mDots { display:flex; gap:8px; }
+  #mDots i { width:8px; height:8px; border-radius:50%; background:#2c2c2c; }
+  #mDots i.on { background:var(--red); }
+  #mCta { margin-left:auto; display:none; background:var(--red); border:0; color:#fff; font-family:inherit;
+    font-size:14px; font-weight:700; letter-spacing:.06em; border-radius:8px; padding:13px 30px; cursor:pointer; width:100%; max-width:340px; }
+  #mCta:hover { background:#a93226; }
+  #mCta.show { display:block; }
+  #mCta.ghost { background:transparent; border:1px solid #333; color:var(--dim); cursor:default; }
+  #mCta.ghost:hover { background:transparent; }
+
+  /* ---------- MOCKUP PRIMITIVES ---------- */
+  .shot { background:#101014; border:1px solid #23232b; border-radius:12px; padding:18px; font-size:12px; }
+  .shot .bar { display:flex; gap:6px; margin-bottom:14px; }
+  .shot .bar i { width:9px; height:9px; border-radius:50%; background:#33333d; }
+  .shot .bar i:first-child { background:var(--red); }
+  .mono { font-family:Consolas,"Courier New",monospace; }
+  .glowbtn { display:inline-block; background:rgba(192,57,43,.16); border:1px solid var(--red); color:#f0938a;
+    border-radius:8px; padding:7px 16px; font-size:12px; box-shadow:0 0 18px rgba(192,57,43,.45); }
+  .kw { color:#e05545; } .cm { color:#5c5c6a; } .st { color:#c9a86a; } .fn { color:#9db4e0; }
+  .filetree { display:flex; flex-direction:column; gap:7px; font-size:12px; color:#b9b4ac; }
+  .filetree .on { color:var(--ink); background:rgba(192,57,43,.14); border-radius:6px; padding:3px 8px; margin:-3px -8px; }
+  .pdflines i { display:block; height:7px; border-radius:3px; background:#26262e; margin:7px 0; }
+  .tagrow { display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
+  .stag { font-size:10px; letter-spacing:.08em; background:#1c1c22; border:1px solid #2d2d36; border-radius:12px; padding:3px 10px; color:#b9b4ac; }
+  .statbadge { display:inline-block; background:rgba(192,57,43,.16); border:1px solid var(--red); color:#f0938a;
+    border-radius:8px; padding:5px 12px; font-size:12px; font-weight:700; }
+  .qrow { border:1px solid #23232b; border-radius:8px; padding:9px 12px; margin-top:8px; font-size:12px; color:#b9b4ac; }
+  .qrow b { color:var(--ink); }
+  .mmwrap { position:relative; height:280px; }
+  .mmnode { position:absolute; transform:translate(-50%,-50%); background:#16161c; border:1px solid #3a3a46; border-radius:20px;
+    padding:6px 14px; font-size:11.5px; white-space:nowrap; }
+  .mmnode.center { background:rgba(192,57,43,.2); border-color:var(--red); color:#fff; font-weight:700; }
+  .avatars { display:flex; }
+  .avatars i { width:22px; height:22px; border-radius:50%; border:2px solid #101014; margin-left:-7px; }
+  .chatb { max-width:85%; border-radius:12px; padding:9px 13px; font-size:12.5px; line-height:1.6; margin:8px 0; }
+  .chatb.them { background:#1a1a20; color:#d8d3c8; border:1px solid #26262e; }
+  .chatb.me { background:rgba(192,57,43,.18); border:1px solid rgba(192,57,43,.5); margin-left:auto; }
+  .quizblock { border:1px dashed #4a4a56; border-radius:8px; padding:10px 12px; margin-top:8px; font-size:12px; }
+  .quizblock .opt { display:block; border:1px solid #33333d; border-radius:6px; padding:5px 10px; margin:5px 0; font-size:12px; }
+  .quizblock .opt.right { border-color:#3f7d4e; color:#8fd0a0; }
+  .mgrid { display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin-top:12px; }
+  .mcell { border-radius:8px; padding:9px 6px; font-size:10.5px; text-align:center; border:1px solid; }
+  .st-grey { background:#1a1a1e; border-color:#33333a; color:#8a8a94; }
+  .st-slate { background:#1c222c; border-color:#3d4c63; color:#9db4e0; }
+  .st-amber { background:#2b2113; border-color:#8a6a2a; color:#e0b45c; }
+  .st-blue { background:#12222e; border-color:#2a6a8a; color:#6fc3e8; }
+  .st-green { background:#12271a; border-color:#3f7d4e; color:#8fd0a0; }
+  .stackcard { border:1px solid #2b2b33; background:#141419; border-radius:10px; padding:11px 14px; margin-top:-6px;
+    box-shadow:0 -6px 0 -3px #1d1d24, 0 -12px 0 -6px #24242c; font-size:12px; }
+  .stackcard:first-child { margin-top:14px; }
+  .codepanel { background:#0c0c10; border:1px solid #23232b; border-radius:10px; padding:14px 16px; font-size:12px; line-height:1.7; overflow-x:auto; }
+  .drawcircle { animation:draw 3.2s ease-in-out infinite; }
+  @keyframes draw { 0%{stroke-dashoffset:630} 55%{stroke-dashoffset:0} 80%{stroke-dashoffset:0} 100%{stroke-dashoffset:-630} }
+  .scrub { height:5px; border-radius:3px; background:#26262e; margin:12px 0 8px; position:relative; }
+  .scrub i { position:absolute; left:0; top:0; bottom:0; width:38%; border-radius:3px; background:var(--red); }
+  .scrub b { position:absolute; left:38%; top:50%; width:13px; height:13px; border-radius:50%; background:#f0ebe0; transform:translate(-50%,-50%); }
+  .tbtn { display:inline-block; background:#1c1c22; border:1px solid #33333d; border-radius:6px; padding:5px 13px; font-size:11.5px; margin-right:6px; }
+  .filmstrip { display:flex; gap:10px; }
+  .frame { flex:1; background:#0c0c10; border:1px solid #2a2a33; border-radius:8px; padding:10px; min-height:120px; }
+  .frame .cap { font-size:10px; letter-spacing:.12em; color:var(--dim); margin-bottom:8px; }
+  .sheetgrid { display:grid; grid-template-columns:repeat(6, 1fr); gap:6px; }
+  .cell { aspect-ratio:.5; border-radius:6px; background:#1a1a20; border:1px solid #2c2c34; position:relative; }
+  .cell.hot { border-color:var(--red); box-shadow:0 0 14px rgba(192,57,43,.6); }
+  .cell.hot::after { content:"▶"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:var(--red); font-size:12px; }
+  .statepanels { display:flex; gap:10px; }
+  .statecard { flex:1; background:#101014; border:1px solid #23232b; border-radius:10px; padding:14px 10px; text-align:center; }
+  .face { width:52px; height:52px; border-radius:50%; margin:0 auto 10px; position:relative;
+    background:radial-gradient(circle at 35% 30%, #7cc4ff, #0f6cbd); }
+  .face .e { position:absolute; top:20px; width:7px; height:9px; background:#fff; border-radius:50%; }
+  .face .e::after { content:""; position:absolute; top:3px; left:2px; width:3px; height:4px; background:#062b4d; border-radius:50%; }
+  .face .e.l { left:13px; } .face .e.r { right:13px; }
+  .face .m { position:absolute; bottom:11px; left:50%; transform:translateX(-50%); width:14px; height:7px;
+    border:2px solid #062b4d; border-top:0; border-radius:0 0 14px 14px; }
+  .face.sleepy { background:radial-gradient(circle at 35% 30%, #b8c6d9, #5a6b85); }
+  .face.sleepy .e { transform:scaleY(.15); }
+  .face.sleepy .m { border:0; border-top:2px solid #062b4d; border-radius:0; height:2px; bottom:14px; }
+  .face.excited { background:radial-gradient(circle at 35% 30%, #ffd56b, #f59e0b); }
+  .statecard small { font-size:10px; letter-spacing:.18em; color:var(--dim); }
+  .minidesk { position:relative; background:linear-gradient(160deg,#1b2a4a,#0b1026); border-radius:10px; height:190px; overflow:hidden; border:1px solid #23232b; }
+  .minidesk .pet { position:absolute; right:26px; bottom:12px; width:40px; height:40px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #7cc4ff, #0f6cbd); box-shadow:0 4px 10px rgba(0,0,0,.5); }
+  .minidesk .pet .e { position:absolute; top:15px; width:5px; height:7px; background:#fff; border-radius:50%; }
+  .minidesk .pet .e.l { left:10px; } .minidesk .pet .e.r { right:10px; }
+  .speech { position:absolute; right:74px; bottom:44px; background:#fff; color:#111; font-size:11px; border-radius:10px; padding:7px 11px; max-width:200px; }
+  .speech::after { content:""; position:absolute; bottom:-5px; right:30px; border:5px solid transparent; border-top-color:#fff; border-bottom:0; }
+  .ed3 { display:grid; grid-template-columns:1fr 1.4fr 1fr; gap:8px; }
+  .edcol { background:#0c0c10; border:1px solid #23232b; border-radius:8px; padding:10px; font-size:11px; }
+  .edcol h5 { font-size:9.5px; letter-spacing:.16em; color:var(--dim); margin-bottom:8px; }
+  .edcol .row { padding:4px 7px; border-radius:5px; margin:3px 0; background:#16161c; color:#c9c4b8; }
+  .edcol .row.hl { background:rgba(192,57,43,.2); border:1px solid rgba(192,57,43,.5); color:#fff; }
+  .edbox { width:100%; height:64px; border:2px dashed #3a3a46; border-radius:8px; margin-top:8px; position:relative; overflow:hidden; }
+  .whenrow { background:#16161c; border-left:2px solid var(--red); border-radius:0 6px 6px 0; padding:6px 9px; margin-top:8px; font-size:11px; }
+  .assetiles { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-top:10px; }
+  .atile { background:#141419; border:1px dashed #3a3a46; border-radius:8px; padding:12px 8px; text-align:center; font-size:10px; color:#b9b4ac; }
+  .atile b { display:block; color:var(--ink); font-size:11px; margin-bottom:3px; }
+  .flow { display:flex; align-items:stretch; gap:0; margin-top:6px; }
+  .fnode { flex:1; background:#101014; border:1px solid #2c2c34; border-radius:10px; padding:12px 10px; font-size:11px; text-align:center; }
+  .fnode b { display:block; font-size:12px; margin-bottom:4px; }
+  .fnode small { color:var(--dim); }
+  .farr { align-self:center; color:var(--red); padding:0 8px; font-size:16px; }
+  .kv { display:flex; justify-content:space-between; font-size:11.5px; padding:5px 0; color:#b9b4ac; border-bottom:1px solid #1c1c22; }
+  .kv b { color:var(--ink); }
+  .duelwrap { display:flex; align-items:center; justify-content:center; gap:14px; padding:14px 0 6px; }
+  .dcard { width:92px; height:132px; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    font-family:Consolas,monospace; font-weight:700; border:2px solid; }
+  .dcard.light { background:#f5efe2; border-color:#c0392b; color:#c0392b; }
+  .dcard.dark { background:#17131f; border-color:#9b5de5; color:#c4a5f5; }
+  .dcard .v { font-size:34px; } .dcard small { font-size:9px; letter-spacing:.2em; margin-top:6px; opacity:.75; }
+  .fliparr { color:var(--red); font-size:22px; }
+  .planpara { font-size:14px; line-height:1.9; color:#c9c4b8; }
+  .planpara b { color:var(--ink); }
+  .planpara .mono { font-size:12.5px; color:#e0b45c; }
+  .realshot img { display:block; width:100%; border-radius:10px; border:1px solid #2a2a33; }
+  .realshot img + img { margin-top:10px; }
+  .shotcap { margin-top:10px; font-size:11px; letter-spacing:.14em; color:#e05545; }
+  .shotcap.mock { color:var(--dim); }
+
+  @media (max-width:900px) {
+    #mSlide { flex-direction:column; }
+    #mText { min-width:0; }
+    #topnav { display:none; }
+    #chapters { left:16px; bottom:16px; gap:10px; }
+    #hero h1 { max-width:92vw; }
+    #aboutInner { flex-direction:column; }
+    .badge { margin-left:0; }
+    .kanji { font-size:44vw; }
+    #mCta { max-width:none; }
+    .ed3 { grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div id="grain"></div>
+<div id="leaves"></div>
+
+<a id="brand" href="#hero" aria-label="home">
+  <svg viewBox="0 0 40 40" fill="none" stroke="#f0ebe0" stroke-width="3" stroke-linecap="round">
+    <path d="M33 12 C 30 6, 18 4, 12 10 C 6 16, 7 26, 14 31 C 21 36, 32 33, 35 25"/>
+    <path d="M33 12 l -4 -1 M33 12 l 0.5 4" stroke-width="2.5"/>
+  </svg>
+  <span>SUBADEEPAN</span>
+</a>
+
+<nav id="topnav">
+  <a href="#work" data-ch="work">WORK</a>
+  <a href="#about" data-ch="about">ABOUT</a>
+  <a href="#process" data-ch="process">PROCESS</a>
+  <a href="#contact" data-ch="contact">CONTACT</a>
+</nav>
+
+<nav id="chapters">
+  <a href="#hero" data-ch="hero" aria-label="Hero">●</a>
+  <a href="#work" data-ch="work" aria-label="Work">●</a>
+  <a href="#about" data-ch="about" aria-label="About">●</a>
+  <a href="#process" data-ch="process" aria-label="Process">●</a>
+  <a href="#contact" data-ch="contact" aria-label="Contact">●</a>
+</nav>
+
+<!-- ============ 00 HERO ============ -->
+<section class="chapter" id="hero">
+  <div id="sky"></div>
+  <div id="stars"></div>
+  <div id="moon"></div>
+  <svg id="ridges" viewBox="0 0 1200 300" preserveAspectRatio="none">
+    <path d="M0,220 L140,120 L260,190 L400,90 L540,200 L700,110 L840,200 L980,130 L1120,210 L1200,170 L1200,300 L0,300 Z" fill="#4A2A3C" opacity=".85"/>
+    <path d="M0,300 L0,250 L180,170 L340,240 L520,150 L700,250 L880,180 L1040,250 L1200,210 L1200,300 Z" fill="#2C1526"/>
+    <path d="M0,300 L0,280 L240,230 L480,285 L760,235 L1000,285 L1200,260 L1200,300 Z" fill="#1B0C17"/>
+  </svg>
+  <div id="mist"></div>
+  <div id="ground"></div>
+
+  <div id="heroInner">
+    <h1 class="reveal">BUILT TO SOLVE<span class="dot">.</span><br>SHIPPED TO WORK<span class="dot">.</span></h1>
+    <p class="sub reveal">AI tutors. Animation engines. Game compilers. Leveraging modern stacks to build what’s missing.</p>
+  </div>
+  <div id="heroFoot"><span class="ch">THE ENTRY POINT</span></div>
+  <div id="scrollcue"><i></i>SCROLL TO ENTER</div>
+</section>
+
+<!-- ============ 01 WORK ============ -->
+<section class="chapter" id="work">
+  <div class="kanji">創</div>
+  <div class="clabel reveal">THE WORK</div>
+  <div class="list" id="projList"></div>
+</section>
+
+<!-- ============ 02 ABOUT ============ -->
+<section class="chapter" id="about">
+  <div class="kanji">道</div>
+  <div id="aboutInner">
+    <div id="aboutText">
+      <div class="clabel reveal">THE MAKER</div>
+      <p class="big reveal">“I build tools other people wish existed. From AI tutors to animation engines to game compilers — <em>everything ships from scratch.</em>”</p>
+      <div class="cols2 reveal">
+        <div>
+          <h4>CURRENTLY BUILDING</h4>
+          <ul><li>Desktop Buddy</li><li>Greate — game engine</li></ul>
+        </div>
+        <div>
+          <h4>STACK</h4>
+          <ul><li>TypeScript</li><li>React</li><li>Node</li><li>Supabase</li><li>Canvas API</li></ul>
+        </div>
+      </div>
+    </div>
+    <div id="portrait" class="reveal"><div class="ring">影</div></div>
+  </div>
+</section>
+
+<!-- ============ 03 PROCESS ============ -->
+<section class="chapter" id="process">
+  <div class="kanji">道</div>
+  <div class="clabel reveal">THE METHOD</div>
+  <div class="step reveal"><div class="n">01</div>
+    <div><h3>IDENTIFY THE GAP</h3><p>Build what's missing. If I have to use 3 tools to do one thing, I build the one tool.</p></div></div>
+  <div class="step reveal"><div class="n">02</div>
+    <div><h3>SHIP RAW, REFINE LIVE</h3><p>Everything starts as a working prototype. Polish follows function.</p></div></div>
+  <div class="step reveal"><div class="n">03</div>
+    <div><h3>MAKE IT FEEL ALIVE</h3><p>UI should have weight. Animations should have intention. Details matter.</p></div></div>
+</section>
+
+<!-- ============ 04 CONTACT ============ -->
+<section class="chapter" id="contact">
+  <div class="kanji">影</div>
+  <div class="clabel reveal">THE EXIT</div>
+  <h2 class="reveal">LET'S BUILD<br><span class="thin">SOMETHING.</span></h2>
+  <div class="clinks reveal">
+    <a href="https://github.com/Subadeepan-Y" target="_blank" rel="noopener">GITHUB</a>
+    <a href="mailto:subadeepankgm@gmail.com">SUBADEEPANKGM@GMAIL.COM</a>
+    <a href="https://www.instagram.com/theepanxub/" target="_blank" rel="noopener">INSTAGRAM</a>
+    <a href="https://igradeify.vercel.app" target="_blank" rel="noopener">IGRADEIFY</a>
+  </div>
+  <footer class="reveal"><small>SUBADEEPAN © 2026</small><span class="fkanji">影</span></footer>
+</section>
+
+<!-- ============ MODAL ============ -->
+<div id="scrim"></div>
+<div id="modal" role="dialog" aria-modal="true">
+  <div id="mHead">
+    <div><div class="mk" id="mKick"></div><h2 id="mTitle"></h2></div>
+    <div class="mcount" id="mCount"></div>
+    <button id="mClose" aria-label="Close">✕</button>
+  </div>
+  <div id="mBody"><div id="mSlide"><div id="mArt"></div><div id="mText"></div></div></div>
+  <div id="mFoot">
+    <button class="mnav" id="mPrev">← PREV</button>
+    <button class="mnav" id="mNext">NEXT →</button>
+    <div id="mDots"></div>
+    <button id="mCta"></button>
+  </div>
+</div>
+
+<script>
+/* ================= PROJECT DATA ================= */
+const PROJECTS = [
+{
+  id:"igradeify", name:"iGradeify",
+  sub:"AI study companion for CBSE students. Live on Vercel. Updated regularly with new features.",
+  tags:["NEXT.JS","SUPABASE","GEMINI AI"], badge:["● LIVE","live"],
+  cta:{ label:"Experience iGradeify →", href:"https://igradeify.vercel.app" },
+  slides:[
+    { feature:"PDF Study Hub", tech:"pdfjs-dist · JSZip · in-browser extraction",
+      desc:"Drop in PDFs or ZIPs of PDFs. Text is extracted and readable in the browser — and it never leaves the device unless you choose to generate.",
+      art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
+        <img src="shots/landing.png" alt="iGradeify landing and PDF Study Hub" loading="lazy">
+        <div class="shotcap">● ACTUAL SCREENSHOT — MORE AT THE WEBSITE!</div></div>` },
+    { feature:"The Desk", tech:"Tools · Explainer · Mind Maps · QP Papers · PDF Hub · Rooms · Timetable",
+      desc:"One workspace, seven tools. Every card turns study material into exam-ready output — animated explainers, full 80-mark papers, mind maps, rooms, timetables and a learning profile that tracks mastery.",
+      art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
+        <img src="shots/desk.png" alt="iGradeify tools dashboard" loading="lazy">
+        <div class="shotcap">● ACTUAL SCREENSHOT — MORE AT THE WEBSITE!</div></div>` },
+    { feature:"Animated Explainer", tech:"step-by-step board animation · pause · replay · speed",
+      desc:"Type any concept and the idea draws itself like a teacher at the board — Projectile Motion tracing its parabola, Bernoulli, Mitosis, Pythagoras. Pause it, restart it, slow it to 0.5×.",
+      art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
+        <img src="shots/explainer.png" alt="Animated explainer" loading="lazy">
+        <div class="shotcap">● ACTUAL SCREENSHOT — MORE AT THE WEBSITE!</div></div>` },
+    { feature:"Mind Map", tech:"mind-map-editor · auto-layout · image/PDF export",
+      desc:"Any chapter becomes an interactive map — drag nodes, connect ideas, let AI expand branches, then export the whole thing as image or PDF.",
+      art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
+        <img src="shots/mindmap.png" alt="Mind Map editor" loading="lazy">
+        <div class="shotcap">● ACTUAL SCREENSHOT — MORE AT THE WEBSITE!</div></div>` },
+    { feature:"AI Test Generator", tech:"Gemini · CBSE blueprint weightage",
+      desc:"Full board-pattern papers generated from your own material — 80 marks, 38 questions. Case studies, assertion-reasoning and internal choice included, auto-graded with worked solutions.",
+      art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
+        <img src="shots/testgen.png" alt="Test Generator configuration" loading="lazy">
+        <img src="shots/paper.png" alt="Generated board-pattern paper" loading="lazy">
+        <div class="shotcap">● ACTUAL SCREENSHOTS — MORE AT THE WEBSITE!</div></div>` },
+    { feature:"Live Whiteboard + Study Rooms", tech:"InfiniteBoard vector engine · realtime sync",
+      desc:"An infinite canvas — pens, shapes, sticky notes, image import — shared live. Rooms carry their own AI tutor so group revision never stalls.",
+      art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
+        <img src="shots/studyroom.png" alt="Study Room whiteboard" loading="lazy">
+        <div class="shotcap">● ACTUAL SCREENSHOT — MORE AT THE WEBSITE!</div></div>` },
+    { feature:"AI Chat Tutor", tech:"[Diagram] JSON draw commands · in-chat quizzes",
+      desc:"Ask doubts and the tutor answers with diagrams it draws itself — JSON draw commands (polygon, circle, right-angle, labels on a 30–170 grid) rendered as SVG — plus quizzes that run inline without leaving the chat.",
+      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
+        <div class="chatb me">why is angle B 90°?</div>
+        <div class="chatb them">Because the tangent meets the radius at 90°. Here:
+        <div class="quizblock"><b>[Quiz]</b> A tangent at P meets…<span class="opt">A · 45°</span><span class="opt right">B · 90° ✓</span></div></div>
+        <div class="chatb them mono" style="font-size:11px"><span class="cm">[Diagram]</span> {<span class="st">"draw"</span>:<span class="st">"right"</span>, <span class="st">"pts"</span>:[[40,130],[40,40],[150,40]]}
+        <svg width="150" height="110" viewBox="0 0 200 170" style="display:block;margin-top:8px;background:#0c0c10;border-radius:6px">
+        <polygon points="40,130 40,40 150,40" fill="none" stroke="#f0ebe0" stroke-width="2"/>
+        <path d="M40,58 L58,58 L58,40" fill="none" stroke="#c0392b" stroke-width="2"/></svg></div>
+        <div class="shotcap mock">○ MOCKUP — THE REAL TUTOR LIVES AT THE WEBSITE!</div></div>` },
+  ]
+},
+{
+  id:"manim", name:"manim-ts",
+  sub:"Manim animation engine, ported to TypeScript. Canvas-native. Updated regularly with new features.",
+  tags:["TYPESCRIPT","CANVAS","OPEN SOURCE"], badge:["● OPEN SOURCE","live"],
+  cta:{ label:"View on GitHub →", href:"https://github.com/Subadeepan-Y/manim-ts" },
+  slides:[
+    { feature:"The Port", tech:"Scene · Mobject · Animation — same model, strict Vec3 types",
+      desc:"Manim Community Edition — the engine behind 3Blue1Brown-style math films — rewritten in TypeScript. Python's dynamic vectors became strict types without losing the feel of the original API.",
+      art:`<div style="display:flex;gap:10px"><div class="codepanel mono" style="flex:1"><span class="cm"># python</span><br><span class="kw">class</span> <span class="fn">CreateCircle</span>(Scene):<br>&nbsp;&nbsp;<span class="kw">def</span> <span class="fn">construct</span>(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;circle = <span class="fn">Circle</span>()<br>&nbsp;&nbsp;&nbsp;&nbsp;self.<span class="fn">play</span>(<span class="fn">Create</span>(circle))</div>
+      <div class="codepanel mono" style="flex:1"><span class="cm">// typescript</span><br><span class="kw">export class</span> <span class="fn">CreateCircle</span> <span class="kw">extends</span> Scene {<br>&nbsp;&nbsp;<span class="kw">override async</span> <span class="fn">construct</span>() {<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">const</span> circle = <span class="kw">new</span> <span class="fn">Circle</span>();<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">await this</span>.<span class="fn">play</span>(<span class="kw">new</span> <span class="fn">Create</span>(circle));<br>&nbsp;&nbsp;}}</div></div>` },
+    { feature:"Live Playground", tech:"directed scenes · scrub-seek · 0.5×–4× speed",
+      desc:"The custom layer Python never had: pick a scene, render it live on Canvas 2D, then pause, scrub anywhere on the timeline, replay, or change speed mid-flight.",
+      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
+        <svg width="100%" height="150" viewBox="0 0 400 150" style="background:#0c0c10;border-radius:8px">
+        <circle class="drawcircle" cx="200" cy="75" r="52" fill="none" stroke="#e05545" stroke-width="3" stroke-dasharray="630" stroke-dashoffset="630"/></svg>
+        <div class="scrub"><i></i><b></b></div>
+        <div><span class="tbtn">▶ Play</span><span class="tbtn">⏸ Pause</span><span class="tbtn">1× ▾</span><span class="mono" style="font-size:11px;color:#8a8a94">02.41 / 06.20s</span></div></div>` },
+    { feature:"Exclusive Features", tech:"spring easings · 142 tests passing",
+      desc:"Spring physics easings — gentle, wobbly, stiff — that Python Manim simply doesn't ship, plus LaTeX-to-unicode that works with zero installs. The suite holds at 142 passing tests.",
+      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
+        <div class="mono" style="font-size:12px;margin-bottom:8px"><span class="fn">spring</span> · <span class="fn">springGentle</span> · <span class="fn">springWobbly</span> · <span class="fn">springStiff</span> · <span class="fn">bounce</span> · <span class="fn">elastic</span></div>
+        <svg width="100%" height="110" viewBox="0 0 400 110" style="background:#0c0c10;border-radius:8px">
+        <path d="M10,95 C120,95 130,95 170,60 C200,35 190,70 230,70 S300,70 390,20" fill="none" stroke="#e05545" stroke-width="2.5"/>
+        <line x1="10" y1="95" x2="390" y2="95" stroke="#33333d"/></svg>
+        <div style="margin-top:10px"><span class="statbadge">✓ 142 tests passing</span></div></div>` },
+    { feature:"The Gallery", tech:"Text · Axes.plot · VGroup lagged starts",
+      desc:"Write a title, plot y = x² with a dot riding the curve, grow seven squares in a lagged wave — every example in the repo renders in the browser.",
+      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div><div class="filmstrip">
+        <div class="frame"><div class="cap">TEXT + FORMULA</div><div style="font-size:15px">Manim in <b>TypeScript</b></div><div style="font-size:17px;color:#e05545">∑ 1/n² = π²/6</div></div>
+        <div class="frame"><div class="cap">AXES PLOT</div><svg width="100%" height="70" viewBox="0 0 120 70"><line x1="6" y1="60" x2="114" y2="60" stroke="#555"/><line x1="60" y1="4" x2="60" y2="66" stroke="#555"/><path d="M30,55 Q60,55 90,8" fill="none" stroke="#7a9e5f" stroke-width="2"/><circle cx="78" cy="30" r="3.5" fill="#e05545"/></svg></div>
+        <div class="frame"><div class="cap">SHAPES</div><div style="display:flex;gap:6px;justify-content:center;padding-top:16px"><i style="width:20px;height:20px;border:2px solid #9db4e0;display:block"></i><i style="width:20px;height:20px;border-radius:50%;border:2px solid #e05545;display:block"></i><i style="width:20px;height:20px;background:#7a9e5f;display:block;transform:rotate(45deg) scale(.7)"></i></div></div>
+      </div></div>` },
+    { feature:"PLAYGROUND", tech:"live library · preset scenes · AI hook (endpoint after deploy)",
+      desc:"The real engine, running here. Pick a preset scene on the right and watch the code type itself before it renders — or describe what you want in plain English and let the AI (once connected) pick the scene.",
+      art:`<div class="shot" style="padding:8px"><div class="bar" style="padding:0 10px"><i></i><i></i><i></i></div>
+        <iframe src="playground/index.html" style="width:100%;height:560px;border:0;border-radius:8px;background:#0a0a0a;display:block" title="manim-ts playground"></iframe>
+        <div class="shotcap">● LIVE — PRESETS RUN THE REAL LIBRARY. AI BOX ACTIVATES AFTER VERCEL DEPLOY!</div></div>` },
+  ]
+},
+{
+  id:"duel", name:"Duel Deck",
+  sub:"Two-sided multiplayer card game. One card, double the trouble.",
+  tags:["REACT","SUPABASE","REALTIME"], badge:["● LIVE","live"],
+  cta:{ label:"Experience Duel Deck →", href:"https://dueldeck.vercel.app" },
+  slides:[
+    { feature:"Dual-Side Decks", tech:"DualCard { light · dark } · flip inverts the match",
+      desc:"Every card carries two faces — light (red / yellow / green / blue) and dark (pink / teal / orange / purple). Drop a flip card and the whole match inverts: sides swap, colors re-pick, chaos continues.",
+      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
+        <div class="duelwrap"><div class="dcard light"><span class="v">7</span><small>☀ LIGHT · RED</small></div>
+        <div class="fliparr">⇄</div>
+        <div class="dcard dark"><span class="v">+5</span><small>🌙 DARK · PURPLE</small></div></div>
+        <div class="tagrow" style="justify-content:center"><span class="stag">draw1 · reverse · skip · flip</span><span class="stag">draw5 · skipAll · wildDrawColor</span></div>
+        <div class="shotcap mock">○ MOCKUP — REAL SCREENSHOTS LANDING SOON. MORE AT THE WEBSITE!</div></div>` },
+    { feature:"Real-time Multiplayer", tech:"2–5 players · encrypted codes · Supabase realtime",
+      desc:"Live squadrons with encrypted join codes — enter the code, decrypt and join. The lobby shows the full squad with the host crowned, and abandoned rooms auto-delete.",
+      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px"><b style="font-size:13px">Live Squadrons</b>
+        <span class="stag" style="border-color:#c0392b;color:#f0938a">INITIALIZE ROOM</span></div>
+        <div class="qrow"><b>NEBULA-7</b> · 3/5 · <span class="stag">JOIN</span> <span class="mono" style="font-size:10px">Key · X7Q2</span></div>
+        <div class="qrow"><b>VOID-RUNNERS</b> · 5/5 · <span class="stag">SQUAD FULL</span></div>
+        <div class="qrow"><b>SOLO-DRIFT</b> · 1/5 · <span class="stag">JOIN</span> <span class="mono" style="font-size:10px">Key · M4RT</span></div>
+        <div class="shotcap mock">○ MOCKUP — REAL SCREENSHOTS LANDING SOON. MORE AT THE WEBSITE!</div></div>` },
+    { feature:"Match HUD", tech:"15s turn timer · 5s UNO window · report bar",
+      desc:"YOUR TURN or PASS, a ☀ / 🌙 side toggle, and the big UNO! button — with a 5-second call window. Forget to call it and opponents hit the report bar: +2 cards, no mercy.",
+      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+        <span class="statbadge">YOUR TURN</span><span class="tbtn">☀ LIGHT</span><span class="tbtn">PASS</span>
+        <span class="mono" style="font-size:11px;color:#e0b45c">⏱ 0:12</span></div>
+        <div style="text-align:center;padding:8px 0"><span class="glowbtn" style="font-size:15px;font-weight:700">UNO!</span></div>
+        <div class="chatb them" style="font-size:11.5px">⚠ NOVA FORGOT TO CALL UNO! (4s) — <b>REPORT</b></div>
+        <div class="shotcap mock">○ MOCKUP — REAL SCREENSHOTS LANDING SOON. MORE AT THE WEBSITE!</div></div>` },
+    { feature:"Server-Authoritative Engine", tech:"game-action edge fn · game_states JSONB · Fisher-Yates ×3",
+      desc:"Clients never own state — one edge function owns every transition: start, play, draw, pass, UNO, report. Decks shuffle triple-pass Fisher-Yates; solo seats fill with bots (Nova, Blitz, Echo) that forget UNO 15% of the time.",
+      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div><div class="flow">
+        <div class="fnode"><b>Client</b><small>invoke + refetch</small></div><div class="farr">→</div>
+        <div class="fnode"><b>game-action</b><small>edge fn owns state</small></div><div class="farr">→</div>
+        <div class="fnode"><b>game_states</b><small>JSONB piles</small></div><div class="farr">→</div>
+        <div class="fnode"><b>realtime</b><small>hands + rooms</small></div>
+      </div><div class="mono" style="font-size:11px;color:#8a8a94;margin-top:12px">play_card { card_id, chosen_color } → draw_card → pass → call_uno → report_uno</div>
+        <div class="shotcap mock">○ MOCKUP — REAL SCREENSHOTS LANDING SOON. MORE AT THE WEBSITE!</div></div>` },
+  ]
+},
+{
+  id:"buddy", name:"Desktop Buddy",
+  sub:"Sprite-sheet mascot engine. Draggable, reactive, alive.",
+  tags:["CANVAS","SPRITE ENGINE"], badge:["◐ IN DEV","dev"],
+  cta:{ label:"Star on GitHub →", href:"https://github.com/Subadeepan-Y" },
+  slides:[
+    { feature:"Sprite Engine", tech:"fixed-cell blitting · rAF timing · Page Visibility pause",
+      desc:"Each clip is a sprite-sheet grid blitted cell-by-cell onto canvas — poses flipped and leaned in JS, timed on requestAnimationFrame with deterministic stepping for tests.",
+      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
+        <div class="mono" style="font-size:11px;color:#8a8a94;margin-bottom:8px">sheet_idle.png — 6 cells</div>
+        <div class="sheetgrid">${'<div class="cell"></div>'.repeat(5)}<div class="cell hot"></div></div>
+        <div class="mono" style="font-size:11px;color:#8a8a94;margin-top:10px">active frame → canvas → idle loop</div></div>` },
+    { feature:"Reactive States", tech:"idle · happy · dance · sleep · peek",
+      desc:"He isn't a GIF. He watches: curious when you open things, excited for his own window, asleep after thirty idle seconds — woken by any touch.",
+      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div><div class="statepanels">
+        <div class="statecard"><div class="face"><i class="e l"></i><i class="e r"></i><i class="m"></i></div><small>IDLE</small></div>
+        <div class="statecard"><div class="face excited"><i class="e l"></i><i class="e r"></i><i class="m"></i></div><small>EXCITED</small></div>
+        <div class="statecard"><div class="face sleepy"><i class="e l"></i><i class="e r"></i><i class="m"></i></div><small>SLEEPING</small></div>
+      </div></div>` },
+    { feature:"Tour Guide", tech:"walkTo() · scripted GUIDE lines · speech bubble",
+      desc:"On the portfolio desktop he walks to whatever you open and narrates it — per-project lines, a bubble over his head, running clip while he travels.",
+      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
+        <div class="minidesk"><div class="speech">“iGradeify — my first real product. It's live, not a mock.”</div><div class="pet"><i class="e l"></i><i class="e r"></i></div></div></div>` },
+  ]
+},
+{
+  id:"greate", name:"Greate — Game Engine",
+  sub:"Drag assets. Write behavior in plain English. Compile and play.",
+  tags:["COMPILER","GAME ENGINE"], badge:["◐ IN EARLY STAGE OF DEVELOPMENT","dev"],
+  cta:{ label:"Star on GitHub →", href:"https://github.com/Subadeepan-Y" },
+  slides:[
+    { feature:"The Editor", tech:"Hierarchy · Viewport · Inspector · Assets · Output",
+      desc:"A Unity-shaped editor for 2D games. What's planned, straight from the code:",
+      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
+        <p class="planpara">A <b>Hierarchy</b> of 2D scene nodes — <span class="mono">StaticBody2D</span>, <span class="mono">CharacterBody2D</span>, <span class="mono">RigidBody2D</span> — beside a <b>Viewport</b> running live physics, and an <b>Inspector</b> with Transform (X / Y / W / H / Rotation), Display, Physics (Mass / Friction / <b>Health</b>) and Script panels. A bottom <b>Assets + Output</b> drawer, a TopBar with <b>Save (Ctrl+S)</b> and <b>Live Play</b>, and starter kits that drop in a whole platformer — ground, ledges, player, coins, a pursuing chaser — in one click.</p>
+        <div class="shotcap mock">○ PLANNED FEATURES — NO SCREENSHOTS YET. MORE AT THE WEBSITE!</div></div>` },
+    { feature:"AI Behavior Compiler", tech:"BehaviourIR { version · rules[event, condition?, actions] }",
+      desc:"Describe behaviour in English and the AI compiles it to validated rules. The vocabulary, as coded:",
+      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
+        <p class="planpara">Every behaviour is a versioned <span class="mono">BehaviourIR</span> — up to 12 rules of <b>event</b>, optional <b>condition</b>, and <b>actions</b>, Zod-checked before anything runs. Events the AI understands: <span class="mono">bullet hits · collision · health zero · timer N seconds · player near</span>. Actions it can emit: <span class="mono">reduce health N · play shake / flash / fall · disable collision · spawn smoke · follow player</span>. And when rules aren't enough, there's a raw-JS hatch — <span class="mono">function _process(d)</span> with <span class="mono">d.api.setVel</span> and <span class="mono">groundAhead</span> — the same API the built-in chaser and guard AI already use. The hero runs under gravity at <b>900 px/s</b>, steered with <b>A/D/arrows + W jump</b>.</p>
+        <div class="shotcap mock">○ PLANNED FEATURES — NO SCREENSHOTS YET. MORE AT THE WEBSITE!</div></div>` },
+    { feature:"Asset Pipeline", tech:"Kenney jumper pack · starter kits · game export",
+      desc:"From sprite pack to running game project. The plan, as the code lays it out:",
+      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
+        <p class="planpara">Sprites arrive as real packs — the <b>Kenney jumper set</b> (bunnies, spikes, spike-men, layered backgrounds) drops into the Assets panel and becomes scene nodes. Two <b>starter kits</b> ship in-code: a platformer (ground, ledges, coins that flash on collision, a JS-driven chaser) and a top-down arena (walls, a coin tree with health rules, a lamp that flashes on a 3-second timer, a patrolling guard). One button exports the real thing — <span class="mono">project.json</span>, <span class="mono">main.scene</span>, <span class="mono">player_controller.js</span> extending <span class="mono">CharacterBody2D</span> — and plays it through the native runtime.</p>
+        <div class="shotcap mock">○ PLANNED FEATURES — NO SCREENSHOTS YET. MORE AT THE WEBSITE!</div></div>` },
+  ]
+},
+{
+  id:"cloud", name:"Personal Cloud",
+  sub:"Self-hosted vault. Japanese quiet on the surface, packet math underneath.",
+  tags:["SERVERLESS API","SUPABASE","CLOUDINARY"], badge:["● PRIVATE","priv"],
+  cta:null, note:"Self-hosted. Not public.",
+  slides:[
+    { feature:"Dashboard", tech:"subscloud · 26GB combined · folders/tags/trash",
+      desc:"Dark sidebar — My Files, All Files, Trash, a live Storage meter — over a file grid with breadcrumbs. 25GB on Cloudinary's CDN, 1GB on Supabase, every byte metadata-tracked.",
+      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
+        <div style="display:flex;gap:12px"><div style="flex:.8;font-size:11.5px;color:#b9b4ac">
+        <div style="color:#fff;font-weight:700;margin-bottom:8px">subscloud</div>
+        <div style="padding:4px 0">My Files</div><div style="padding:4px 0;color:#fff;background:rgba(192,57,43,.15);border-radius:5px">All Files</div>
+        <div style="padding:4px 0">Trash</div><div style="padding:4px 0">Storage</div>
+        <div class="mono" style="font-size:10px;color:#e0b45c;margin-top:8px">18.2 GB free of 26 GB</div></div>
+        <div style="flex:1.6"><div class="mono" style="font-size:10.5px;color:#8a8a94;margin-bottom:8px">All Files / photos</div>
+        <div class="kv"><span>📷 dusk-hike.raw</span><b>48 MB</b></div><div class="kv"><span>📄 thesis-notes.pdf</span><b>2 MB</b></div>
+        <div class="kv"><span>🎞 demo-reel.mp4</span><b>310 MB</b></div>
+        <div class="tagrow"><span class="stag">Files stored</span><span class="stag">Storage used</span><span class="stag">Remaining</span><span class="stag">Downloads</span></div></div></div></div>` },
+    { feature:"Architecture", tech:"_auth.js · JWT + CSRF · packet_store/ · file_meta",
+      desc:"No framework server — serverless API functions. Every request passes _auth.js (JWT cookie plus timing-safe CSRF check), files slice into 9MB packets on Cloudinary, metadata lives in Supabase tables.",
+      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div><div class="flow">
+        <div class="fnode"><b>Browser</b><small>vault UI</small></div><div class="farr">→</div>
+        <div class="fnode"><b>_auth.js</b><small>JWT + CSRF</small></div><div class="farr">→</div>
+        <div class="fnode"><b>API</b><small>serverless fns</small></div><div class="farr">→</div>
+        <div class="fnode"><b>Cloudinary</b><small>9MB packets · 25GB</small></div><div class="farr">→</div>
+        <div class="fnode"><b>Supabase</b><small>file_meta · 1GB</small></div>
+      </div><div class="mono" style="font-size:11px;color:#8a8a94;margin-top:12px">packet_store/&lt;file-id&gt;/part_000000.part + manifest.json — no DB for packets</div></div>` },
+  ]
+},
+
+];
+
+/* ================= RENDER LIST ================= */
+const list = document.getElementById('projList');
+PROJECTS.forEach((p, i) => {
+  const b = document.createElement('button');
+  b.className = 'proj reveal';
+  b.innerHTML = `<h3>${p.name}</h3><p>${p.sub}</p>
+    <div class="tags">${p.tags.map(t => `<span class="pill">${t}</span>`).join('')}
+    <span class="badge ${p.badge[1]}">${p.badge[0]}</span><span class="open-hint">OPEN →</span></div>`;
+  b.onclick = () => openModal(i);
+  list.appendChild(b);
+});
+
+/* ================= MODAL ================= */
+const scrim = document.getElementById('scrim'), modal = document.getElementById('modal');
+const mKick = document.getElementById('mKick'), mTitle = document.getElementById('mTitle'),
+      mCount = document.getElementById('mCount'), mArt = document.getElementById('mArt'),
+      mText = document.getElementById('mText'), mDots = document.getElementById('mDots'),
+      mCta = document.getElementById('mCta'),
+      mPrev = document.getElementById('mPrev'), mNext = document.getElementById('mNext');
+let cur = 0, slide = 0;
+
+function openModal(i) {
+  cur = i; slide = 0;
+  const p = PROJECTS[cur];
+  mKick.textContent = 'THE WORK — ' + p.name.toUpperCase();
+  mTitle.textContent = p.name;
+  scrim.classList.add('open'); modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  paint();
+}
+function closeModal() {
+  scrim.classList.remove('open'); modal.classList.remove('open');
+  document.body.style.overflow = '';
+}
+function paint() {
+  const p = PROJECTS[cur], s = p.slides[slide], last = slide === p.slides.length - 1;
+  mArt.innerHTML = s.art;
+  mText.innerHTML = `<div class="feat">${s.feature}</div><div class="desc">${s.desc}</div><span class="tech">${s.tech}</span>`;
+  mCount.textContent = String(slide + 1).padStart(2, '0') + ' / ' + String(p.slides.length).padStart(2, '0');
+  mDots.innerHTML = p.slides.map((_, j) => `<i class="${j === slide ? 'on' : ''}"></i>`).join('');
+  mPrev.disabled = slide === 0;
+  mNext.disabled = last;
+  mCta.className = '';
+  if (last) {
+    if (p.cta) {
+      mCta.textContent = p.cta.label;
+      mCta.classList.add('show');
+      mCta.onclick = () => window.open(p.cta.href, '_blank', 'noopener');
+    } else {
+      mCta.textContent = '🔒 ' + (p.note || 'Private project');
+      mCta.classList.add('show', 'ghost');
+      mCta.onclick = null;
+    }
+  }
+  document.getElementById('mSlide').scrollTop = 0;
+}
+mPrev.onclick = () => { if (slide > 0) { slide--; paint(); } };
+mNext.onclick = () => { const p = PROJECTS[cur]; if (slide < p.slides.length - 1) { slide++; paint(); } };
+document.getElementById('mClose').onclick = closeModal;
+scrim.onclick = closeModal;
+document.addEventListener('keydown', (e) => {
+  if (!modal.classList.contains('open')) return;
+  if (e.key === 'Escape') closeModal();
+  if (e.key === 'ArrowRight') mNext.onclick();
+  if (e.key === 'ArrowLeft') mPrev.onclick();
+});
+
+/* ================= LEAVES ================= */
+(function () {
+  const box = document.getElementById('leaves');
+  const reds = ['#c0392b', '#991b1b', '#e05545', '#8f2b1f', '#D9A2B0'];
+  for (let i = 0; i < 18; i++) {
+    const d = document.createElement('div');
+    d.className = 'leaf';
+    const size = 9 + Math.random() * 13;
+    d.innerHTML = `<div><svg width="${size.toFixed(0)}" height="${size.toFixed(0)}" viewBox="0 0 24 24">
+      <path d="M12 1 L14 8 L21 7 L16 12 L21 17 L14 16 L12 23 L10 16 L3 17 L8 12 L3 7 L10 8 Z"
+      fill="${reds[i % reds.length]}" opacity="${(0.35 + Math.random() * 0.45).toFixed(2)}"/></svg></div>`;
+    d.style.left = (Math.random() * 100) + 'vw';
+    const fall = 8 + Math.random() * 10;
+    d.style.animationDuration = fall.toFixed(1) + 's';
+    d.style.animationDelay = (-Math.random() * fall).toFixed(1) + 's';
+    d.firstChild.style.animationDuration = (2 + Math.random() * 3).toFixed(1) + 's';
+    box.appendChild(d);
+  }
+})();
+
+/* ================= CHAPTER TRACKING ================= */
+(function () {
+  const links = document.querySelectorAll('#chapters a, #topnav a');
+  const secs = ['hero', 'work', 'about', 'process', 'contact'];
+  const byId = {};
+  secs.forEach((s) => { byId[s] = document.getElementById(s); });
+  function paint() {
+    const y = window.innerHeight * 0.45;
+    let c = 'hero';
+    secs.forEach((s) => { if (byId[s].getBoundingClientRect().top <= y) c = s; });
+    links.forEach((a) => a.classList.toggle('on', a.dataset.ch === c));
+  }
+  window.addEventListener('scroll', paint, { passive: true });
+  paint();
+})();
+
+/* ================= REVEAL ================= */
+(function () {
+  const reveals = document.querySelectorAll('.reveal');
+  let lastScrollY = window.scrollY;
+  let lastRevealTime = 0;
+  let ticking = false;
+
+  function update() {
+    const currentY = window.scrollY;
+    const isScrollingUp = currentY < lastScrollY;
+    const vh = window.innerHeight;
+    const now = performance.now();
+
+    if (isScrollingUp) {
+      lastRevealTime = 0;
+    }
+
+    reveals.forEach((el) => {
+      const rect = el.getBoundingClientRect();
+
+      if (isScrollingUp) {
+        // Disappear when scrolling up past element
+        if (rect.top >= vh * 0.88) {
+          if (el.classList.contains('in')) {
+            el.style.transitionDelay = '0s';
+            el.classList.remove('in');
+          }
+        } else if (rect.bottom >= 0) {
+          if (!el.classList.contains('in')) {
+            el.style.transitionDelay = '0s';
+            el.classList.add('in');
+          }
+        }
+      } else {
+        // Reveal one by one when scrolling down
+        if (rect.top <= vh * 0.86 && rect.bottom >= 0) {
+          if (!el.classList.contains('in')) {
+            if (lastRevealTime < now) lastRevealTime = now;
+            const delay = Math.min(Math.round(lastRevealTime - now), 800);
+            el.style.transitionDelay = delay + 'ms';
+            el.classList.add('in');
+            lastRevealTime += 130;
+          }
+        } else if (rect.top > vh) {
+          if (el.classList.contains('in')) {
+            el.style.transitionDelay = '0s';
+            el.classList.remove('in');
+          }
+        }
+      }
+    });
+
+    lastScrollY = currentY;
+    ticking = false;
+  }
+
+  function onScroll() {
+    if (!ticking) {
+      requestAnimationFrame(update);
+      ticking = true;
+    }
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
+  update();
+})();
+
+/* ================= MOON DRIFT ================= */
+(function () {
+  const moon = document.getElementById('moon');
+  window.addEventListener('scroll', () => {
+    moon.style.transform = 'translateY(' + Math.min(window.scrollY * 0.12, 220).toFixed(0) + 'px)';
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>
