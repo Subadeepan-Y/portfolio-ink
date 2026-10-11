@@ -502,11 +502,11 @@ const PROJECTS = [
         <div class="frame"><div class="cap">AXES PLOT</div><svg width="100%" height="70" viewBox="0 0 120 70"><line x1="6" y1="60" x2="114" y2="60" stroke="#555"/><line x1="60" y1="4" x2="60" y2="66" stroke="#555"/><path d="M30,55 Q60,55 90,8" fill="none" stroke="#7a9e5f" stroke-width="2"/><circle cx="78" cy="30" r="3.5" fill="#e05545"/></svg></div>
         <div class="frame"><div class="cap">SHAPES</div><div style="display:flex;gap:6px;justify-content:center;padding-top:16px"><i style="width:20px;height:20px;border:2px solid #9db4e0;display:block"></i><i style="width:20px;height:20px;border-radius:50%;border:2px solid #e05545;display:block"></i><i style="width:20px;height:20px;background:#7a9e5f;display:block;transform:rotate(45deg) scale(.7)"></i></div></div>
       </div></div>` },
-    { feature:"PLAYGROUND", tech:"live library · preset scenes · AI hook (endpoint after deploy)",
-      desc:"The real engine, running here. Pick a preset scene on the right and watch the code type itself before it renders — or describe what you want in plain English and let the AI (once connected) pick the scene.",
+    { feature:"PLAYGROUND", tech:"live library · preset scenes · Gemini AI — describe it, watch it render",
+      desc:"The real engine, running here. Pick a preset scene on the right and watch the code type itself before it renders — or describe what you want in plain English and let Gemini pick the scene.",
       art:`<div class="shot" style="padding:8px"><div class="bar" style="padding:0 10px"><i></i><i></i><i></i></div>
         <iframe src="playground/index.html" style="width:100%;height:560px;border:0;border-radius:8px;background:#0a0a0a;display:block" title="manim-ts playground"></iframe>
-        <div class="shotcap">● LIVE — PRESETS RUN THE REAL LIBRARY. AI BOX ACTIVATES AFTER VERCEL DEPLOY!</div></div>` },
+        <div class="shotcap">● LIVE — PRESETS + GEMINI AI BOTH RUN THE REAL LIBRARY!</div></div>` },
   ]
 },
 {
@@ -554,27 +554,30 @@ const PROJECTS = [
 },
 {
   id:"buddy", name:"Desktop Buddy",
-  sub:"Sprite-sheet mascot engine. Draggable, reactive, alive.",
-  tags:["CANVAS","SPRITE ENGINE"], badge:["◐ IN DEV","dev"],
+  sub:"Privacy-first desktop companion. Hybrid Electron overlay + Python local perception bridge.",
+  tags:["ELECTRON","PYTHON BRIDGE","LOCAL PERCEPTION"], badge:["◐ IN DEV","dev"],
   cta:{ label:"Star on GitHub →", href:"https://github.com/Subadeepan-Y" },
   slides:[
-    { feature:"Sprite Engine", tech:"fixed-cell blitting · rAF timing · Page Visibility pause",
-      desc:"Each clip is a sprite-sheet grid blitted cell-by-cell onto canvas — poses flipped and leaned in JS, timed on requestAnimationFrame with deterministic stepping for tests.",
-      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
-        <div class="mono" style="font-size:11px;color:#8a8a94;margin-bottom:8px">sheet_idle.png — 6 cells</div>
-        <div class="sheetgrid">${'<div class="cell"></div>'.repeat(5)}<div class="cell hot"></div></div>
-        <div class="mono" style="font-size:11px;color:#8a8a94;margin-top:10px">active frame → canvas → idle loop</div></div>` },
-    { feature:"Reactive States", tech:"idle · happy · dance · sleep · peek",
-      desc:"He isn't a GIF. He watches: curious when you open things, excited for his own window, asleep after thirty idle seconds — woken by any touch.",
-      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div><div class="statepanels">
-        <div class="statecard"><div class="face"><i class="e l"></i><i class="e r"></i><i class="m"></i></div><small>IDLE</small></div>
-        <div class="statecard"><div class="face excited"><i class="e l"></i><i class="e r"></i><i class="m"></i></div><small>EXCITED</small></div>
-        <div class="statecard"><div class="face sleepy"><i class="e l"></i><i class="e r"></i><i class="m"></i></div><small>SLEEPING</small></div>
-      </div></div>` },
-    { feature:"Tour Guide", tech:"walkTo() · scripted GUIDE lines · speech bubble",
-      desc:"On the portfolio desktop he walks to whatever you open and narrates it — per-project lines, a bubble over his head, running clip while he travels.",
-      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
-        <div class="minidesk"><div class="speech">“iGradeify — my first real product. It's live, not a mock.”</div><div class="pet"><i class="e l"></i><i class="e r"></i></div></div></div>` },
+    { feature:"Meet Bones — Desktop Companion", tech:"Electron + Python Bridge (127.0.0.1:17385) · <100MB RAM · NSIS Installer",
+      desc:"A privacy-first desktop companion built on a hybrid architecture: per-widget frameless Electron overlays driven by a local Python HTTP bridge (bridge.py). Features passive Win32 window/idle/battery sensing (perception.py), V8 heap clamping (--max-old-space-size=64), 30-day usage streaks, and a crash-safe continuity.log preserved across uninstalls.",
+      art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
+        <img src="shots/buddy_logo.png" alt="Desktop Buddy avatar with sunglasses, lollipop and heart" loading="lazy" style="max-height:400px;width:auto;max-width:100%;margin:0 auto">
+        <div class="shotcap">● ACTUAL ASSET — BONES DESKTOP COMPANION</div></div>` },
+    { feature:"Corner Overlay & Cinema Mode", tech:"Per-Widget Transparent Windows · Multi-Monitor Arena · Auto-Vanish",
+      desc:"Lives on your desktop corner above all workspaces without stealing focus (showInactive) or blocking clicks. Includes Cinema Mode (video_probe.py) that automatically vanishes during fullscreen YouTube, Netflix, VLC, or games, plus a Focus & Doomscroll Limiter (1–60m) that intervenes on social media distractions.",
+      art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
+        <img src="shots/buddy_desktop.png" alt="Desktop Buddy live on desktop corner" loading="lazy">
+        <div class="shotcap">● ACTUAL SCREENSHOT — LIVE DESKTOP OVERLAY</div></div>` },
+    { feature:"5-Language Banter & Context Engine", tech:"Tamil · Kannada · Telugu · Malayalam · Hindi · 100+ Apps Tracked",
+      desc:"Detects 100+ apps across coding (VS Code, Cursor, PyCharm), terminals, meetings (Zoom, Teams), gaming (Valorant, Steam), and Spotify. Roasts error streaks and hypes builds in Tanglish, Kannada, Telugu, Malayalam, and Hindi (quips.py) via 3 dialogue layouts (Box Next to Bones, Pill Above, Screen Bottom) and Maa-style Dynamic Island reminders.",
+      art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
+        <img src="shots/buddy_chat.png" alt="Desktop Buddy Tanglish dialogue popup" loading="lazy">
+        <div class="shotcap">● ACTUAL SCREENSHOT — LIVE TANGLISH BANTER</div></div>` },
+    { feature:"Sprite Rig, Mini-Game & Control Hub", tech:"Canvas 2D Sprite Blitting · Catch & Catch Game · Control Hub · Delta Updater",
+      desc:"Multi-sheet sprite rig (victory, facepalm, shock, sunglasses, smitten, sleep) with drag physics, poke annoyance tiers, and a 90s idle sleep state machine (sleep.py). Ships with a built-in Catch & Catch mini-game, Animation Tour, full Control Hub (hub.html) for scaling size (1%–100%) and chatter frequency, and GitHub delta auto-updates.",
+      art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
+        <img src="shots/buddy_pose.png" alt="Desktop Buddy floating reactive pose" loading="lazy" style="max-height:400px;width:auto;max-width:100%;margin:0 auto">
+        <div class="shotcap">● ACTUAL SCREENSHOT — REACTIVE POSE RIG</div></div>` },
   ]
 },
 {
