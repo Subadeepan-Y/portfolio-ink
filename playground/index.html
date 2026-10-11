@@ -65,6 +65,18 @@ import * as M from "./dist/index.js";
 import { CreateCircle, TextScene, AxesPlot, LaggedExample, TriangleChase, StarSpin } from "./scenes.js";
 
 // Enable array-like iteration on VGroup/Mobject and VGroup support in Rotating/Rotate/Indicate
+const _origBecome = M.Mobject.prototype.become;
+M.Mobject.prototype.become = function(other) {
+  const prevSubs = this.submobjects;
+  _origBecome.call(this, other);
+  if (prevSubs && other.submobjects && prevSubs.length === other.submobjects.length && prevSubs.length > 0) {
+    for (let i = 0; i < prevSubs.length; i++) {
+      prevSubs[i].become(other.submobjects[i]);
+    }
+    this.submobjects = prevSubs;
+  }
+  return this;
+};
 M.Mobject.prototype.map = function(fn) { return this.submobjects.map(fn); };
 M.Mobject.prototype.forEach = function(fn) { return this.submobjects.forEach(fn); };
 M.Mobject.prototype.filter = function(fn) { return this.submobjects.filter(fn); };

@@ -66,9 +66,10 @@ Available symbols in scope (already imported — DO NOT write import or export s
 
 Rules:
 1. Build a visually rich, creative animation that directly depicts the user's prompt (3 to 5 \`await this.play(...)\` steps + a final \`await this.wait(0.5)\`).
-2. For example, if the user asks for "sun rays", create a glowing central sun \`Circle\` with \`fill_color: GOLD, fill_opacity: 0.9\`, an outer halo \`Circle\`, and 12 radial \`Line\` rays around 360 degrees using \`Math.cos(a)\` and \`Math.sin(a)\` in a \`VGroup\`, animate them growing/creating with \`LaggedStart\`, then rotate the rays with \`Rotating\` and pulse/indicate the sun.
-3. NEVER just return a generic star or circle if the user asked for something specific — compose the scene using geometric primitives, lines, circles, arcs, polygons, text, or graphs to match their exact topic.
-4. Keep \`body\` valid JavaScript statements only (inside \`async construct()\`). No markdown fences, no \`import\`/\`export\`, no \`class\` wrapper in \`body\`.
+2. For example, if the user asks for "sun rays", create a glowing central sun \`Circle\` with \`fill_color: GOLD, fill_opacity: 0.9\`, an outer halo \`Circle\`, and 12 radial \`Line\` rays from radius 1.45 to 2.6 around 360 degrees using \`Math.cos(a)\` and \`Math.sin(a)\` in a \`VGroup\`, animate them appearing with \`LaggedStart(...rays.submobjects.map(r => new Create(r)), { lag_ratio: 0.08 })\`, then rotate the rays with \`new Rotating(rays, { angle: TAU, about_point: ORIGIN, run_time: 3 })\` and pulse the sun.
+3. NEVER call \`.set_opacity(0)\` on objects before \`Create\`, \`FadeIn\`, or \`GrowFromCenter\` — animations manage initial visibility automatically, and setting opacity to 0 makes objects invisible.
+4. NEVER just return a generic star or circle if the user asked for something specific — compose the scene using geometric primitives, lines, circles, arcs, polygons, text, or graphs to match their exact topic.
+5. Keep \`body\` valid JavaScript statements only (inside \`async construct()\`). No markdown fences, no \`import\`/\`export\`, no \`class\` wrapper in \`body\`.
 
 Respond with ONLY a valid JSON object:
 {
@@ -120,10 +121,11 @@ Respond with ONLY a valid JSON object:
     }
 
     const cleanName = String(parsed.name || "CustomScene").replace(/[^A-Za-z0-9_]/g, "") || "CustomScene";
+    const cleanBody = parsed.body.trim().replace(/\.set_opacity\(\s*0\s*\)/g, "");
     return res.status(200).json({
       name: cleanName,
       blurb: String(parsed.blurb || prompt),
-      body: parsed.body.trim(),
+      body: cleanBody,
     });
   } catch (e) {
     return res.status(502).json({ error: "AI request failed: " + (e?.message || String(e)) });
