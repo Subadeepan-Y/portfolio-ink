@@ -4,6 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>manim-ts — PLAYGROUND</title>
+<link rel="icon" type="image/png" href="/favicon.png" />
 <style>
   :root { color-scheme: dark; --bg:#0a0a0a; --panel:#101014; --line:#23232b; --text:#f0ebe0; --dim:#98907f; --red:#c0392b; }
   * { box-sizing:border-box; }
@@ -328,8 +329,34 @@ seek.addEventListener("input", () => {
 
 /* ---------- ASK AI ---------- */
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
-const M_KEYS = Object.keys(M).filter((k) => /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(k));
-const M_VALS = M_KEYS.map((k) => M[k]);
+const EXTRA_GLOBALS = {
+  SILVER: "#C0C0C0", CYAN: "#00FFFF", MAGENTA: "#FF00FF", BROWN: "#8B4513",
+  LIME: "#32CD32", VIOLET: "#8A2BE2", INDIGO: "#4B0082", NAVY: "#1E3A8A",
+  CORAL: "#FF7F50", CRIMSON: "#DC143C", TURQUOISE: "#40E0D0", SKYBLUE: "#87CEEB",
+  SKY_BLUE: "#87CEEB", AZURE: "#3B82F6", BEIGE: "#F5F5DC", IVORY: "#FFFFF0",
+  LAVENDER: "#E6E6FA", MINT: "#98FF98", OLIVE: "#808000", PEACH: "#FFDAB9",
+  PLUM: "#DDA0DD", SALMON: "#FA8072", TAN: "#D2B48C", BRONZE: "#CD7F32",
+  COPPER: "#B87333", CHARCOAL: "#36454F", SLATE: "#708090", BLACK: "#000000",
+  GREY: M.GRAY, LIGHT_GRAY: "#D3D3D3", DARK_GRAY: "#555555",
+  LIGHT_GREY: "#D3D3D3", DARK_GREY: "#555555", LIGHT_BLUE: "#93C5FD",
+  DARK_BLUE: "#1E40AF", LIGHT_GREEN: "#86EFAC", DARK_GREEN: "#166534",
+  LIGHT_RED: "#FCA5A5", DARK_RED: "#991B1B", LIGHT_YELLOW: "#FEF08A",
+  GOLD_A: "#F7C797", GOLD_B: "#F9B775", GOLD_C: "#F0AC5F", GOLD_D: "#E1A158", GOLD_E: "#C78D46",
+  BLUE_A: "#C7E9F1", BLUE_B: "#9CDCEB", BLUE_C: "#58C4DD", BLUE_D: "#29ABCA", BLUE_E: "#236B8E",
+  RED_A: "#F7A1A3", RED_B: "#FF8080", RED_C: "#FC6255", RED_D: "#E65A4C", RED_E: "#CF5044",
+  GREEN_A: "#C9E2AE", GREEN_B: "#A6CF8C", GREEN_C: "#83C167", GREEN_D: "#77B05D", GREEN_E: "#699C52",
+  YELLOW_A: "#FFF1B6", YELLOW_B: "#FFEA94", YELLOW_C: "#FFFF00", YELLOW_D: "#F4D345", YELLOW_E: "#E8C11C",
+  IN: [0, 0, -1], OUT: [0, 0, 1],
+  ShowCreation: M.Create,
+  Succession: M.LaggedStart,
+  FadeTransform: M.ReplacementTransform,
+  TransformFromCopy: M.Transform,
+  GrowFromPoint: M.GrowFromCenter,
+  Vector: class extends M.Arrow { constructor(end = [1, 0, 0], opts = {}) { super([0, 0, 0], end, opts); } },
+};
+const BASE_SCOPE = { ...EXTRA_GLOBALS, ...M };
+const M_KEYS = Object.keys(BASE_SCOPE).filter((k) => /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(k));
+const M_VALS = M_KEYS.map((k) => BASE_SCOPE[k]);
 
 $("aiInput").addEventListener("keydown", (e) => {
   if (e.key === "Enter") $("aiGo").click();
@@ -350,10 +377,14 @@ $("aiGo").onclick = async () => {
       const name = String(data.name || "CustomScene").replace(/[^A-Za-z0-9_]/g, "") || "CustomScene";
       const blurb = String(data.blurb || prompt);
       const bodySrc = data.body.trim();
-      const fn = new AsyncFunction(...M_KEYS, bodySrc);
+      const extraCaps = [...new Set(bodySrc.match(/\b[A-Z][A-Z0-9_]{2,}\b/g) || [])]
+        .filter((id) => !M_KEYS.includes(id) && !(id in globalThis));
+      const allKeys = [...M_KEYS, ...extraCaps];
+      const allVals = [...M_VALS, ...extraCaps.map(() => M.WHITE)];
+      const fn = new AsyncFunction(...allKeys, bodySrc);
       class GeneratedScene extends M.Scene {
         async construct() {
-          await fn.apply(this, M_VALS);
+          await fn.apply(this, allVals);
         }
       }
       const indented = bodySrc.split("\n").map((l) => "    " + l).join("\n");
