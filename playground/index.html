@@ -61,15 +61,13 @@
   </div>
 
 <script type="module">
+import * as M from "./dist/index.js";
 import { CreateCircle, TextScene, AxesPlot, LaggedExample, TriangleChase, StarSpin } from "./scenes.js";
 
 /* ================= AI HOOK =================
-   Groq-backed via /api/animate (serverless fn keeps the key server-side).
-   Contract: POST { prompt } -> JSON { scene, blurb }
-     - scene: must match a preset key below (CreateCircle, TextScene,
-       AxesPlot, LaggedExample, TriangleChase, StarSpin)
-     - blurb: one plain-English line shown above the render
-   Unknown scene keys are shown as text only — never eval'd. */
+   Backed via /api/animate (serverless fn keeps the key server-side).
+   Contract: POST { prompt } -> JSON { name, blurb, body }
+   Synthesizes custom manim-ts construct() code and runs it on the live engine. */
 const AI_ENDPOINT = window.MANIM_AI_ENDPOINT || "/api/animate";
 
 const SCENES = {
@@ -188,8 +186,8 @@ function highlight(src) {
   const esc = src.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   return esc
     .replace(/(\/\/[^\n]*)/g, '<span class="cm">$1</span>')
-    .replace(/\b(class|const|new|await|async|export|from|import|return|this)\b/g, '<span class="kw">$1</span>')
-    .replace(/\b(Scene|Circle|Square|Triangle|Star|Line|Dot|Text|Axes|VGroup|Create|Write|FadeIn|Indicate|GrowFromCenter|LaggedStart|MoveAlongPath|Rotating|Wiggle)\b/g, '<span class="fn">$1</span>')
+    .replace(/\b(class|const|let|var|new|await|async|export|from|import|return|this|for|of)\b/g, '<span class="kw">$1</span>')
+    .replace(/\b(Scene|Circle|Square|Rectangle|RoundedRectangle|Triangle|RegularPolygon|Polygon|Star|Ellipse|Arc|Annulus|Line|DashedLine|Arrow|DoubleArrow|Dot|Text|Axes|NumberPlane|VGroup|Create|Uncreate|Write|DrawBorderThenFill|FadeIn|FadeOut|Transform|ReplacementTransform|GrowFromCenter|GrowArrow|SpinInFromNothing|Indicate|Flash|Pulse|Circumscribe|LaggedStart|MoveAlongPath|Rotating|Rotate|Wiggle)\b/g, '<span class="fn">$1</span>')
     .replace(/("[^"]*")/g, '<span class="str">$1</span>');
 }
 
@@ -288,28 +286,48 @@ seek.addEventListener("input", () => {
 });
 
 /* ---------- ASK AI ---------- */
+const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+const M_KEYS = Object.keys(M).filter((k) => /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(k));
+const M_VALS = M_KEYS.map((k) => M[k]);
+
+$("aiInput").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") $("aiGo").click();
+});
+
 $("aiGo").onclick = async () => {
   const prompt = $("aiInput").value.trim();
-  if (!prompt) return;
-  if (!AI_ENDPOINT) {
-    statusEl.textContent = "AI NOT CONNECTED YET — SET window.MANIM_AI_ENDPOINT AFTER VERCEL DEPLOY.";
-    return;
-  }
-  statusEl.textContent = "ASKING AI…";
+  if (!prompt || typing) return;
+  statusEl.textContent = "GENERATING CUSTOM SCENE…";
+  $("aiGo").disabled = true;
   try {
     const res = await fetch(AI_ENDPOINT, {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ prompt }),
     });
     const data = await res.json();
-    if (data && data.scene && SCENES[data.scene]) {
-      select(data.scene, data.blurb || prompt);
+    if (data && typeof data.body === "string" && data.body.trim()) {
+      const name = String(data.name || "CustomScene").replace(/[^A-Za-z0-9_]/g, "") || "CustomScene";
+      const blurb = String(data.blurb || prompt);
+      const bodySrc = data.body.trim();
+      const fn = new AsyncFunction(...M_KEYS, bodySrc);
+      class GeneratedScene extends M.Scene {
+        async construct() {
+          await fn.apply(this, M_VALS);
+        }
+      }
+      const indented = bodySrc.split("\n").map((l) => "    " + l).join("\n");
+      SCENES[name] = { cls: GeneratedScene, blurb };
+      CODE[name] = `import * as manim from "manim-ts";\n\nexport class ${name} extends Scene {\n  async construct() {\n${indented}\n  }\n}`;
+      await select(name, blurb);
+    } else if (data && data.scene && SCENES[data.scene]) {
+      await select(data.scene, data.blurb || prompt);
     } else {
-      statusEl.textContent = "AI RETURNED AN UNKNOWN SCENE — SHOWING AS TEXT ONLY.";
-      codeEl.innerHTML = `<span class="en">// AI said: ${String(data?.blurb || prompt)}</span>\n<span class="cm">// no matching preset — nothing rendered.</span>`;
+      statusEl.textContent = "COULD NOT GENERATE SCENE: " + (data?.error || "TRY ANOTHER PROMPT.");
     }
   } catch (e) {
     statusEl.textContent = "AI REQUEST FAILED: " + (e?.message || e);
+  } finally {
+    $("aiGo").disabled = false;
   }
 };
 
