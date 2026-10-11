@@ -64,6 +64,35 @@
 import * as M from "./dist/index.js";
 import { CreateCircle, TextScene, AxesPlot, LaggedExample, TriangleChase, StarSpin } from "./scenes.js";
 
+// Enable array-like iteration on VGroup/Mobject and VGroup support in Rotating/Rotate/Indicate
+M.Mobject.prototype.map = function(fn) { return this.submobjects.map(fn); };
+M.Mobject.prototype.forEach = function(fn) { return this.submobjects.forEach(fn); };
+M.Mobject.prototype.filter = function(fn) { return this.submobjects.filter(fn); };
+M.Mobject.prototype[Symbol.iterator] = function*() { yield* this.submobjects; };
+M.Rotating.prototype.interpolate = function(alpha) {
+  if (!this.startSnapshot) return;
+  const about = this.aboutPoint ?? this.startSnapshot.get_center();
+  const t = this.eased(alpha);
+  this.mobject.become(this.startSnapshot);
+  this.mobject.rotate(this.angle * t, this.axis, about);
+};
+M.Rotate.prototype.interpolate = function(alpha) {
+  if (!this.startSnapshot) return;
+  const about = this.aboutPoint ?? this.aboutEdge ?? this.startSnapshot.get_center();
+  const t = this.eased(alpha);
+  this.mobject.become(this.startSnapshot);
+  this.mobject.rotate(this.angle * t, this.axis, about);
+};
+M.Indicate.prototype.interpolate = function(alpha) {
+  if (!this.startSnapshot) return;
+  const u = alpha < 0.5 ? alpha * 2 : (1 - alpha) * 2;
+  const t = u * u * (3 - 2 * u);
+  const s = 1 + (this.scaleFactor - 1) * t;
+  const c = this.startSnapshot.get_center();
+  this.mobject.become(this.startSnapshot);
+  this.mobject.scale(s, c);
+};
+
 /* ================= AI HOOK =================
    Backed via /api/animate (serverless fn keeps the key server-side).
    Contract: POST { prompt } -> JSON { name, blurb, body }

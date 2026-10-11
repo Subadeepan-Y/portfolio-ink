@@ -88,8 +88,9 @@ Respond with ONLY a valid JSON object:
       },
       body: JSON.stringify({
         model: "openai/gpt-oss-20b",
-        temperature: 0.35,
-        response_format: { type: "json_object" },
+        temperature: 0.3,
+        max_completion_tokens: 2048,
+        reasoning_effort: "low",
         messages: [
           { role: "system", content: SYSTEM },
           { role: "user", content: prompt.trim() },
@@ -103,7 +104,8 @@ Respond with ONLY a valid JSON object:
     }
 
     const out = await r.json();
-    const text = out?.choices?.[0]?.message?.content || "";
+    const rawText = out?.choices?.[0]?.message?.content || "";
+    const text = rawText.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
 
     let parsed;
     try {
