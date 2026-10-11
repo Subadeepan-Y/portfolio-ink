@@ -64,14 +64,13 @@
 import { CreateCircle, TextScene, AxesPlot, LaggedExample, TriangleChase, StarSpin } from "./scenes.js";
 
 /* ================= AI HOOK =================
-   After Vercel deploy, set (e.g. in a script tag before this module):
-     window.MANIM_AI_ENDPOINT = "https://your-app.vercel.app/api/animate";
+   Groq-backed via /api/animate (serverless fn keeps the key server-side).
    Contract: POST { prompt } -> JSON { scene, blurb }
      - scene: must match a preset key below (CreateCircle, TextScene,
        AxesPlot, LaggedExample, TriangleChase, StarSpin)
      - blurb: one plain-English line shown above the render
    Unknown scene keys are shown as text only — never eval'd. */
-const AI_ENDPOINT = window.MANIM_AI_ENDPOINT || null;
+const AI_ENDPOINT = window.MANIM_AI_ENDPOINT || "/api/animate";
 
 const SCENES = {
   CreateCircle:  { cls: CreateCircle,  blurb: "Draw a blue circle, then a red square beside it, then let the circle turn into the square." },
