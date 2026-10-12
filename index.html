@@ -613,12 +613,12 @@ const PROJECTS = [
         "<b>Instant Table Inversion:</b> Playing <code>flip</code> toggles <code>active_side</code> between <code>light</code> and <code>dark</code>, flips all hands and the discard pile, and re-evaluates <code>active_color</code> from the newly exposed top face.",
         "<b>Strategic Two-Side Peek:</b> Press <code>P</code> or click <b>Peek other side</b> in <code>MultiplayerBoard.tsx</code> to inspect the opposite face of every card in your hand before triggering a flip."
       ],
-      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
-        <div class="duelwrap"><div class="dcard light"><span class="v">7</span><small>☀ LIGHT · RED</small></div>
+      art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
+        <img src="shots/duel_home.png" alt="Duel Deck landing page" loading="lazy">
+        <div class="duelwrap" style="padding:10px 0 4px"><div class="dcard light"><span class="v">7</span><small>☀ LIGHT · RED</small></div>
         <div class="fliparr">⇄</div>
         <div class="dcard dark"><span class="v">+5</span><small>🌙 DARK · PURPLE</small></div></div>
-        <div class="tagrow" style="justify-content:center"><span class="stag">draw1 · reverse · skip · flip</span><span class="stag">draw5 · skipAll · wildDrawColor</span></div>
-        <div class="shotcap mock">○ MOCKUP — REAL SCREENSHOTS LANDING SOON. MORE AT THE WEBSITE!</div></div>` },
+        <div class="shotcap">● ACTUAL SCREENSHOT — LIVE AT DUELDECK.VERCEL.APP!</div></div>` },
     { feature:"3-Pass Shuffle & Anti-Skew Deal Balancing", tech:"shuffle() ×3 Fisher-Yates · isHandBalanced() (≤4 same-color cap) · drawUntilColor()",
       desc:"Eliminates unfair opening hands and deck depletion edge cases through deterministic dealing rules implemented identically in both the client engine and the Supabase Edge Function.",
       specs:[
@@ -637,13 +637,10 @@ const PROJECTS = [
         "<b>Optimistic Concurrency Seat Locking:</b> Joining updates <code>game_rooms</code> with <code>.eq('status', 'waiting').eq('player_count', currentPlayerCount)</code> to prevent simultaneous join race conditions.",
         "<b>Synchronized 10-Minute Room TTL:</b> <code>LobbyView.tsx</code> and <code>useGameRooms.ts</code> track a shared 10-minute creation deadline, trigger a red alert at <code>≤120s</code>, play <code>room_timeout_warning.mp3</code>, and auto-delete unstarted rooms."
       ],
-      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
-        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px"><b style="font-size:13px">Live Squadrons</b>
-        <span class="stag" style="border-color:#c0392b;color:#f0938a">INITIALIZE ROOM</span></div>
-        <div class="qrow"><b>NEBULA-7</b> · 3/5 · <span class="stag">JOIN</span> <span class="mono" style="font-size:10px">Key · X7Q29K</span></div>
-        <div class="qrow"><b>VOID-RUNNERS</b> · 5/5 · <span class="stag">SQUAD FULL</span></div>
-        <div class="qrow"><b>SOLO-DRIFT</b> · 1/5 · <span class="stag">JOIN</span> <span class="mono" style="font-size:10px">Key · M4RT8P</span></div>
-        <div class="shotcap mock">○ MOCKUP — REAL SCREENSHOTS LANDING SOON. MORE AT THE WEBSITE!</div></div>` },
+      art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
+        <img src="shots/duel_lobby.png" alt="Duel Deck live squadrons lobby" loading="lazy">
+        <img src="shots/duel_room.png" alt="Duel Deck active squadron room with 10-minute auto-delete timer" loading="lazy">
+        <div class="shotcap">● ACTUAL SCREENSHOTS — LIVE SQUADRON LOBBY &amp; 10-MIN ROOM TTL!</div></div>` },
     { feature:"Match HUD, 15s Clock & UNO Report Bar", tech:"MultiplayerBoard.tsx · 15s Auto-Draw Turn Timer · UNO Alert · Reportable Seat (+2 Penalty)",
       desc:"Responsive 2–5 player arena layout (topOpponents, leftOpponent, rightOpponent) with live turn timers, side-seam indicators, inline table chat (GameChat.tsx), and competitive UNO enforcement.",
       specs:[
