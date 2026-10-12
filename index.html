@@ -160,7 +160,13 @@
   #mText { flex:1; min-width:260px; padding-top:6px; }
   #mText .feat { font-family:var(--display); font-size:clamp(34px, 4.4vw, 62px); line-height:.95; letter-spacing:.01em; }
   #mText .desc { margin-top:16px; font-size:14.5px; line-height:1.75; color:var(--dim); }
-  #mText .tech { margin-top:20px; display:inline-block; font-size:10.5px; letter-spacing:.14em; color:#e05545;
+  #mText .specs { margin-top:14px; list-style:none; display:flex; flex-direction:column; gap:7px; padding:12px 14px;
+    background:#101014; border:1px solid #22222a; border-left:2px solid var(--red); border-radius:0 8px 8px 0; }
+  #mText .specs li { font-size:12.5px; line-height:1.55; color:#d4cfc4; }
+  #mText .specs li::before { content:"▸ "; color:var(--red); font-weight:700; }
+  #mText .specs b { color:var(--ink); }
+  #mText .specs code { font-family:Consolas,"Courier New",monospace; font-size:11.5px; color:#e0b45c; background:#181820; padding:1px 5px; border-radius:4px; }
+  #mText .tech { margin-top:18px; display:inline-block; font-size:10.5px; letter-spacing:.14em; color:#e05545;
     border:1px solid rgba(192,57,43,.5); border-radius:20px; padding:5px 14px; }
   #mFoot { display:flex; align-items:center; gap:16px; padding:18px 4vw 24px; border-top:1px solid #1b1b1b; }
   .mnav { background:#161616; border:1px solid #2a2a2a; color:var(--ink); border-radius:8px; padding:10px 20px;
@@ -363,12 +369,12 @@
       <p class="big reveal">“I build tools other people wish existed. From AI tutors to animation engines to game compilers — <em>everything ships from scratch.</em>”</p>
       <div class="cols2 reveal">
         <div>
-          <h4>CURRENTLY BUILDING</h4>
-          <ul><li>Desktop Buddy</li><li>Greate — game engine</li></ul>
+          <h4>SHIPPED &amp; BUILDING</h4>
+          <ul><li>iGradeify · CBSE AI Ecosystem</li><li>manim-ts · TypeScript Animation Engine</li><li>Duel Deck · Multiplayer Card Arena</li><li>Desktop Buddy &amp; Greate Engine</li></ul>
         </div>
         <div>
-          <h4>STACK</h4>
-          <ul><li>TypeScript</li><li>React</li><li>Node</li><li>Supabase</li><li>Canvas API</li></ul>
+          <h4>CORE STACK</h4>
+          <ul><li>TypeScript · Next.js 16 · React 19</li><li>Supabase · Deno Edge · RLS</li><li>Canvas 2D · SVG · WebRTC · Web Audio</li><li>Electron · Python · Zod Compilers</li></ul>
         </div>
       </div>
     </div>
@@ -398,6 +404,8 @@
     <a href="mailto:subadeepankgm@gmail.com">SUBADEEPANKGM@GMAIL.COM</a>
     <a href="https://www.instagram.com/theepanxub/" target="_blank" rel="noopener">INSTAGRAM</a>
     <a href="https://igradeify.vercel.app" target="_blank" rel="noopener">IGRADEIFY</a>
+    <a href="https://dueldeck.vercel.app" target="_blank" rel="noopener">DUEL DECK</a>
+    <a href="https://github.com/Subadeepan-Y/manim-ts" target="_blank" rel="noopener">MANIM-TS</a>
   </div>
   <footer class="reveal"><small>SUBADEEPAN © 2026</small><span class="fkanji">影</span></footer>
 </section>
@@ -424,43 +432,85 @@
 const PROJECTS = [
 {
   id:"igradeify", name:"iGradeify",
-  sub:"AI study companion for CBSE students. Live on Vercel. Updated regularly with new features.",
-  tags:["NEXT.JS","SUPABASE","AI ENGINE"], badge:["● LIVE","live"],
+  sub:"Full-stack CBSE study ecosystem on Next.js 16 & React 19 — client-side PDF extraction, embedded manim-ts explainers, 80-mark board paper synthesis with automated diagram verification, WebRTC study rooms, and an evidence-weighted Mastery v2.1 engine.",
+  tags:["NEXT.JS 16","REACT 19","SUPABASE","MANIM-TS","WEBRTC","KATEX"], badge:["● LIVE","live"],
   cta:{ label:"Experience iGradeify →", href:"https://igradeify.vercel.app" },
   slides:[
-    { feature:"PDF Study Hub", tech:"pdfjs-dist · JSZip · in-browser extraction",
-      desc:"Drop in PDFs or ZIPs of PDFs. Text is extracted and readable in the browser — and it never leaves the device unless you choose to generate.",
+    { feature:"PDF Study Hub & Local Extraction", tech:"pdfjs-dist 5.7 · JSZip · condense-files.ts · extract-quality.ts · storage-isolation.ts",
+      desc:"Zero-upload document ingestion pipeline that parses single PDFs or multi-chapter ZIP archives entirely inside the browser tab. Raw files stay on-device in isolated per-user storage namespaces until the student explicitly triggers synthesis.",
+      specs:[
+        "<b>Client-Side Parsing:</b> Extracts page-level text streams in-browser via <code>pdfjs-dist</code> and <code>JSZip</code> with zero server round-trips.",
+        "<b>Extraction Quality Scoring:</b> <code>extract-quality.ts</code> evaluates character density and printable ratios to flag low-OCR or scanned pages before prompting.",
+        "<b>Token-Budgeted Condensing:</b> <code>condense-files.ts</code> proportionally samples and compresses multi-chapter corpora into balanced context windows.",
+        "<b>Per-Account Isolation:</b> <code>storage-isolation.ts</code> scopes local caches and document keys by authenticated Supabase user UUID."
+      ],
       art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
         <img src="shots/landing.png" alt="iGradeify landing and PDF Study Hub" loading="lazy">
         <div class="shotcap">● ACTUAL SCREENSHOT — MORE AT THE WEBSITE!</div></div>` },
-    { feature:"The Desk", tech:"Tools · Explainer · Mind Maps · QP Papers · PDF Hub · Rooms · Timetable",
-      desc:"One workspace, seven tools. Every card turns study material into exam-ready output — animated explainers, full 80-mark papers, mind maps, rooms, timetables and a learning profile that tracks mastery.",
+    { feature:"The Desk — 7-Tool Command Center", tech:"AppContext · /api/daily-plan · /api/review-queue · 365-Day Streak Engine · Hotkeys",
+      desc:"Unified study cockpit connecting seven specialized engines around a shared learner profile: PDF Study Hub, Animated Visual Explainer, Cluster-Aware Mind Map Editor, 80-Mark CBSE Paper Generator, Infinite Whiteboard + Voice Rooms, Smart Timetable, and Subject Library.",
+      specs:[
+        "<b>Adaptive Daily Plan:</b> <code>/api/daily-plan</code> and <code>recommendation-engine.ts</code> synthesize daily study targets from weak topics and upcoming exams.",
+        "<b>Spaced Review Queue:</b> Surfaces overdue topic cards ranked by <code>forgettingRisk()</code> and prerequisite dependencies.",
+        "<b>Streak & Readiness Telemetry:</b> Tracks daily activity streaks (<code>streak.ts</code>) and computes 4-band exam readiness (<code>Starting → Exam ready</code>).",
+        "<b>Exam Reminder Mailer:</b> Automated timetable slot notifications dispatched via <code>/api/send-exam-reminder</code>."
+      ],
       art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
         <img src="shots/desk.png" alt="iGradeify tools dashboard" loading="lazy">
         <div class="shotcap">● ACTUAL SCREENSHOT — MORE AT THE WEBSITE!</div></div>` },
-    { feature:"Animated Explainer", tech:"step-by-step board animation · pause · replay · speed",
-      desc:"Type any concept and the idea draws itself like a teacher at the board — Projectile Motion tracing its parabola, Bernoulli, Mitosis, Pythagoras. Pause it, restart it, slow it to 0.5×.",
+    { feature:"Animated Visual Explainer & Figures", tech:"manim-scene.ts · mpl-figure.ts · SimulationSpec · CalculatorSpec · 0.5×–2× Transport",
+      desc:"Multi-modal visual synthesis engine (src/lib/visuals/) that turns any STEM concept into a live Canvas 2D mathematical animation or a publication-grade SVG figure — running 100% client-side without Python or FFmpeg.",
+      specs:[
+        "<b>Embedded manim-ts Compiler:</b> <code>manim-scene.ts</code> (48KB) validates declarative JSON specs (<code>manim-spec.ts</code>) and compiles runnable 60fps <code>Scene</code> animations on Canvas 2D.",
+        "<b>Client-Side Matplotlib Renderer:</b> <code>mpl-figure.ts</code> (25KB) renders multi-series <code>plot</code>, <code>scatter</code>, <code>bar</code>, <code>fill_between</code>, and <code>hline/vline</code> specs to crisp <code>900×700</code> SVG.",
+        "<b>Interactive Sims & Calculators:</b> Ships parameterized physics simulations (<code>SimulationSpec</code>), live expression evaluators (<code>expr.ts</code>), and 100KB of curated board tutorials (<code>tutorials/definitions.ts</code>).",
+        "<b>Full Timeline Transport:</b> Play, pause, step-by-step scrubbing, replay, and <code>0.5×–2×</code> speed control."
+      ],
       art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
         <img src="shots/explainer.png" alt="Animated explainer" loading="lazy">
         <div class="shotcap">● ACTUAL SCREENSHOT — MORE AT THE WEBSITE!</div></div>` },
-    { feature:"Mind Map", tech:"mind-map-editor · auto-layout · image/PDF export",
-      desc:"Any chapter becomes an interactive map — drag nodes, connect ideas, let AI expand branches, then export the whole thing as image or PDF.",
+    { feature:"Cluster-Aware Mind Map & AI Judge", tech:"mind-map-editor.tsx (89KB) · Layout Engine v2 (2400×1600) · Connection Validator · PDF/PNG Export",
+      desc:"Interactive concept-mapping canvas (2400×1600 world coordinates, 0.4×–1.8× zoom/pan) that decomposes chapters into tiered nodes, auto-arranges semantic branches, and validates student-drawn links in real time.",
+      specs:[
+        "<b>Layout Engine v2:</b> <code>layout.ts</code> classifies concepts into 3 tiers (<code>critical · important · supporting</code>) and maps 8 semantic clusters (<code>definition, process, cause-effect, comparison, formula, example, history, application</code>) to radial quadrants.",
+        "<b>4-Port Bezier Routing:</b> Nodes expose directional ports (<code>top · right · bottom · left</code>) with undo/redo state history (<code>history.ts</code>) and an unplaced block shelf.",
+        "<b>AI Connection Validator:</b> <code>/api/mind-map/validate-connection</code> evaluates student-wired edges and marks each link <code>valid</code> or <code>invalid</code> with conceptual reasoning.",
+        "<b>High-DPI Export:</b> One-click vector-sharp PNG and multi-page PDF export via <code>jspdf</code> and <code>html2canvas</code>."
+      ],
       art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
         <img src="shots/mindmap.png" alt="Mind Map editor" loading="lazy">
         <div class="shotcap">● ACTUAL SCREENSHOT — MORE AT THE WEBSITE!</div></div>` },
-    { feature:"AI Test Generator", tech:"AI synthesis · CBSE blueprint weightage",
-      desc:"Full board-pattern papers generated from your own material — 80 marks, 38 questions. Case studies, assertion-reasoning and internal choice included, auto-graded with worked solutions.",
+    { feature:"80-Mark CBSE Paper & Diagram Judge", tech:"generate-test (136KB) · Sections A–E (38 Qs / 80 Marks) · diagram-judge.ts · Rough.js & KaTeX",
+      desc:"End-to-end exam synthesis pipeline (136KB route engine) that generates authentic CBSE board papers from uploaded notes and historical PYQ blueprints — complete with self-healing geometric diagrams and automated rubric grading.",
+      specs:[
+        "<b>Exact CBSE Blueprint:</b> Generates <code>80-mark, 38-question</code> papers across Sections A–E (MCQs, Assertion-Reasoning, 2/3/5-mark subjective, and 4-mark Case Studies with internal choices) grounded in <code>pyq-reference.ts</code>.",
+        "<b>Dual-Stage Diagram Judge:</b> <code>diagram-judge.ts</code> + <code>diagram-validator.ts</code> inspect every <code>[Diagram]</code> block on a <code>30–170</code> coordinate grid, forbid degenerate 3-4-5 triangles or clipped labels, and auto-regenerate failed geometry.",
+        "<b>Dual Vector Renderers:</b> Renders geometry via <code>diagram-renderer.ts</code> (32KB SVG engine) and hand-sketched <code>rough-diagram.ts</code> (<code>Rough.js</code>) alongside <code>KaTeX</code> equations.",
+        "<b>Automated Answer Evaluation:</b> <code>/api/analyze-marks</code> grades student responses step-by-step with worked solutions and mark breakdowns."
+      ],
       art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
         <img src="shots/testgen.png" alt="Test Generator configuration" loading="lazy">
         <img src="shots/paper.png" alt="Generated board-pattern paper" loading="lazy">
         <div class="shotcap">● ACTUAL SCREENSHOTS — MORE AT THE WEBSITE!</div></div>` },
-    { feature:"Live Whiteboard + Study Rooms", tech:"InfiniteBoard vector engine · realtime sync",
-      desc:"An infinite canvas — pens, shapes, sticky notes, image import — shared live. Rooms carry their own AI tutor so group revision never stalls.",
+    { feature:"Infinite Whiteboard & WebRTC Rooms", tech:"infinite-board.tsx (106KB) · Scanline Flood Fill · Shape Recognizer · WebRTC Mesh Voice",
+      desc:"Collaborative study rooms (6-character room codes, live presence, shared session files) combining a 106KB custom vector whiteboard engine with a peer-to-peer WebRTC voice desk.",
+      specs:[
+        "<b>Pressure & Velocity Ink Engine:</b> <code>live-stroke.ts</code> and <code>render.ts</code> (28KB) capture stylus pressure, velocity, and tilt across <code>pen, brush, highlighter, laser, text, image</code> tools with non-destructive affine transforms (<code>tx, ty, sx, sy, rot</code>).",
+        "<b>Scale-Invariant Shape Recognition:</b> <code>recognize.ts</code> fits finished freehand strokes to crisp <code>line, arrow, rect, circle, ellipse, triangle</code> primitives within a <code>0.15</code> bounding-box diagonal tolerance.",
+        "<b>Dilation Scanline Flood Fill:</b> <code>flood.ts</code> rasterizes opaque barriers, dilates masks by 2px to eliminate anti-alias fringe leaks, and traces closed vector fill polygons.",
+        "<b>WebRTC Mesh Voice Desk:</b> <code>use-voice-room.ts</code> negotiates SDP offer/answer and ICE candidates over Supabase Realtime (Google/Cloudflare STUN) with <code>AnalyserNode</code> RMS live speaking indicators."
+      ],
       art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
         <img src="shots/studyroom.png" alt="Study Room whiteboard" loading="lazy">
         <div class="shotcap">● ACTUAL SCREENSHOT — MORE AT THE WEBSITE!</div></div>` },
-    { feature:"AI Chat Tutor", tech:"[Diagram] JSON draw commands · in-chat quizzes",
-      desc:"Ask doubts and the tutor answers with diagrams it draws itself — JSON draw commands (polygon, circle, right-angle, labels on a 30–170 grid) rendered as SVG — plus quizzes that run inline without leaving the chat.",
+    { feature:"Agentic Tutor, Quizzes & Mastery v2.1", tech:"chat/page.tsx (80KB) · Zod Agent Tools · Mastery v2.1 · 15-Category Mistake Fingerprinting",
+      desc:"Conversational AI tutor that draws inline SVG geometry on a 30–170 grid, runs interactive multi-question quizzes inside the chat stream, executes confirmation-gated workspace tools, and updates an explainable learner model.",
+      specs:[
+        "<b>Confirmation-Gated Agent Tools:</b> <code>chat-tools.ts</code> exposes Zod-validated tools (<code>createMindMap, createWhiteboard, createTimetableSlot, createLibraryNote, logMistake</code>).",
+        "<b>In-Chat Quiz Engine:</b> <code>chat-quiz.tsx</code> + <code>chat-quiz/validate.ts</code> (14KB) run interactive MCQs and assertion cards inline, recording per-question latency and hints to <code>/api/recording/quiz-results</code>.",
+        "<b>Mastery Engine v2.1:</b> <code>mastery-engine.ts</code> weights recent accuracy (45%), lifetime accuracy (35%), hint/solution penalties, and difficulty diversity; requires <code>≥5</code> evidence points for Secure and <code>≥8</code> for Mastered.",
+        "<b>15-Category Mistake Fingerprinting & SM-2:</b> <code>mistake-fingerprint.ts</code> classifies errors (<code>sign_error, formula_selection, time_pressure_error (&lt;8s), conceptual_misunderstanding</code>) and schedules <code>[1, 3, 7, 14, 30]</code>-day spaced reviews."
+      ],
       art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
         <div class="chatb me">why is angle B 90°?</div>
         <div class="chatb them">Because the tangent meets the radius at 90°. Here:
@@ -474,38 +524,76 @@ const PROJECTS = [
 },
 {
   id:"manim", name:"manim-ts",
-  sub:"Manim animation engine, ported to TypeScript. Canvas-native. Updated regularly with new features.",
-  tags:["TYPESCRIPT","CANVAS","OPEN SOURCE"], badge:["● OPEN SOURCE","live"],
+  sub:"Zero-dependency TypeScript port of Manim Community Edition — 14.22×8 camera frame on Canvas 2D & SVG, arc-length Bézier morph engine, Greiner–Hormann boolean ops, interactive scenes, spring physics, and AI scene synthesis.",
+  tags:["TYPESCRIPT 5","CANVAS 2D & SVG","BÉZIER MORPH ENGINE","142 TESTS","OPEN SOURCE"], badge:["● OPEN SOURCE","live"],
   cta:{ label:"View on GitHub →", href:"https://github.com/Subadeepan-Y/manim-ts" },
   slides:[
-    { feature:"The Port", tech:"Scene · Mobject · Animation — same model, strict Vec3 types",
-      desc:"Manim Community Edition — the engine behind 3Blue1Brown-style math films — rewritten in TypeScript. Python's dynamic vectors became strict types without losing the feel of the original API.",
+    { feature:"1:1 Manim CE Architecture in TypeScript", tech:"Scene · Mobject · VMobject · VGroup · VDict · Camera (14.22×8 @ 1280×720 60fps)",
+      desc:"Complete TypeScript re-engineering of Python's Manim Community Edition (from manim import * → src/index.ts) that runs anywhere an HTML5 <canvas> or SVG surface exists — browser tabs, Node CI scripts, or Electron — with zero Cairo, FFmpeg, or LaTeX dependencies.",
+      specs:[
+        "<b>Exact Manim Coordinate Frame:</b> <code>Camera</code> & <code>MovingCamera</code> map Manim's <code>14.22 × 8</code> world units centered at <code>ORIGIN</code> to <code>1280×720 @ 60fps</code>.",
+        "<b>25+ Geometry & Data Mobjects:</b> Ships <code>Circle, Arc, Annulus, Sector, Polygon, RegularPolygon, Star, CubicBezier, Angle, RightAngle, TangentLine, Axes, NumberPlane, ComplexPlane, Matrix, Table, Graph, DiGraph, Code</code>, and 3D orthographic <code>Cube, Sphere, Surface</code>.",
+        "<b>50+ Animations & .animate Proxy:</b> Full creation, fading, transform, movement, rotation, indication, and composition suites plus fluent <code>m.animate.shift(UP).scale(1.5)</code> builders.",
+        "<b>Dual Naming Parity:</b> Every API preserves Python's <code>snake_case</code> (<code>move_to, set_fill, run_time</code>) alongside idiomatic <code>camelCase</code> aliases (<code>moveTo, setFill, runTime</code>)."
+      ],
       art:`<div style="display:flex;gap:10px"><div class="codepanel mono" style="flex:1"><span class="cm"># python</span><br><span class="kw">class</span> <span class="fn">CreateCircle</span>(Scene):<br>&nbsp;&nbsp;<span class="kw">def</span> <span class="fn">construct</span>(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;circle = <span class="fn">Circle</span>()<br>&nbsp;&nbsp;&nbsp;&nbsp;self.<span class="fn">play</span>(<span class="fn">Create</span>(circle))</div>
       <div class="codepanel mono" style="flex:1"><span class="cm">// typescript</span><br><span class="kw">export class</span> <span class="fn">CreateCircle</span> <span class="kw">extends</span> Scene {<br>&nbsp;&nbsp;<span class="kw">override async</span> <span class="fn">construct</span>() {<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">const</span> circle = <span class="kw">new</span> <span class="fn">Circle</span>();<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">await this</span>.<span class="fn">play</span>(<span class="kw">new</span> <span class="fn">Create</span>(circle));<br>&nbsp;&nbsp;}}</div></div>` },
-    { feature:"Live Playground", tech:"directed scenes · scrub-seek · 0.5×–4× speed",
-      desc:"The custom layer Python never had: pick a scene, render it live on Canvas 2D, then pause, scrub anywhere on the timeline, replay, or change speed mid-flight.",
+    { feature:"Arc-Length Morphs & Boolean Ops", tech:"utils/curve.ts (chunkCubics · splitSubpaths · morphPair) · Greiner–Hormann Boolean Kernel",
+      desc:"Naive index-wise point interpolation jitters whenever two shapes have different vertex counts or unequal edge lengths. manim-ts solves this with a dedicated cubic Bézier resampling engine and a 2D vector boolean clipping kernel.",
+      specs:[
+        "<b>Auto-Stride Cubic Chunking:</b> <code>chunkCubics()</code> auto-detects 4-per-cubic vs shared-anchor stride layouts by testing junction continuity (<code>1e-12</code> tolerance).",
+        "<b>Pen-Up Subpath Splitting & Arc Resampling:</b> <code>splitSubpaths()</code> preserves degenerate jump cubics (<code>isJumpCubic</code>) and resamples outlines at uniform arc-length intervals so <code>Transform</code> morphs any shape into any other without vertex folding.",
+        "<b>Greiner–Hormann Boolean Kernel:</b> <code>mobject/advanced.ts</code> implements true vector <code>Union, Intersection, Difference, Exclusion</code> on arbitrary closed <code>VMobject</code> paths with degenerate-input fallback.",
+        "<b>Vector Fields & Traced Paths:</b> Includes 32-step gradient-normalized <code>VectorField</code>, <code>ArrowVectorField</code>, RK4 <code>StreamLines</code>, and dissipating <code>TracedPath</code> updaters."
+      ],
+      art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
+        <img src="shots/manim_hero.png" alt="manim-ts rendered hero frame" loading="lazy">
+        <img src="shots/manim_shapes.png" alt="manim-ts rendered shapes frame" loading="lazy">
+        <div class="shotcap">● ACTUAL FRAMES RENDERED BY MANIM-TS</div></div>` },
+    { feature:"Directed Timeline & Interactive Scenes", tech:"scene.directed · seek(t) · execSegment(f0, f1) · InteractiveScene · Draggable · Slider",
+      desc:"Two capabilities impossible in Python Manim's offline video pipeline: deterministic non-linear timeline scrubbing and live pointer-driven interactive scenes in Manim world coordinates.",
+      specs:[
+        "<b>Deterministic Timeline Scrubber:</b> Setting <code>scene.directed = true</code> snapshots initial mobject UUID states in <code>initialStates</code>; <code>seek(t)</code> restores pristine snapshots and fast-forwards <code>execSegment(seg, f0, f1)</code> to any millisecond.",
+        "<b>InteractiveScene Pointer Mapping:</b> <code>src/interaction.ts</code> maps CSS-scaled client pointer events into Manim coordinates (<code>manimFromEvent</code>) with window-level drag capture.",
+        "<b>Ray-Cast Outline Hit Testing:</b> <code>pick(point)</code> flattens cubic Bézier curves (8 samples/cubic) and runs even-odd ray-casting (<code>pointInRing</code>) for exact shape selection.",
+        "<b>Reactive Draggables & Sliders:</b> Ships <code>Draggable</code> wrappers and on-canvas <code>Slider</code> controls bound directly to <code>ValueTracker</code>s so curves and equations update at 60fps while dragging."
+      ],
       art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
         <svg width="100%" height="150" viewBox="0 0 400 150" style="background:#0c0c10;border-radius:8px">
         <circle class="drawcircle" cx="200" cy="75" r="52" fill="none" stroke="#e05545" stroke-width="3" stroke-dasharray="630" stroke-dashoffset="630"/></svg>
         <div class="scrub"><i></i><b></b></div>
         <div><span class="tbtn">▶ Play</span><span class="tbtn">⏸ Pause</span><span class="tbtn">1× ▾</span><span class="mono" style="font-size:11px;color:#8a8a94">02.41 / 06.20s</span></div></div>` },
-    { feature:"Exclusive Features", tech:"spring easings · 142 tests passing",
-      desc:"Spring physics easings — gentle, wobbly, stiff — that Python Manim simply doesn't ship, plus LaTeX-to-unicode that works with zero installs. The suite holds at 142 passing tests.",
+    { feature:"Spring Physics, Vector TeX & Charts", tech:"utils/springs.ts · SvgTex (MathJax glyph curves) · BarChart & LineChart · 142 Vitest Tests",
+      desc:"Extends Manim with physical spring oscillators, dual-mode mathematical typesetting, animated streaming charts, and multi-target export tools.",
+      specs:[
+        "<b>Analytical Spring Easings:</b> <code>utils/springs.ts</code> adds damped harmonic oscillators (<code>spring, springGentle, springWobbly, springStiff</code>) plus <code>bounce, elastic, backOut</code> to any <code>rate_func</code> slot.",
+        "<b>Zero-Install TeX + Vector SvgTex:</b> Built-in Unicode math mapping (<code>Tex / MathTex</code>) plus optional <code>SvgTex</code> (<code>mobject/tex.ts</code>) that compiles LaTeX via <code>mathjax-full</code> into true cubic Bézier glyph outlines for <code>Write()</code> and per-glyph morphs.",
+        "<b>Animated Streaming Charts:</b> <code>BarChart</code> and <code>LineChart</code> (<code>mobject/charts.ts</code>) with smooth <code>transition_to()</code> state morphs and live <code>push()</code> data streaming.",
+        "<b>Multi-Target Export & 142 Tests:</b> Browser <code>MediaRecorder</code> (<code>.mp4/.webm</code>), crisp vector <code>mobjectsToSvg()</code>, standalone zero-dep HTML flipbooks (<code>export-html.ts</code>), FFmpeg pipe (<code>export-mp4.ts</code>), and <b>142 passing Vitest tests</b>."
+      ],
       art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
         <div class="mono" style="font-size:12px;margin-bottom:8px"><span class="fn">spring</span> · <span class="fn">springGentle</span> · <span class="fn">springWobbly</span> · <span class="fn">springStiff</span> · <span class="fn">bounce</span> · <span class="fn">elastic</span></div>
         <svg width="100%" height="110" viewBox="0 0 400 110" style="background:#0c0c10;border-radius:8px">
         <path d="M10,95 C120,95 130,95 170,60 C200,35 190,70 230,70 S300,70 390,20" fill="none" stroke="#e05545" stroke-width="2.5"/>
         <line x1="10" y1="95" x2="390" y2="95" stroke="#33333d"/></svg>
         <div style="margin-top:10px"><span class="statbadge">✓ 142 tests passing</span></div></div>` },
-    { feature:"The Gallery", tech:"Text · Axes.plot · VGroup lagged starts",
-      desc:"Write a title, plot y = x² with a dot riding the curve, grow seven squares in a lagged wave — every example in the repo renders in the browser.",
-      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div><div class="filmstrip">
-        <div class="frame"><div class="cap">TEXT + FORMULA</div><div style="font-size:15px">Manim in <b>TypeScript</b></div><div style="font-size:17px;color:#e05545">∑ 1/n² = π²/6</div></div>
-        <div class="frame"><div class="cap">AXES PLOT</div><svg width="100%" height="70" viewBox="0 0 120 70"><line x1="6" y1="60" x2="114" y2="60" stroke="#555"/><line x1="60" y1="4" x2="60" y2="66" stroke="#555"/><path d="M30,55 Q60,55 90,8" fill="none" stroke="#7a9e5f" stroke-width="2"/><circle cx="78" cy="30" r="3.5" fill="#e05545"/></svg></div>
-        <div class="frame"><div class="cap">SHAPES</div><div style="display:flex;gap:6px;justify-content:center;padding-top:16px"><i style="width:20px;height:20px;border:2px solid #9db4e0;display:block"></i><i style="width:20px;height:20px;border-radius:50%;border:2px solid #e05545;display:block"></i><i style="width:20px;height:20px;background:#7a9e5f;display:block;transform:rotate(45deg) scale(.7)"></i></div></div>
-      </div></div>` },
-    { feature:"PLAYGROUND", tech:"live library · preset scenes · AI scene generator — describe it, watch it render",
-      desc:"The real engine, running here. Pick a preset scene on the right and watch the code type itself before it renders — or describe any animation in plain English and watch it write and render live.",
+    { feature:"Rendered Gallery — Text, Plots & Shapes", tech:"Axes.plot · ValueTracker · MoveAlongPath · LaggedStart · CanvasRenderer & SVGRenderer",
+      desc:"Actual frames rendered directly by manim-ts from docs/scenes.ts and examples/basic.ts — summation formulas with Greek glyph mapping, parabolic function graphs with travelling dots, and multi-shape geometric compositions.",
+      specs:[
+        "<b>Function Plotting:</b> <code>Axes.plot((x) => x * x)</code> samples smooth cubic curves with <code>c2p() / p2c()</code> coordinate conversion and Riemann/area fills (<code>get_area</code>).",
+        "<b>Updaters & ValueTrackers:</b> Bind any mobject position, label, or <code>DecimalNumber</code> to a <code>ValueTracker</code> via <code>add_updater()</code> for continuous calculus animations.",
+        "<b>Lagged Composition:</b> <code>AnimationGroup</code>, <code>Succession</code>, and <code>LaggedStart</code> orchestrate staggered wave animations across <code>VGroup</code> hierarchies."
+      ],
+      art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
+        <img src="shots/manim_text.png" alt="manim-ts rendered text and summation formula" loading="lazy">
+        <img src="shots/manim_axes.png" alt="manim-ts rendered axes parabola plot" loading="lazy">
+        <div class="shotcap">● ACTUAL FRAMES RENDERED BY MANIM-TS</div></div>` },
+    { feature:"LIVE PLAYGROUND & AI SCENE GENERATOR", tech:"live dist/index.js runtime · 6 preset scenes · /api/animate dynamic Scene compiler",
+      desc:"The real manim-ts engine running live inside this modal. Pick a preset scene on the right or describe any animation in plain English — the AI synthesizes custom async construct() code, compiles a dynamic Scene subclass in-browser, and renders it on the canvas with full timeline scrubbing.",
+      specs:[
+        "<b>Dynamic Scene Compilation:</b> Compiles synthesized JavaScript bodies into live <code>M.Scene</code> subclasses via <code>AsyncFunction</code> with in-place <code>VGroup</code> submobject morphing.",
+        "<b>Interactive Transport:</b> Play, pause, restart, switch playback speed (<code>0.5×–4×</code>), or drag the timeline scrubber across any preset or AI-generated scene."
+      ],
       art:`<div class="shot" style="padding:8px"><div class="bar" style="padding:0 10px"><i></i><i></i><i></i></div>
         <iframe src="playground/index.html" style="width:100%;height:560px;border:0;border-radius:8px;background:#0a0a0a;display:block" title="manim-ts playground"></iframe>
         <div class="shotcap">● LIVE — PRESETS + AI SCENE GENERATOR BOTH RUN THE REAL LIBRARY!</div></div>` },
@@ -513,29 +601,56 @@ const PROJECTS = [
 },
 {
   id:"duel", name:"Duel Deck",
-  sub:"Two-sided multiplayer card game. One card, double the trouble.",
-  tags:["REACT","SUPABASE","REALTIME"], badge:["● LIVE","live"],
+  sub:"Server-authoritative two-sided multiplayer card game — 112-card DualCard engine, Light/Dark deck inversion, Deno edge state machine, RLS-isolated hands, and Web Audio synth SFX.",
+  tags:["REACT 18","TYPESCRIPT","SUPABASE REALTIME","DENO EDGE FN","WEB AUDIO SYNTH"], badge:["● LIVE","live"],
   cta:{ label:"Experience Duel Deck →", href:"https://dueldeck.vercel.app" },
   slides:[
-    { feature:"Dual-Side Decks", tech:"DualCard { light · dark } · flip inverts the match",
-      desc:"Every card carries two faces — light (red / yellow / green / blue) and dark (pink / teal / orange / purple). Drop a flip card and the whole match inverts: sides swap, colors re-pick, chaos continues.",
+    { feature:"112-Card Dual-Side Engine & Flip Inversion", tech:"DualCard { id, light: CardFace, dark: CardFace } · Light & Dark Palettes · Peek Toggle [P]",
+      desc:"Built on a custom 112-card two-sided deck generator (generateDeck() in src/game/engine.ts) where every single card carries two independent faces — Light Side and Dark Side. Playing a Flip card inverts the entire table in place.",
+      specs:[
+        "<b>Light Side Palette & Actions:</b> <code>red, yellow, green, blue</code> numbers (<code>1–9</code>) plus <code>draw1, reverse, skip, flip, wild, wildDraw2</code>.",
+        "<b>Dark Side High-Stakes Escalation:</b> <code>pink, teal, orange, purple</code> numbers (<code>1–9</code>) plus <code>draw5 (+5), reverse, skipAll (extra turn), flip, wild, wildDrawColor</code>.",
+        "<b>Instant Table Inversion:</b> Playing <code>flip</code> toggles <code>active_side</code> between <code>light</code> and <code>dark</code>, flips all hands and the discard pile, and re-evaluates <code>active_color</code> from the newly exposed top face.",
+        "<b>Strategic Two-Side Peek:</b> Press <code>P</code> or click <b>Peek other side</b> in <code>MultiplayerBoard.tsx</code> to inspect the opposite face of every card in your hand before triggering a flip."
+      ],
       art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
         <div class="duelwrap"><div class="dcard light"><span class="v">7</span><small>☀ LIGHT · RED</small></div>
         <div class="fliparr">⇄</div>
         <div class="dcard dark"><span class="v">+5</span><small>🌙 DARK · PURPLE</small></div></div>
         <div class="tagrow" style="justify-content:center"><span class="stag">draw1 · reverse · skip · flip</span><span class="stag">draw5 · skipAll · wildDrawColor</span></div>
         <div class="shotcap mock">○ MOCKUP — REAL SCREENSHOTS LANDING SOON. MORE AT THE WEBSITE!</div></div>` },
-    { feature:"Real-time Multiplayer", tech:"2–5 players · encrypted codes · Supabase realtime",
-      desc:"Live squadrons with encrypted join codes — enter the code, decrypt and join. The lobby shows the full squad with the host crowned, and abandoned rooms auto-delete.",
+    { feature:"3-Pass Shuffle & Anti-Skew Deal Balancing", tech:"shuffle() ×3 Fisher-Yates · isHandBalanced() (≤4 same-color cap) · drawUntilColor()",
+      desc:"Eliminates unfair opening hands and deck depletion edge cases through deterministic dealing rules implemented identically in both the client engine and the Supabase Edge Function.",
+      specs:[
+        "<b>Triple-Pass Fisher-Yates:</b> Every deck creation and discard-pile reshuffle executes 3 consecutive Fisher-Yates permutation passes for uniform card distribution.",
+        "<b>Anti-Skew Hand Validator:</b> <code>isHandBalanced()</code> inspects every player's 7-card opening hand and re-deals (up to 10 attempts) if any seat receives <code>≥5</code> cards of a single color, then guarantees a numeric starter card.",
+        "<b>Wild Draw Color Loop:</b> Dark-side <code>wildDrawColor</code> runs <code>drawUntilColor()</code>, forcing the next seat to draw cards continuously (auto-recycling the discard pile if empty, 50-card safety cap) until they draw the chosen color."
+      ],
+      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
+        <div class="codepanel mono" style="font-size:11.5px"><span class="cm">// Anti-skew deal loop (engine.ts &amp; game-action/index.ts)</span><br><span class="kw">do</span> {<br>&nbsp;&nbsp;deck = <span class="fn">shuffle</span>(<span class="fn">generateDeck</span>()); <span class="cm">// 112 DualCards, 3x Fisher-Yates</span><br>&nbsp;&nbsp;hands = members.<span class="fn">map</span>(() =&gt; drawPile.<span class="fn">splice</span>(0, 7));<br>} <span class="kw">while</span> (++attempts &lt; 10 &amp;&amp; !hands.<span class="fn">every</span>(h =&gt; <span class="fn">isHandBalanced</span>(h, <span class="st">"light"</span>)));</div>
+        <div class="tagrow" style="justify-content:center"><span class="stag">112 DualCards</span><span class="stag">≤4 same-color cap</span><span class="stag">Auto-reshuffle discard pile</span></div>
+        <div class="shotcap mock">○ ACTUAL ENGINE LOGIC — FROM SRC/GAME/ENGINE.TS</div></div>` },
+    { feature:"Live Squadron Lobbies & 10-Min Auto-Purge", tech:"useGameRooms · 6-Char Room Codes · Optimistic Seat Locking · 10-Min Idle Deadline",
+      desc:"Real-time matchmaking lobby supporting 2–5 player public tables and private code-locked rooms with optimistic concurrency control and automated stale-room garbage collection.",
+      specs:[
+        "<b>Unambiguous 6-Char Room Codes:</b> Generates codes from a 32-character alphabet (<code>ABCDEFGHJKLMNPQRSTUVWXYZ23456789</code>, omitting <code>0/O/1/I</code>) for private room lookup.",
+        "<b>Optimistic Concurrency Seat Locking:</b> Joining updates <code>game_rooms</code> with <code>.eq('status', 'waiting').eq('player_count', currentPlayerCount)</code> to prevent simultaneous join race conditions.",
+        "<b>Synchronized 10-Minute Room TTL:</b> <code>LobbyView.tsx</code> and <code>useGameRooms.ts</code> track a shared 10-minute creation deadline, trigger a red alert at <code>≤120s</code>, play <code>room_timeout_warning.mp3</code>, and auto-delete unstarted rooms."
+      ],
       art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
         <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px"><b style="font-size:13px">Live Squadrons</b>
         <span class="stag" style="border-color:#c0392b;color:#f0938a">INITIALIZE ROOM</span></div>
-        <div class="qrow"><b>NEBULA-7</b> · 3/5 · <span class="stag">JOIN</span> <span class="mono" style="font-size:10px">Key · X7Q2</span></div>
+        <div class="qrow"><b>NEBULA-7</b> · 3/5 · <span class="stag">JOIN</span> <span class="mono" style="font-size:10px">Key · X7Q29K</span></div>
         <div class="qrow"><b>VOID-RUNNERS</b> · 5/5 · <span class="stag">SQUAD FULL</span></div>
-        <div class="qrow"><b>SOLO-DRIFT</b> · 1/5 · <span class="stag">JOIN</span> <span class="mono" style="font-size:10px">Key · M4RT</span></div>
+        <div class="qrow"><b>SOLO-DRIFT</b> · 1/5 · <span class="stag">JOIN</span> <span class="mono" style="font-size:10px">Key · M4RT8P</span></div>
         <div class="shotcap mock">○ MOCKUP — REAL SCREENSHOTS LANDING SOON. MORE AT THE WEBSITE!</div></div>` },
-    { feature:"Match HUD", tech:"15s turn timer · 5s UNO window · report bar",
-      desc:"YOUR TURN or PASS, a ☀ / 🌙 side toggle, and the big UNO! button — with a 5-second call window. Forget to call it and opponents hit the report bar: +2 cards, no mercy.",
+    { feature:"Match HUD, 15s Clock & UNO Report Bar", tech:"MultiplayerBoard.tsx · 15s Auto-Draw Turn Timer · UNO Alert · Reportable Seat (+2 Penalty)",
+      desc:"Responsive 2–5 player arena layout (topOpponents, leftOpponent, rightOpponent) with live turn timers, side-seam indicators, inline table chat (GameChat.tsx), and competitive UNO enforcement.",
+      specs:[
+        "<b>15-Second Paced Turn Clock:</b> <code>TurnTimer.tsx</code> counts down 15s per turn, fires a <code>1000Hz</code> sine tick every second during the final 5s, and auto-invokes <code>onDrawCard()</code> on expiry.",
+        "<b>UNO Call & Musical Alert:</b> At 1–2 cards (<code>canCallUno</code>), the UNO button activates and loops <i>The Last Gate</i> at <code>15%</code> volume until called or resolved.",
+        "<b>Instant +2 Report Penalty:</b> If any opponent drops to <code>card_count === 1</code> without <code>called_uno = true</code>, <code>reportableSeats</code> exposes the <b>Report</b> action — dealing <code>+2</code> penalty cards server-side."
+      ],
       art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
         <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
         <span class="statbadge">YOUR TURN</span><span class="tbtn">☀ LIGHT</span><span class="tbtn">PASS</span>
@@ -543,14 +658,20 @@ const PROJECTS = [
         <div style="text-align:center;padding:8px 0"><span class="glowbtn" style="font-size:15px;font-weight:700">UNO!</span></div>
         <div class="chatb them" style="font-size:11.5px">⚠ NOVA FORGOT TO CALL UNO! (4s) — <b>REPORT</b></div>
         <div class="shotcap mock">○ MOCKUP — REAL SCREENSHOTS LANDING SOON. MORE AT THE WEBSITE!</div></div>` },
-    { feature:"Server-Authoritative Engine", tech:"game-action edge fn · game_states JSONB · Fisher-Yates ×3",
-      desc:"Clients never own state — one edge function owns every transition: start, play, draw, pass, UNO, report. Decks shuffle triple-pass Fisher-Yates; solo seats fill with bots (Nova, Blitz, Echo) that forget UNO 15% of the time.",
+    { feature:"Server-Authoritative Edge Fn & Web Audio", tech:"supabase/functions/game-action (629 lines) · RLS-Isolated player_hands · Web Audio Synth",
+      desc:"Zero client trust: clients never mutate decks or hands locally. Every action is validated and committed by a 629-line Deno Edge Function with database-level hand isolation and procedural Web Audio sound synthesis.",
+      specs:[
+        "<b>7-Action Deno State Machine:</b> <code>game-action/index.ts</code> authenticates JWTs and executes <code>start_game, play_card, draw_card, pass, call_uno, choose_color, report_uno</code> via service-role transactions.",
+        "<b>Anti-Cheat Hand Isolation:</b> Public table state lives in <code>game_states</code> (exposing only <code>card_counts</code> per seat), while private card arrays live in <code>player_hands</code> behind per-user RLS policies and 3 Realtime channels.",
+        "<b>Heuristic Bot AI:</b> Solo seats fill with bots (<code>Nova, Blitz, Echo, Apex, Vortex</code>) that rank <code>wild &gt; action &gt; high number</code>, pick dominant hand colors, forget UNO <code>15%</code> of the time, and report misses in <code>500–3500ms</code>.",
+        "<b>Zero-Dep Web Audio Synthesizer:</b> <code>sounds.ts</code> synthesizes 15 real-time sound effects (<code>playCard, flip, uno, penalty, reverse, skip</code>) using Web Audio oscillators and white-noise buffers, paired with <code>music.ts</code>."
+      ],
       art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div><div class="flow">
         <div class="fnode"><b>Client</b><small>invoke + refetch</small></div><div class="farr">→</div>
-        <div class="fnode"><b>game-action</b><small>edge fn owns state</small></div><div class="farr">→</div>
-        <div class="fnode"><b>game_states</b><small>JSONB piles</small></div><div class="farr">→</div>
-        <div class="fnode"><b>realtime</b><small>hands + rooms</small></div>
-      </div><div class="mono" style="font-size:11px;color:#8a8a94;margin-top:12px">play_card { card_id, chosen_color } → draw_card → pass → call_uno → report_uno</div>
+        <div class="fnode"><b>game-action</b><small>629L Deno edge fn</small></div><div class="farr">→</div>
+        <div class="fnode"><b>game_states</b><small>public JSONB</small></div><div class="farr">→</div>
+        <div class="fnode"><b>player_hands</b><small>RLS isolated</small></div>
+      </div><div class="mono" style="font-size:11px;color:#8a8a94;margin-top:12px">start_game → play_card { card_id, chosen_color } → draw_card → pass → call_uno → report_uno</div>
         <div class="shotcap mock">○ MOCKUP — REAL SCREENSHOTS LANDING SOON. MORE AT THE WEBSITE!</div></div>` },
   ]
 },
@@ -562,21 +683,41 @@ const PROJECTS = [
   slides:[
     { feature:"Meet Bones — Desktop Companion", tech:"Electron + Python Bridge (127.0.0.1:17385) · <100MB RAM · NSIS Installer",
       desc:"A privacy-first desktop companion built on a hybrid architecture: per-widget frameless Electron overlays driven by a local Python HTTP bridge (bridge.py). Features passive Win32 window/idle/battery sensing (perception.py), V8 heap clamping (--max-old-space-size=64), 30-day usage streaks, and a crash-safe continuity.log preserved across uninstalls.",
+      specs:[
+        "<b>Hybrid IPC Architecture:</b> Frameless transparent Electron windows communicate with a local Python HTTP daemon on <code>127.0.0.1:17385</code> (<code>bridge.py</code>).",
+        "<b>Sub-100MB Footprint:</b> Clamps V8 memory via <code>--max-old-space-size=64</code> and uses passive Win32 foreground/idle/battery polling (<code>perception.py</code>).",
+        "<b>Crash-Safe Continuity:</b> Append-only <code>continuity.log</code> and 30-day streak tracker survive updates and NSIS uninstalls."
+      ],
       art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
         <img src="shots/buddy_logo.png" alt="Desktop Buddy avatar with sunglasses, lollipop and heart" loading="lazy" style="max-height:400px;width:auto;max-width:100%;margin:0 auto">
         <div class="shotcap">● ACTUAL ASSET — BONES DESKTOP COMPANION</div></div>` },
     { feature:"Corner Overlay & Cinema Mode", tech:"Per-Widget Transparent Windows · Multi-Monitor Arena · Auto-Vanish",
       desc:"Lives on your desktop corner above all workspaces without stealing focus (showInactive) or blocking clicks. Includes Cinema Mode (video_probe.py) that automatically vanishes during fullscreen YouTube, Netflix, VLC, or games, plus a Focus & Doomscroll Limiter (1–60m) that intervenes on social media distractions.",
+      specs:[
+        "<b>Non-Intrusive Topmost Overlay:</b> Uses <code>showInactive()</code> and click-through hit regions across multi-monitor virtual desktop bounds.",
+        "<b>Cinema Mode Detection:</b> <code>video_probe.py</code> detects fullscreen media players (YouTube, Netflix, VLC, games) and auto-hides the overlay.",
+        "<b>Doomscroll Intervention:</b> Configurable <code>1–60 min</code> distraction timer that triggers interventions when social media tabs stay active."
+      ],
       art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
         <img src="shots/buddy_desktop.png" alt="Desktop Buddy live on desktop corner" loading="lazy">
         <div class="shotcap">● ACTUAL SCREENSHOT — LIVE DESKTOP OVERLAY</div></div>` },
     { feature:"5-Language Banter & Context Engine", tech:"Tamil · Kannada · Telugu · Malayalam · Hindi · 100+ Apps Tracked",
       desc:"Detects 100+ apps across coding (VS Code, Cursor, PyCharm), terminals, meetings (Zoom, Teams), gaming (Valorant, Steam), and Spotify. Roasts error streaks and hypes builds in Tanglish, Kannada, Telugu, Malayalam, and Hindi (quips.py) via 3 dialogue layouts (Box Next to Bones, Pill Above, Screen Bottom) and top-bar Dynamic Island reminders.",
+      specs:[
+        "<b>100+ Application Signatures:</b> Recognizes IDEs, terminals, browsers, Zoom/Teams calls, Valorant/Steam sessions, and active Spotify tracks.",
+        "<b>5-Language Regional Quip Engine:</b> Context-aware banter in Tanglish, Kannada, Telugu, Malayalam, and Hindi (<code>quips.py</code>).",
+        "<b>3 Dialogue Modes + Dynamic Island:</b> Switchable speech rendering (Box Next to Bones, Pill Above, Screen Bottom) plus top-edge Dynamic Island reminders."
+      ],
       art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
         <img src="shots/buddy_chat.png" alt="Desktop Buddy Tanglish dialogue popup" loading="lazy">
         <div class="shotcap">● ACTUAL SCREENSHOT — LIVE TANGLISH BANTER</div></div>` },
     { feature:"Sprite Rig, Mini-Game & Control Hub", tech:"Canvas 2D Sprite Blitting · Catch & Catch Game · Control Hub · Delta Updater",
       desc:"Multi-sheet sprite rig (victory, facepalm, shock, sunglasses, smitten, sleep) with drag physics, poke annoyance tiers, and a 90s idle sleep state machine (sleep.py). Ships with a built-in Catch & Catch mini-game, Animation Tour, full Control Hub (hub.html) for scaling size (1%–100%) and chatter frequency, and GitHub delta auto-updates.",
+      specs:[
+        "<b>Reactive State Machine:</b> 6 expressive sprite sheets with throw/drag physics, escalating poke annoyance tiers, and a <code>90s</code> idle sleep transitions (<code>sleep.py</code>).",
+        "<b>Built-In Mini-Game & Tour:</b> Playable <i>Catch &amp; Catch</i> desktop mini-game and interactive Animation Tour.",
+        "<b>Control Hub & Delta Updater:</b> <code>hub.html</code> adjusts avatar scale (<code>1%–100%</code>), banter frequency, language, and pulls GitHub delta updates."
+      ],
       art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
         <img src="shots/buddy_pose.png" alt="Desktop Buddy floating reactive pose" loading="lazy" style="max-height:400px;width:auto;max-width:100%;margin:0 auto">
         <div class="shotcap">● ACTUAL SCREENSHOT — REACTIVE POSE RIG</div></div>` },
@@ -584,22 +725,37 @@ const PROJECTS = [
 },
 {
   id:"greate", name:"Greate — Game Engine",
-  sub:"Drag assets. Write behavior in plain English. Compile and play.",
-  tags:["COMPILER","GAME ENGINE"], badge:["◐ IN EARLY STAGE OF DEVELOPMENT","dev"],
+  sub:"2D game editor & AI behavior compiler — drag scene nodes, describe rules or _process(d) scripts in plain English, and run live 900 px/s² physics.",
+  tags:["TYPESCRIPT","ELECTRON","ZOD COMPILER","2D PHYSICS ENGINE"], badge:["◐ IN EARLY STAGE OF DEVELOPMENT","dev"],
   cta:{ label:"Star on GitHub →", href:"https://github.com/Subadeepan-Y" },
   slides:[
-    { feature:"The Editor", tech:"Hierarchy · Viewport · Inspector · Assets · Output",
-      desc:"A Unity-shaped editor for 2D games. What's planned, straight from the code:",
+    { feature:"The 2D Scene Editor & Live Physics Viewport", tech:"Hierarchy · Viewport.tsx (853 lines) · Inspector · Snap Grid · 900 px/s² Gravity",
+      desc:"A 5-panel desktop 2D game editor (Electron + React + Zustand store) combining a scene Hierarchy, an 853-line interactive Canvas 2D Physics Viewport, a property Inspector, and a bottom Assets + Console Output drawer.",
+      specs:[
+        "<b>3 Physics Body Types:</b> <code>StaticBody2D</code> (platforms, walls), <code>CharacterBody2D</code> (player &amp; AI walkers), and <code>RigidBody2D</code> (dynamic crates/balls) with <code>0.25×–2.5×</code> camera zoom and <code>10px</code> grid snapping.",
+        "<b>Real-Time 2D Physics Loop:</b> <code>Viewport.tsx</code> simulates <code>GRAVITY = 900 px/s²</code>, player movement (<code>260 px/s</code>, jump <code>-520 px/s</code>), touch damage (<code>10 HP</code> with cooldown), and enemy stomp kills (<code>34 HP</code>).",
+        "<b>Inspector & Project Serialization:</b> Edit Transform (<code>X, Y, W, H, Rotation</code>), Display, Physics (<code>Mass, Friction, Health</code>), and save/load <code>.grt</code> project files (<code>Ctrl+S</code>)."
+      ],
       art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
         <p class="planpara">A <b>Hierarchy</b> of 2D scene nodes — <span class="mono">StaticBody2D</span>, <span class="mono">CharacterBody2D</span>, <span class="mono">RigidBody2D</span> — beside a <b>Viewport</b> running live physics, and an <b>Inspector</b> with Transform (X / Y / W / H / Rotation), Display, Physics (Mass / Friction / <b>Health</b>) and Script panels. A bottom <b>Assets + Output</b> drawer, a TopBar with <b>Save (Ctrl+S)</b> and <b>Live Play</b>, and starter kits that drop in a whole platformer — ground, ledges, player, coins, a pursuing chaser — in one click.</p>
         <div class="shotcap mock">○ PLANNED FEATURES — NO SCREENSHOTS YET. MORE AT THE WEBSITE!</div></div>` },
-    { feature:"AI Behavior Compiler", tech:"BehaviourIR { version · rules[event, condition?, actions] }",
-      desc:"Describe behaviour in English and the AI compiles it to validated rules. The vocabulary, as coded:",
+    { feature:"AI Behavior Compiler & Sandboxed JS Lifecycle", tech:"BehaviourIRSchema (Zod) · _ready(d) · _process(d) · _onCollision(d, peer) · groundAhead()",
+      desc:"Dual-mode behavior compiler (src/lib/ai.ts + src/lib/script.ts) that translates plain-English designer prompts into either Zod-validated declarative trigger rules (BehaviourIR) or sandboxed per-frame JavaScript lifecycle hooks.",
+      specs:[
+        "<b>Zod-Validated BehaviourIR:</b> Compiles 1–12 reactive rules with events (<code>bullet hits, collision, health zero, timer N seconds, player near</code>) and actions (<code>reduce health N, play shake/flash/fall, disable collision, spawn smoke, follow player</code>).",
+        "<b>Sandboxed Lifecycle Hooks:</b> Compiles custom movement/patrol brains into <code>_ready(d)</code>, <code>_process(d)</code>, and <code>_onCollision(d, peer)</code> hooks with velocity clamping (<code>d.api.setVel(vx, vy)</code> capped at <code>600/900 px/s</code>).",
+        "<b>Platform Edge Sensing:</b> Built-in <code>d.api.groundAhead(-1 | 1)</code> raycast lets AI chasers and guards pursue the player within <code>420px</code> without walking off ledges."
+      ],
       art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
         <p class="planpara">Every behaviour is a versioned <span class="mono">BehaviourIR</span> — up to 12 rules of <b>event</b>, optional <b>condition</b>, and <b>actions</b>, Zod-checked before anything runs. Events the AI understands: <span class="mono">bullet hits · collision · health zero · timer N seconds · player near</span>. Actions it can emit: <span class="mono">reduce health N · play shake / flash / fall · disable collision · spawn smoke · follow player</span>. And when rules aren't enough, there's a raw-JS hatch — <span class="mono">function _process(d)</span> with <span class="mono">d.api.setVel</span> and <span class="mono">groundAhead</span> — the same API the built-in chaser and guard AI already use. The hero runs under gravity at <b>900 px/s</b>, steered with <b>A/D/arrows + W jump</b>.</p>
         <div class="shotcap mock">○ PLANNED FEATURES — NO SCREENSHOTS YET. MORE AT THE WEBSITE!</div></div>` },
-    { feature:"Asset Pipeline", tech:"Kenney jumper pack · starter kits · game export",
-      desc:"From sprite pack to running game project. The plan, as the code lays it out:",
+    { feature:"Kenney Sprite Pipeline, Starter Kits & Export", tech:"sprites.ts · Platformer & Top-Down Starter Kits · Native Project Export",
+      desc:"Ships with pre-wired Kenney Jumper sprite assets, one-click playable game templates, and a project exporter that compiles scene graphs and scripts into standalone game bundles.",
+      specs:[
+        "<b>Built-In Kenney Jumper Pack:</b> <code>sprites.ts</code> maps bunny heroes, spike hazards, spike-men enemies, coins, and layered backgrounds directly onto scene nodes.",
+        "<b>2 One-Click Starter Kits:</b> <code>kits.ts</code> spawns a complete <b>Platformer</b> (ground, ledges, flashing coins, ledge-aware chaser AI) or <b>Top-Down Arena</b> (perimeter walls, health-rule coin tree, 3s timer lamp, patrolling guard).",
+        "<b>Standalone Scene Export:</b> Generates <code>project.json</code>, <code>main.scene</code>, and <code>player_controller.js</code> for native runtime execution."
+      ],
       art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
         <p class="planpara">Sprites arrive as real packs — the <b>Kenney jumper set</b> (bunnies, spikes, spike-men, layered backgrounds) drops into the Assets panel and becomes scene nodes. Two <b>starter kits</b> ship in-code: a platformer (ground, ledges, coins that flash on collision, a JS-driven chaser) and a top-down arena (walls, a coin tree with health rules, a lamp that flashes on a 3-second timer, a patrolling guard). One button exports the real thing — <span class="mono">project.json</span>, <span class="mono">main.scene</span>, <span class="mono">player_controller.js</span> extending <span class="mono">CharacterBody2D</span> — and plays it through the native runtime.</p>
         <div class="shotcap mock">○ PLANNED FEATURES — NO SCREENSHOTS YET. MORE AT THE WEBSITE!</div></div>` },
@@ -607,12 +763,17 @@ const PROJECTS = [
 },
 {
   id:"cloud", name:"Personal Cloud",
-  sub:"Self-hosted vault. Japanese quiet on the surface, packet math underneath.",
-  tags:["SERVERLESS API","SUPABASE","CLOUDINARY"], badge:["● PRIVATE","priv"],
+  sub:"Self-hosted 26GB encrypted vault — 9MB SHA-256 chunked packet store on Cloudinary CDN, Supabase metadata index, and timing-safe CSRF + JWT security.",
+  tags:["SERVERLESS API","9MB PACKET ENGINE","SHA-256","SUPABASE","CLOUDINARY"], badge:["● PRIVATE","priv"],
   cta:null, note:"Self-hosted. Not public.",
   slides:[
-    { feature:"Dashboard", tech:"subscloud · 26GB combined · folders/tags/trash",
-      desc:"Dark sidebar — My Files, All Files, Trash, a live Storage meter — over a file grid with breadcrumbs. 25GB on Cloudinary's CDN, 1GB on Supabase, every byte metadata-tracked.",
+    { feature:"Vault Dashboard & Dual-Tier 26GB Storage", tech:"DashboardPage.tsx (24KB) · 25GB Cloudinary + 1GB Supabase · Virtual Folder Tree · Trash",
+      desc:"Japanese-ink inspired private cloud interface (TwilightScene, Asanoha, Hanko, LeafFall art components) over a unified 26GB storage pool combining 25GB Cloudinary raw packet storage with a 1GB Supabase fast-tier bucket.",
+      specs:[
+        "<b>Virtual Hierarchy & Breadcrumbs:</b> Full folder tree navigation (<code>FolderTree.tsx</code>, <code>FolderPicker.tsx</code>), grid/table views, file properties inspector, and soft-delete Trash recovery (<code>TrashPage.tsx</code>).",
+        "<b>Instant Search & Type Filtering:</b> Filter by document, image, video, audio, or archive MIME categories with live storage quota telemetry (<code>StorageStats.tsx</code>).",
+        "<b>30-Second Metadata Cache:</b> Client-side <code>filesCache</code> with automatic invalidation on upload, rename, move, or delete."
+      ],
       art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
         <div style="display:flex;gap:12px"><div style="flex:.8;font-size:11.5px;color:#b9b4ac">
         <div style="color:#fff;font-weight:700;margin-bottom:8px">subscloud</div>
@@ -623,15 +784,21 @@ const PROJECTS = [
         <div class="kv"><span>📷 dusk-hike.raw</span><b>48 MB</b></div><div class="kv"><span>📄 thesis-notes.pdf</span><b>2 MB</b></div>
         <div class="kv"><span>🎞 demo-reel.mp4</span><b>310 MB</b></div>
         <div class="tagrow"><span class="stag">Files stored</span><span class="stag">Storage used</span><span class="stag">Remaining</span><span class="stag">Downloads</span></div></div></div></div>` },
-    { feature:"Architecture", tech:"_auth.js · JWT + CSRF · packet_store/ · file_meta",
-      desc:"No framework server — serverless API functions. Every request passes _auth.js (JWT cookie plus timing-safe CSRF check), files slice into 9MB packets on Cloudinary, metadata lives in Supabase tables.",
+    { feature:"9MB SHA-256 Packet Slicer & Zero-Trust Auth", tech:"cloudinary.ts (9MB Chunks · Concurrency 4 · SHA-256) · _auth.js (JWT + timingSafeEqual CSRF)",
+      desc:"Bypasses serverless payload limits and CDN single-file caps by slicing large files in-browser into 9MB binary packets with Web Crypto SHA-256 integrity hashes, backed by hardened serverless authentication.",
+      specs:[
+        "<b>9MB Client-Side Packet Slicer:</b> <code>uploadFile()</code> in <code>src/lib/cloudinary.ts</code> slices files into <code>9 × 1024 × 1024</code> byte blobs, computes <code>crypto.subtle.digest('SHA-256')</code> per chunk, and uploads 4 packets in parallel (<code>CONCURRENCY = 4</code>) to <code>packet_store/&lt;fileId&gt;/part_XXXXXX.part</code>.",
+        "<b>Manifest & Atomic Rollback:</b> Commits a JSON <code>manifest.json</code> containing ordered packet hashes and sizes; automatically triggers <code>deleteFileById('packet:' + fileId)</code> if any chunk fails mid-flight.",
+        "<b>Timing-Safe CSRF & JWT Guard:</b> <code>api/_auth.js</code> validates JWT session cookies alongside <code>crypto.timingSafeEqual</code> <code>x-csrf-token</code> buffer verification and <code>bcrypt</code> emergency backup codes.",
+        "<b>Brute-Force Rate Limiter:</b> In-memory IP guard enforcing <code>12 attempts / 15 min</code> window with automatic <code>60s</code> lockout and <code>Retry-After</code> headers."
+      ],
       art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div><div class="flow">
-        <div class="fnode"><b>Browser</b><small>vault UI</small></div><div class="farr">→</div>
-        <div class="fnode"><b>_auth.js</b><small>JWT + CSRF</small></div><div class="farr">→</div>
-        <div class="fnode"><b>API</b><small>serverless fns</small></div><div class="farr">→</div>
-        <div class="fnode"><b>Cloudinary</b><small>9MB packets · 25GB</small></div><div class="farr">→</div>
+        <div class="fnode"><b>Browser</b><small>9MB SHA-256 slicer</small></div><div class="farr">→</div>
+        <div class="fnode"><b>_auth.js</b><small>JWT + timingSafe CSRF</small></div><div class="farr">→</div>
+        <div class="fnode"><b>API</b><small>signed upload auth</small></div><div class="farr">→</div>
+        <div class="fnode"><b>Cloudinary</b><small>packet_store/ · 25GB</small></div><div class="farr">→</div>
         <div class="fnode"><b>Supabase</b><small>file_meta · 1GB</small></div>
-      </div><div class="mono" style="font-size:11px;color:#8a8a94;margin-top:12px">packet_store/&lt;file-id&gt;/part_000000.part + manifest.json — no DB for packets</div></div>` },
+      </div><div class="mono" style="font-size:11px;color:#8a8a94;margin-top:12px">packet_store/&lt;file-id&gt;/part_000000.part (SHA-256 verified) + manifest.json</div></div>` },
   ]
 },
 
@@ -674,7 +841,10 @@ function closeModal() {
 function paint() {
   const p = PROJECTS[cur], s = p.slides[slide], last = slide === p.slides.length - 1;
   mArt.innerHTML = s.art;
-  mText.innerHTML = `<div class="feat">${s.feature}</div><div class="desc">${s.desc}</div><span class="tech">${s.tech}</span>`;
+  const specsHtml = Array.isArray(s.specs) && s.specs.length
+    ? `<ul class="specs">${s.specs.map((item) => `<li>${item}</li>`).join('')}</ul>`
+    : '';
+  mText.innerHTML = `<div class="feat">${s.feature}</div><div class="desc">${s.desc}</div>${specsHtml}<span class="tech">${s.tech}</span>`;
   mCount.textContent = String(slide + 1).padStart(2, '0') + ' / ' + String(p.slides.length).padStart(2, '0');
   mDots.innerHTML = p.slides.map((_, j) => `<i class="${j === slide ? 'on' : ''}"></i>`).join('');
   mPrev.disabled = slide === 0;
