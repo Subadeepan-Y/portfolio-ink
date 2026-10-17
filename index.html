@@ -1028,64 +1028,65 @@ document.addEventListener('keydown', (e) => {
 
   const MILD_VOL = 0.33;
   bgm.volume = MILD_VOL;
+  bgm.muted = false;
 
-  let isMuted = localStorage.getItem('suba_bgm_muted') === 'true';
-  bgm.muted = isMuted;
+  // Clear any stale muted flag so fresh visits always play by default
+  try { localStorage.removeItem('suba_bgm_muted'); } catch (e) {}
+
+  let userMuted = false;
 
   function syncUI() {
-    const isSilenced = bgm.muted || bgm.paused;
-    btn.classList.toggle('muted', isSilenced);
-    const label = isSilenced ? 'Play background music' : 'Mute background music';
+    btn.classList.toggle('muted', userMuted);
+    const label = userMuted ? 'Play background music' : 'Mute background music';
     btn.setAttribute('aria-label', label);
     btn.title = label;
   }
 
-  function tryAutoPlay() {
-    if (isMuted) {
-      syncUI();
-      return;
-    }
+  function startPlayback() {
+    if (userMuted) return;
+    bgm.muted = false;
+    bgm.volume = MILD_VOL;
     const playPromise = bgm.play();
     if (playPromise !== undefined) {
-      playPromise.then(() => {
-        syncUI();
-      }).catch(() => {
-        syncUI();
-        const startOnGesture = () => {
-          if (!isMuted && (bgm.paused || bgm.muted)) {
-            bgm.muted = false;
-            bgm.volume = MILD_VOL;
-            bgm.play().then(syncUI).catch(() => {});
-          }
-          ['click', 'touchstart', 'keydown', 'scroll'].forEach((evt) => {
-            window.removeEventListener(evt, startOnGesture);
-          });
-        };
-        ['click', 'touchstart', 'keydown', 'scroll'].forEach((evt) => {
-          window.addEventListener(evt, startOnGesture, { once: true, passive: true });
-        });
-      });
+      playPromise.catch(() => {});
     }
   }
 
-  btn.addEventListener('click', (e) => {
-    e.preventDefault();
-    if (bgm.muted || bgm.paused) {
-      isMuted = false;
-      bgm.muted = false;
-      bgm.volume = MILD_VOL;
-      localStorage.setItem('suba_bgm_muted', 'false');
-      bgm.play().then(syncUI).catch(() => {});
-    } else {
-      isMuted = true;
-      bgm.muted = true;
-      bgm.pause();
-      localStorage.setItem('suba_bgm_muted', 'true');
-      syncUI();
-    }
+  // Attempt immediate playback on entry
+  startPlayback();
+
+  // Also bind to any early user gesture so playback begins the moment the user touches, scrolls, or clicks
+  const unlockEvents = ['pointerdown', 'touchstart', 'click', 'scroll', 'wheel', 'keydown'];
+  function onFirstGesture() {
+    startPlayback();
+    unlockEvents.forEach((evt) => {
+      window.removeEventListener(evt, onFirstGesture, { capture: true });
+      document.removeEventListener(evt, onFirstGesture, { capture: true });
+    });
+  }
+  unlockEvents.forEach((evt) => {
+    window.addEventListener(evt, onFirstGesture, { capture: true, passive: true });
+    document.addEventListener(evt, onFirstGesture, { capture: true, passive: true });
   });
 
-  tryAutoPlay();
+  // Top-right mute/unmute button
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!userMuted) {
+      userMuted = true;
+      bgm.muted = true;
+      bgm.pause();
+    } else {
+      userMuted = false;
+      bgm.muted = false;
+      bgm.volume = MILD_VOL;
+      bgm.play().catch(() => {});
+    }
+    syncUI();
+  });
+
+  syncUI();
 })();
 </script>
 </body>
