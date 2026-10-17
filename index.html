@@ -1026,7 +1026,7 @@ document.addEventListener('keydown', (e) => {
   const btn = document.getElementById('soundBtn');
   if (!bgm || !btn) return;
 
-  const MILD_VOL = 0.22;
+  const MILD_VOL = 0.33;
   bgm.volume = MILD_VOL;
 
   let isMuted = localStorage.getItem('suba_bgm_muted') === 'true';
