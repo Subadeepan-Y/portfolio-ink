@@ -208,7 +208,8 @@ const masterHtml = `<!DOCTYPE html>
   --red: #e0231c;
   --red-glow: rgba(224, 35, 28, 0.40);
   --amber: #ff6a3c;
-  --font-display: 'Integral CF', 'Bebas Neue', Impact, sans-serif;
+  --font-integral: 'Integral CF', 'Arial Black', Impact, sans-serif;
+  --font-display: 'Integral CF', 'Arial Black', Impact, sans-serif;
   --font-body: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
   --font-jp: 'NotoJP', serif;
   --font-mono: 'Space Mono', Consolas, monospace;
@@ -531,7 +532,7 @@ body.blood-moon-active #filmGrain {
   transition: opacity 0.5s ease;
 }
 .brand-title {
-  font-family: var(--font-display);
+  font-family: 'Integral CF', 'Arial Black', Impact, sans-serif !important;
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.32em;
@@ -2330,16 +2331,17 @@ ${modalCss}
 /* Wordmark reveal */
 
 .bebas-display {
-  font-family: 'Integral CF', var(--font-bebas);
-  font-weight: 700;
+  font-family: 'Integral CF', 'Arial Black', Impact, sans-serif !important;
+  font-weight: 700 !important;
   text-transform: uppercase;
   letter-spacing: 0.01em;
   line-height: 0.94;
 }
 .hero-heading.bebas-display {
+  font-family: 'Integral CF', 'Arial Black', Impact, sans-serif !important;
   font-size: clamp(42px, 8.5vw, 118px);
-  font-weight: 400;
-  line-height: 0.90;
+  font-weight: 700 !important;
+  line-height: 0.92;
   letter-spacing: 0.015em;
   color: #fbfaf6;
   text-shadow: 0 4px 40px rgba(0, 0, 0, 0.85);
@@ -2349,9 +2351,10 @@ ${modalCss}
   display: inline-block;
 }
 .exit-heading.bebas-display {
+  font-family: 'Integral CF', 'Arial Black', Impact, sans-serif !important;
   font-size: clamp(40px, 8vw, 110px);
-  font-weight: 400;
-  line-height: 0.90;
+  font-weight: 700 !important;
+  line-height: 0.92;
   letter-spacing: 0.015em;
   margin-bottom: clamp(20px, 3vh, 36px);
 }
