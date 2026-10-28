@@ -7102,7 +7102,6 @@ ${modalHtml}
   });
   window.addEventListener('load', forceAudioPlay);
   forceAudioPlay();
-  });
 
   // Zen bell resonance on chapter transitions (432Hz + 864Hz octave with exponential decay)
   function playZenChime() {

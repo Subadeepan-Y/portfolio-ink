@@ -6494,18 +6494,6 @@ body.loaded .hero-heading {
     });
   }
 
-  
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(regs => {
-      for (const reg of regs) reg.unregister();
-    });
-  }
-  if (window.caches) {
-    caches.keys().then(names => {
-      for (const name of names) caches.delete(name);
-    });
-  }
-
   // --- 8. RENDER LOOP (RAF) & INTERACTIVE CAMERA FOCUS RIG ---
   const currentCamPos = new THREE.Vector3();
   const currentCamTarget = new THREE.Vector3();
@@ -7271,7 +7259,6 @@ body.loaded .hero-heading {
   });
   window.addEventListener('load', forceAudioPlay);
   forceAudioPlay();
-  });
 
   // Zen bell resonance on chapter transitions (432Hz + 864Hz octave with exponential decay)
   function playZenChime() {
