@@ -183,7 +183,7 @@ const masterHtml = `<!DOCTYPE html>
 <link rel="stylesheet" href="secret-pathways-assets/fonts.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@400;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root {
   --ink: #040507;
@@ -200,8 +200,8 @@ const masterHtml = `<!DOCTYPE html>
   --red: #e0231c;
   --red-glow: rgba(224, 35, 28, 0.40);
   --amber: #ff6a3c;
-  --font-display: 'Cinzel', 'Onest', serif;
-  --font-body: 'Onest', system-ui, sans-serif;
+  --font-display: 'Bebas Neue', 'Arial Narrow', Impact, sans-serif;
+  --font-body: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
   --font-jp: 'NotoJP', serif;
   --font-mono: 'Space Mono', Consolas, monospace;
 }
@@ -212,7 +212,7 @@ html, body {
   overflow: hidden !important;
   background: var(--ink);
   color: var(--bone);
-  font-family: var(--font-body);
+  font-family: var(--font-body); font-style: normal;
   user-select: none;
   -webkit-user-select: none;
   scrollbar-width: none !important;
@@ -2327,22 +2327,23 @@ ${modalCss}
   line-height: 0.88;
 }
 .hero-heading.bebas-display {
-  font-size: clamp(3.8rem, 11vw, 9.5rem);
+  font-size: clamp(54px, 10.5vw, 148px);
   font-weight: 400;
-  color: #fbfaf6;
+  line-height: 0.90;
   letter-spacing: 0.015em;
-  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.7);
+  color: #fbfaf6;
+  text-shadow: 0 4px 40px rgba(0, 0, 0, 0.85);
 }
 .dot-red {
   color: #c0392b;
   display: inline-block;
 }
 .exit-heading.bebas-display {
-  font-size: clamp(3.8rem, 11vw, 9.5rem);
+  font-size: clamp(52px, 10vw, 140px);
   font-weight: 400;
-  line-height: 0.88;
+  line-height: 0.90;
   letter-spacing: 0.015em;
-  margin-bottom: 2rem;
+  margin-bottom: clamp(20px, 3vh, 36px);
 }
 .exit-outline {
   display: inline-block;
@@ -2504,9 +2505,7 @@ body.loaded .hero-heading {
     </div>
     <div class="chapter-eyebrow">
       <span class="dot"></span>
-      <span>CHAPTER 00 — THE HIDDEN GATE</span>
-      <span class="rule"></span>
-      <span class="kanji-marker">隠門</span>
+      <span>00 // PORTFOLIO // 2026</span>
     </div>
     <h1 class="monumental-heading hero-heading bebas-display">BUILT TO SOLVE<span class="dot-red">.</span><br>SHIPPED TO WORK<span class="dot-red">.</span></h1>
     <p class="editorial-sub">AI tutors. Animation engines. Game compilers. Leveraging modern stacks to build what's missing.</p>
@@ -2516,16 +2515,7 @@ body.loaded .hero-heading {
         <div class="track"><i></i></div>
       </div>
     </div>
-    <div class="peek" onclick="jumpTo(1)" data-cursor aria-label="Preview: Sanmon, before the bell">
-      <span class="peek-fr" data-frame></span>
-      <span class="peek-play">
-        <svg viewBox="0 0 22 22" fill="none">
-          <circle cx="11" cy="11" r="10" stroke="#dfe7e0" stroke-width="1.2" stroke-opacity="0.35"/>
-          <path d="M9 7.2 L15.5 11 L9 14.8 Z" fill="#dfe7e0"/>
-        </svg>
-      </span>
-      <span class="peek-cap"><b class="jp">山門</b><i>01 // THE ENTRY POINT</i></span>
-    </div>
+    
   </section>
 
   <!-- Stage 1: THE MAKER // SANMON -->
@@ -2943,9 +2933,7 @@ body.loaded .hero-heading {
     <div class="contact-flank">
       <div class="chapter-eyebrow">
         <span class="dot"></span>
-        <span>THE EXIT</span>
-        <span class="rule"></span>
-        <span class="kanji-marker">残光</span>
+        <span>THE EXIT // CONTACT</span>
       </div>
       <h2 class="monumental-heading exit-heading bebas-display"><span>LET'S BUILD</span><br><span class="exit-outline">SOMETHING<span class="dot-red">.</span></span></h2>
       <p class="editorial-sub">AI tutors. Animation engines. Game compilers. Available for high-impact software architectures and technical tooling.</p>
