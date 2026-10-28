@@ -1,0 +1,7730 @@
+const fs = require('fs');
+
+// Read the modal HTML, CSS, and PROJECTS data from index.html.v2.bak
+const bakHtml = fs.readFileSync('D:/PROJECTS/portfolio-ink/index.html.v2.bak', 'utf8');
+
+const projStartMarker = 'const PROJECTS = [';
+const projStartIndex = bakHtml.indexOf(projStartMarker);
+const projEndMarker = 'let cur = 0, slide = 0;';
+const projEndIndex = bakHtml.indexOf(projEndMarker);
+
+if (projStartIndex === -1 || projEndIndex === -1) {
+  console.error('Could not locate PROJECTS array in bakHtml');
+  process.exit(1);
+}
+
+const projectsJsCode = bakHtml.substring(projStartIndex, projEndIndex).trim();
+
+// Extract Modal Markup
+const modalMarkupStart = '<!-- ============ MODAL ============ -->';
+const modalMarkupEnd = '<script>';
+const mStart = bakHtml.indexOf(modalMarkupStart);
+const mEnd = bakHtml.indexOf(modalMarkupEnd, mStart);
+let modalHtml = bakHtml.substring(mStart, mEnd).trim().replace('<div id="modal" role="dialog" aria-modal="true">', '<div id="dossierModal" class="dossier-modal-container"><div id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">') + '</div>';
+
+modalHtml += `
+<!-- ============ LIGHTBOX ZOOM MODAL ============ -->
+<div id="lightboxModal" class="lightbox-overlay" role="dialog" aria-modal="true" aria-label="Image Lightbox Zoom">
+  <div class="lightbox-scrim" id="lightboxScrim"></div>
+  <div class="lightbox-dialog" id="lightboxDialog">
+    <button type="button" class="lightbox-close" id="lightboxClose" aria-label="Close Lightbox" title="Close Lightbox (ESC)">✕</button>
+    <div class="lightbox-viewport">
+      <img id="lightboxImg" src="" alt="Dossier Screenshot Zoom" />
+    </div>
+    <div class="lightbox-caption" id="lightboxCaption"></div>
+  </div>
+</div>
+`;
+
+// Extract Modal CSS
+const modalCssStart = '/* ---------- MODAL ---------- */';
+const cssStart = bakHtml.indexOf(modalCssStart);
+const mockEnd = bakHtml.indexOf('</style>', cssStart);
+let modalCss = (cssStart !== -1 && mockEnd !== -1) ? bakHtml.substring(cssStart, mockEnd).trim() : '';
+
+modalCss += `
+/* ============ LIGHTBOX ZOOM MODAL ============ */
+#lightboxModal {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.26s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.26s;
+}
+
+#lightboxModal.open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.lightbox-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 5, 7, 0.94);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+.lightbox-dialog {
+  position: relative;
+  z-index: 1;
+  max-width: min(92vw, 1380px);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transform: scale(0.92);
+  transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#lightboxModal.open .lightbox-dialog {
+  transform: scale(1.0);
+}
+
+.lightbox-viewport {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.85), 0 0 32px rgba(212, 175, 55, 0.12);
+  background: #000;
+}
+
+.lightbox-viewport img {
+  display: block;
+  max-width: min(90vw, 1320px);
+  max-height: 78vh;
+  object-fit: contain;
+  user-select: none;
+}
+
+.lightbox-caption {
+  margin-top: 14px;
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--bone, #f2f5f2);
+  text-align: center;
+  background: rgba(14, 18, 22, 0.8);
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.lightbox-close {
+  position: absolute;
+  top: -46px;
+  right: 0;
+  width: 36px;
+  height: 36px;
+  background: rgba(14, 18, 22, 0.85);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  color: var(--bone, #f2f5f2);
+  border-radius: 50%;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.lightbox-close:hover, .lightbox-close:focus-visible {
+  border-color: var(--red, #e0231c);
+  color: #fff;
+  transform: scale(1.08);
+  box-shadow: 0 0 16px rgba(224, 35, 28, 0.4);
+}
+
+.m-art img, .m-art .shot {
+  cursor: zoom-in;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.m-art img:hover, .m-art .shot:hover {
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.25);
+}
+`;
+
+// Master Editorial HTML Document
+const masterHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SUBADEEPAN — Chapter 00: The Hidden Gate (影の道)</title>
+<meta name="theme-color" content="#040507">
+<meta name="description" content="SUBADEEPAN — Kyoto Void · The Kyoto Temple Architecture. Architectures crafted from scratch: AI tutors, mathematical animation engines, and competitive card systems.">
+
+<!-- OpenGraph / Facebook -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="SUBADEEPAN — Kyoto Void · The Kyoto Temple Architecture">
+<meta property="og:description" content="Architectures crafted from scratch: AI tutors, mathematical animation engines, and competitive card systems. Native 60fps performance.">
+<meta property="og:image" content="secret-pathways-assets/foreground/png/temple-wall.webp">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="SUBADEEPAN — Kyoto Void · The Kyoto Temple Architecture">
+<meta name="twitter:description" content="Architectures crafted from scratch: AI tutors, mathematical animation engines, and competitive card systems. Native 60fps performance.">
+<meta name="twitter:image" content="secret-pathways-assets/foreground/png/temple-wall.webp">
+
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="stylesheet" href="secret-pathways-assets/fonts.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #040507;
+  --ink-void: #020305;
+  --bone: #fbfaf6;
+  --bone-title: #fbfaf6;
+  --bone-body: #e2ded4;
+  --bone-dim: #c5c0b4;
+  --muted: #8e9590;
+  --gold: #d4af37;
+  --gold-glow: rgba(212, 175, 55, 0.35);
+  --line: rgba(242, 245, 242, 0.10);
+  --line-strong: rgba(242, 245, 242, 0.22);
+  --red: #e0231c;
+  --red-glow: rgba(224, 35, 28, 0.40);
+  --amber: #ff6a3c;
+  --font-display: 'Cinzel', 'Onest', serif;
+  --font-body: 'Onest', system-ui, sans-serif;
+  --font-jp: 'NotoJP', serif;
+  --font-mono: 'Space Mono', Consolas, monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden !important;
+  background: var(--ink);
+  color: var(--bone);
+  font-family: var(--font-body);
+  user-select: none;
+  -webkit-user-select: none;
+  scrollbar-width: none !important;
+}
+::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }
+
+/* Fixed 3D WebGL Canvas */
+#gl {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  display: block;
+}
+
+/* Atmospheric Overlays */
+#vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: radial-gradient(135% 105% at 50% 42%, transparent 35%, rgba(2, 3, 5, 0.82) 100%);
+  backdrop-filter: blur(1.5px);
+  -webkit-backdrop-filter: blur(1.5px);
+  mask-image: radial-gradient(circle at 50% 45%, transparent 52%, black 100%);
+  -webkit-mask-image: radial-gradient(circle at 50% 45%, transparent 52%, black 100%);
+}
+#grain {
+  position: fixed;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0.038;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grainJitter 0.5s steps(4) infinite;
+  will-change: transform;
+}
+@keyframes grainJitter {
+  0% { transform: translate(1%, -1%); }
+  25% { transform: translate(-1%, 1%); }
+  50% { transform: translate(1%, 1%); }
+  75% { transform: translate(-1%, -1%); }
+  100% { transform: translate(1%, -1%); }
+}
+
+/* Monumental Background Brand Watermark */
+#watermark {
+  position: fixed;
+  bottom: clamp(60px, 12vh, 140px);
+  left: 0;
+  width: 100vw;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: clamp(64px, 13vw, 210px);
+  font-weight: 700;
+  letter-spacing: clamp(0.18em, 2.5vw, 0.35em);
+  text-transform: uppercase;
+  color: #fbfaf6;
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 2;
+  white-space: nowrap;
+  user-select: none;
+  text-shadow: 0 0 45px rgba(0, 0, 0, 0.95);
+}
+
+/* Vertical Japanese Calligraphy Watermark (Clear, Ethereal, Elegant) */
+#kanjiWatermark {
+  position: fixed;
+  right: clamp(36px, 5.5vw, 96px);
+  top: clamp(100px, 16vh, 180px);
+  writing-mode: vertical-rl;
+  font-family: var(--font-jp);
+  font-size: clamp(38px, 4.6vw, 72px);
+  letter-spacing: 0.42em;
+  color: #fbfaf6;
+  opacity: 0.16;
+  pointer-events: none;
+  z-index: 2;
+  text-shadow: 0 0 24px rgba(224, 35, 28, 0.35), 0 0 35px rgba(0, 0, 0, 0.95);
+  transform-origin: center center;
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), left 0.7s cubic-bezier(0.16, 1, 0.3, 1), right 0.7s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+#kanjiWatermark.flank-left {
+  right: auto;
+  left: clamp(36px, 5.5vw, 96px);
+}
+#kanjiWatermark.flank-right {
+  left: auto;
+  right: clamp(36px, 5.5vw, 96px);
+}
+
+/* Calligraphic Ink Breath Animation for Monumental Chapter Kanji Watermark */
+@keyframes inkBreath {
+  0% {
+    transform: scale(1.08);
+    filter: blur(4px);
+    opacity: 0.04;
+  }
+  100% {
+    transform: scale(1.0);
+    filter: blur(0px);
+    opacity: 0.16;
+  }
+}
+
+#kanjiWatermark.ink-breath,
+#kanjiWatermark.kanji-breath {
+  animation: inkBreath 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ==================== KAGE DYNAMIC MULTI-STAGE FOREGROUND CUTOUT SYSTEM ==================== */
+.fg {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  overflow: visible;
+  pointer-events: none;
+}
+#fg-sky {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  z-index: 52;
+  pointer-events: none;
+  transition: transform 0.2s ease-out;
+}
+.fg-el {
+  position: absolute;
+  display: block;
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity, filter;
+}
+.fg-el > img {
+  display: block;
+  width: 100%;
+  height: auto;
+  opacity: 1;
+  filter: saturate(0.88) brightness(0.86);
+}
+.fg-el--flip > img {
+  transform: scaleX(-1);
+}
+
+[data-fg-in="up"]    { transform: translate3d(0, 13%, 0); }
+[data-fg-in="left"]  { transform: translate3d(-11%, 6%, 0); }
+[data-fg-in="right"] { transform: translate3d(11%, 6%, 0); }
+
+@keyframes fg-sway {
+  from { transform: rotate(-0.5deg) translate3d(0, 2px, 0); }
+  to   { transform: rotate(0.5deg)  translate3d(0, -6px, 0); }
+}
+.fg-el--sway > img {
+  animation: fg-sway 18s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite alternate;
+  transform-origin: 0% 45%;
+}
+
+.fg.fg-active, .fg.fg-retiring {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: auto;
+  bottom: 0;
+  height: min(56svh, 680px);
+  z-index: 52;
+  overflow: visible;
+  pointer-events: none;
+}
+.fg.fg-active .fg-el {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) !important;
+  transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--fg-delay, 0ms);
+}
+.fg .fg-el:nth-child(2) { --fg-delay: 90ms; }
+.fg .fg-el:nth-child(3) { --fg-delay: 180ms; }
+.fg .fg-el:nth-child(4) { --fg-delay: 270ms; }
+
+.fg.fg-retiring .fg-el {
+  opacity: 0;
+  filter: blur(4px);
+  transform: translate3d(0, -6%, 0);
+  transition: opacity 0.68s cubic-bezier(0.16, 1, 0.3, 1), transform 0.78s cubic-bezier(0.16, 1, 0.3, 1), filter 0.78s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Specific Stage Placement Rules */
+/* Stage 0 (Hero) */
+[data-fg="sec0"] .fg-grass  { left: 3%;   bottom: -130px; width: clamp(420px, 60vw, 1050px); }
+[data-fg="sec0"] .fg-sakura { left: -6%;  bottom: -80px;  width: clamp(430px, 50vw, 880px); }
+[data-fg="sec0"] .fg-leaves { right: -6%; bottom: -60px;  width: clamp(330px, 38vw, 670px); }
+
+/* Stage 1 (Maker) */
+[data-fg="sec1"] .fg-wall   { left: 0;    bottom: -30px;  width: clamp(430px, 47vw, 780px); }
+[data-fg="sec1"] .fg-pine   { right: -4%; bottom: -46px;  width: clamp(190px, 21vw, 370px); }
+[data-fg="sec1"] .fg-grass  { left: 3%;   bottom: -140px; width: clamp(420px, 60vw, 1050px); }
+
+/* Stage 2 (iGradeify) */
+[data-fg="sec2"] .fg-stones { left: -4%;  bottom: -48px;  width: clamp(250px, 30vw, 530px); }
+[data-fg="sec2"] .fg-lantern{ left: 10%;  bottom: -60px;  width: clamp(120px, 13vw, 215px); }
+[data-fg="sec2"] .fg-lantern > img { filter: saturate(1.1) brightness(1.05) drop-shadow(0 0 24px rgba(255, 142, 60, 0.5)); }
+[data-fg="sec2"] .fg-grass  { right: -4%; bottom: -120px; width: clamp(360px, 50vw, 850px); }
+
+/* Stage 3 (Manim-TS) */
+[data-fg="sec3"] .fg-pine   { left: -4%;  bottom: -40px;  width: clamp(190px, 21vw, 370px); }
+[data-fg="sec3"] .fg-bush   { right: -4%; bottom: -38px;  width: clamp(250px, 30vw, 530px); }
+[data-fg="sec3"] .fg-leaves { right: -5%; top: -30px; bottom: auto; width: clamp(300px, 35vw, 620px); }
+
+/* Stage 4 (Duel Deck) */
+[data-fg="sec4"] .fg-sakura { left: -8%;  bottom: -70px;  width: clamp(400px, 48vw, 820px); }
+[data-fg="sec4"] .fg-stones { right: -4%; bottom: -48px;  width: clamp(250px, 30vw, 530px); }
+[data-fg="sec4"] .fg-grass  { left: 16%;  bottom: -120px; width: clamp(340px, 46vw, 780px); }
+
+/* Stage 5 (Desktop Buddy) */
+[data-fg="sec5"] .fg-wall   { right: -5%; bottom: -40px;  width: clamp(390px, 45vw, 760px); }
+[data-fg="sec5"] .fg-bush   { left: -5%;  bottom: -50px;  width: clamp(240px, 28vw, 480px); }
+[data-fg="sec5"] .fg-lantern{ right: 16%; bottom: -60px;  width: clamp(120px, 13vw, 215px); }
+[data-fg="sec5"] .fg-lantern > img { filter: saturate(1.1) brightness(1.05) drop-shadow(0 0 24px rgba(255, 142, 60, 0.5)); }
+
+/* Stage 6 (Greate Engine) */
+[data-fg="sec6"] .fg-hill   { left: -8%;  bottom: calc(-1 * min(18vh, 14vw)); width: min(140vh, 112%); }
+[data-fg="sec6"] .fg-stones { right: -3%; bottom: -48px;  width: clamp(240px, 28vw, 500px); }
+[data-fg="sec6"] .fg-grass  { right: 12%; bottom: -110px; width: clamp(320px, 45vw, 750px); }
+
+/* Stage 7 (Personal Cloud) */
+[data-fg="sec7"] .fg-ruins  { left: -5%;  bottom: -32px;  width: clamp(240px, 28vw, 500px); }
+[data-fg="sec7"] .fg-pine   { right: -4%; bottom: -46px;  width: clamp(190px, 21vw, 370px); }
+[data-fg="sec7"] .fg-grass  { left: 18%;  bottom: -110px; width: clamp(340px, 48vw, 800px); }
+
+/* Stage 8 (Ritual) */
+[data-fg="sec8"] .fg-wall   { right: -6%; bottom: -40px;  width: clamp(390px, 48vw, 820px); }
+[data-fg="sec8"] .fg-sakura { left: -8%;  bottom: -70px;  width: clamp(380px, 45vw, 780px); }
+[data-fg="sec8"] .fg-stones { left: 34%;  bottom: -80px;  width: clamp(220px, 26vw, 460px); }
+
+/* Stage 9 (Afterlight) */
+[data-fg="sec9"] .fg-lantern{ left: 2%;   bottom: -60px;  width: clamp(130px, 15vw, 240px); }
+[data-fg="sec9"] .fg-lantern > img { filter: saturate(1.1) brightness(1.05) drop-shadow(0 0 24px rgba(255, 142, 60, 0.5)); }
+[data-fg="sec9"] .fg-sakura { right: -8%; bottom: -70px;  width: clamp(400px, 46vw, 800px); }
+[data-fg="sec9"] .fg-grass  { left: 12%;  bottom: -110px; width: clamp(380px, 55vw, 900px); }
+
+@media (max-width: 1080px) {
+  [data-fg] .fg-wall   { width: clamp(360px, 42vw, 600px); }
+  [data-fg] .fg-sakura { width: clamp(340px, 44vw, 640px); }
+  [data-fg] .fg-leaves { width: clamp(280px, 34vw, 480px); }
+}
+@media (max-width: 820px) {
+  .fg .fg-pine, .fg .fg-leaves { display: none; }
+  .fg .fg-el { max-width: 88vw; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fg-el--sway > img { animation: none; }
+  .fg.fg-retiring .fg-el { transition: none !important; filter: none !important; }
+}
+
+/* Minimalist Cinematic Top Nav */
+#nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 88px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(28px, 4.5vw, 64px);
+  pointer-events: auto;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+}
+.brand-hanko {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--red);
+  background: rgba(224, 35, 28, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--red);
+  font-family: var(--font-jp);
+  font-size: 14px;
+  border-radius: 3px;
+  box-shadow: 0 0 16px var(--red-glow);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+.brand-hanko:active {
+  transform: scale(0.92);
+}
+.brand-hanko.surge {
+  background: rgba(224, 35, 28, 0.45);
+  box-shadow: 0 0 24px rgba(224, 35, 28, 0.95), inset 0 0 10px rgba(224, 35, 28, 0.6);
+  border-color: #ff3311;
+  color: #fff;
+  transform: scale(1.18);
+}
+body.blood-moon-active #filmGrain {
+  opacity: 0.15;
+  transition: opacity 0.5s ease;
+}
+.brand-title {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--bone-title);
+  text-shadow: 0 1px 16px rgba(0, 0, 0, 0.85);
+  transition: letter-spacing 0.4s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s ease;
+}
+.brand:hover .brand-title {
+  letter-spacing: 0.40em;
+  color: #fff;
+  text-shadow: 0 0 20px rgba(212, 175, 55, 0.4), 0 1px 16px rgba(0, 0, 0, 0.9);
+}
+.brand-sub {
+  font-size: 9.5px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.22em;
+  color: var(--bone-dim);
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: clamp(20px, 3vw, 48px);
+}
+.nav-link {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+  cursor: pointer;
+  transition: color 0.3s ease, letter-spacing 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+  background: none;
+  border: none;
+  padding: 4px 0;
+}
+.nav-link:hover {
+  color: #ffffff;
+  letter-spacing: 0.32em;
+  text-shadow: 0 0 12px rgba(251, 250, 246, 0.35);
+}
+.nav-link.on {
+  color: var(--bone-title);
+  border-bottom: 1.5px solid var(--red);
+  text-shadow: 0 0 14px rgba(224, 35, 28, 0.3);
+  padding-bottom: 4px;
+}
+#soundBtn {
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(4, 6, 8, 0.65);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  color: var(--bone-dim);
+  transition: all 0.3s ease;
+}
+#soundBtn:hover {
+  border-color: var(--red);
+  color: var(--bone);
+  box-shadow: 0 0 14px var(--red-glow);
+}
+.sound-icon {
+  display: flex;
+  align-items: center;
+  transition: opacity 0.25s ease;
+}
+.sound-wave-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2.5px;
+  height: 14px;
+}
+.sound-wave-bars .bar {
+  width: 2px;
+  background: var(--red);
+  border-radius: 1px;
+  display: block;
+  transform-origin: bottom center;
+}
+.sound-wave-bars .b1 {
+  height: 7px;
+  animation: soundWavePulse1 1.2s ease-in-out infinite alternate;
+}
+.sound-wave-bars .b2 {
+  height: 13px;
+  animation: soundWavePulse2 0.85s ease-in-out infinite alternate 0.15s;
+}
+.sound-wave-bars .b3 {
+  height: 9px;
+  animation: soundWavePulse3 1.05s ease-in-out infinite alternate 0.3s;
+}
+
+@keyframes soundWavePulse1 {
+  0% { transform: scaleY(0.35); opacity: 0.6; }
+  100% { transform: scaleY(1.15); opacity: 1; }
+}
+@keyframes soundWavePulse2 {
+  0% { transform: scaleY(0.25); opacity: 0.7; }
+  100% { transform: scaleY(1.25); opacity: 1; }
+}
+@keyframes soundWavePulse3 {
+  0% { transform: scaleY(0.4); opacity: 0.6; }
+  100% { transform: scaleY(1.1); opacity: 1; }
+}
+
+#soundBtn.muted {
+  border-color: rgba(255, 255, 255, 0.08);
+  color: var(--muted);
+  background: rgba(4, 6, 8, 0.45);
+}
+#soundBtn.muted .sound-icon {
+  opacity: 0.35;
+}
+#soundBtn.muted .sound-arc {
+  display: none;
+}
+#soundBtn.muted .sound-wave-bars .bar {
+  animation: none;
+  transform: scaleY(0.25);
+  opacity: 0.25;
+  background: var(--muted);
+}
+
+/* Right Vertical Progression Rail */
+#rail {
+  position: fixed;
+  right: clamp(20px, 3.2vw, 48px);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 45;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: flex-end;
+  pointer-events: auto;
+}
+.rail-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0;
+  color: var(--bone-dim);
+  transition: all 0.3s ease;
+  position: relative;
+}
+.rail-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(242, 245, 242, 0.35);
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.8);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.rail-btn:hover .rail-dot {
+  background: #fbfaf6;
+  transform: scale(1.3);
+  box-shadow: 0 0 10px rgba(251, 250, 246, 0.7);
+}
+.rail-btn.on .rail-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--red);
+  box-shadow: 0 0 14px var(--red), 0 0 24px var(--red-glow);
+  animation: railPulse 2.4s infinite ease-in-out;
+}
+@keyframes railPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 12px var(--red), 0 0 20px var(--red-glow);
+  }
+  50% {
+    transform: scale(1.35);
+    box-shadow: 0 0 18px var(--red), 0 0 30px rgba(224, 35, 28, 0.8);
+  }
+}
+.rail-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateX(10px);
+  transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), letter-spacing 0.35s ease, color 0.3s ease;
+  pointer-events: none;
+  white-space: nowrap;
+  color: var(--bone-title);
+  background: rgba(4, 5, 7, 0.82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 4px 10px;
+  border-radius: 2px;
+  border: 1px solid rgba(242, 245, 242, 0.12);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.rail-num {
+  color: var(--red);
+  font-weight: 700;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+}
+.rail-kanji {
+  font-family: var(--font-jp);
+  font-size: 11px;
+  color: var(--gold);
+  letter-spacing: 0.15em;
+  padding-left: 4px;
+  border-left: 1px solid rgba(212, 175, 55, 0.35);
+  text-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
+}
+.rail-btn:hover .rail-label, .rail-btn.on .rail-label {
+  opacity: 1;
+  transform: translateX(0);
+}
+.rail-btn:hover .rail-label {
+  border-color: rgba(212, 175, 55, 0.45);
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.7);
+}
+.rail-btn.on .rail-label {
+  border-color: rgba(224, 35, 28, 0.4);
+  box-shadow: 0 0 12px var(--red-glow), 0 2px 14px rgba(0, 0, 0, 0.7);
+}
+
+/* ================================================================
+   CENTRAL ATMOSPHERIC VOID STAGE (Negative Space Over Noise)
+   ================================================================ */
+#stage {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.scene-layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 clamp(32px, 8vw, 120px);
+  box-sizing: border-box;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translate3d(0, 36px, 0);
+  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1), transform 0.85s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.75s;
+  will-change: transform, opacity;
+}
+.scene-layer.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: none;
+  transform: translate3d(0, 0, 0);
+}
+.scene-layer.active > * {
+  pointer-events: auto;
+}
+
+/* Typography Primitives (Editorial Gravity) */
+.chapter-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--bone-body);
+  margin-bottom: clamp(18px, 2.8vh, 32px);
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.85);
+  transition: letter-spacing 0.4s ease, color 0.3s ease;
+}
+.chapter-eyebrow:hover {
+  letter-spacing: 0.38em;
+  color: var(--bone-title);
+}
+.chapter-eyebrow .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 10px var(--red), 0 0 4px var(--red);
+}
+.chapter-eyebrow .rule {
+  width: 32px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--red), rgba(212, 175, 55, 0.6));
+}
+.kanji-marker {
+  font-family: var(--font-jp);
+  font-size: 13px;
+  letter-spacing: 0.24em;
+  color: var(--bone-title);
+  opacity: 0.95;
+  text-shadow: 0 0 16px rgba(224, 35, 28, 0.45), 0 2px 14px rgba(0, 0, 0, 0.9);
+  display: inline-block;
+  transform: translateY(-1px);
+  transition: opacity 0.3s ease, letter-spacing 0.4s ease, color 0.3s ease;
+}
+.chapter-eyebrow:hover .kanji-marker {
+  opacity: 1;
+  color: #ffffff;
+  letter-spacing: 0.30em;
+  text-shadow: 0 0 22px rgba(224, 35, 28, 0.6), 0 2px 14px rgba(0, 0, 0, 0.95);
+}
+
+.monumental-heading {
+  font-family: var(--font-display);
+  font-size: clamp(34px, 5.0vw, 80px);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fbfaf6;
+  text-shadow: 0 2px 28px rgba(0, 0, 0, 0.85), 0 1px 4px rgba(0, 0, 0, 0.95);
+  margin-bottom: clamp(18px, 3vh, 32px);
+  max-width: 920px;
+  transition: letter-spacing 0.5s cubic-bezier(0.16, 1, 0.3, 1), text-shadow 0.4s ease, color 0.3s ease;
+  cursor: default;
+}
+.monumental-heading:hover {
+  letter-spacing: 0.08em;
+  color: #ffffff;
+  text-shadow: 0 0 35px rgba(251, 250, 246, 0.25), 0 2px 28px rgba(0, 0, 0, 0.85);
+}
+
+.editorial-sub {
+  font-size: clamp(14.5px, 1.15vw, 18px);
+  font-weight: 350;
+  line-height: 1.75;
+  color: #e2ded4;
+  max-width: 620px;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.85);
+  margin-bottom: 40px;
+}
+
+/* Scene 0: HERO */
+#secHero .hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+}
+.scroll-cue {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.30em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+  cursor: pointer;
+  transition: color 0.3s ease, letter-spacing 0.4s ease;
+}
+.scroll-cue:hover {
+  color: var(--bone-title);
+  letter-spacing: 0.36em;
+}
+.scroll-cue .track {
+  width: 50px;
+  height: 1px;
+  background: var(--line);
+  position: relative;
+  overflow: hidden;
+}
+.scroll-cue .track i {
+  position: absolute;
+  inset: 0;
+  background: var(--red);
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: cueAnim 2.6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+@keyframes cueAnim { 0% { transform: scaleX(0); } 40% { transform: scaleX(1); } 100% { transform: scaleX(1) translateX(100%); } }
+
+/* Scene 1: THE MAKER (Pure Editorial Gallery Grid - No Bulky Cards) */
+.maker-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(24px, 4vw, 56px);
+  max-width: 1080px;
+  border-top: 1px solid var(--line);
+  padding-top: 36px;
+  margin-top: 10px;
+}
+.maker-col {
+  display: flex;
+  flex-direction: column;
+}
+.maker-col .num {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.26em;
+  color: var(--red);
+  margin-bottom: 12px;
+  font-weight: 500;
+  text-shadow: 0 0 8px rgba(224, 35, 28, 0.4);
+}
+.maker-col h4 {
+  font-family: var(--font-display);
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #fbfaf6;
+  text-shadow: 0 2px 28px rgba(0, 0, 0, 0.85);
+  margin-bottom: 10px;
+  transition: letter-spacing 0.35s ease, color 0.3s ease, text-shadow 0.3s ease;
+}
+.maker-col:hover h4 {
+  letter-spacing: 0.22em;
+  color: #ffffff;
+  text-shadow: 0 0 20px rgba(212, 175, 55, 0.4), 0 2px 28px rgba(0, 0, 0, 0.85);
+}
+.maker-col p {
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: #e2ded4;
+  font-weight: 350;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.8);
+}
+
+/* Hero Floating Preview Window (Kage signature bottom-right card) */
+.peek {
+  position: absolute;
+  z-index: 20;
+  right: clamp(40px, 7vw, 140px);
+  bottom: clamp(48px, 9vh, 110px);
+  width: clamp(180px, 16vw, 240px);
+  display: block;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: auto;
+}
+.peek:hover {
+  transform: translate3d(0, -6px, 0);
+}
+.peek-fr {
+  position: relative;
+  display: block;
+  aspect-ratio: 16/10;
+  border-radius: 2px;
+  background: linear-gradient(180deg, rgba(3, 6, 9, 0.08) 20%, rgba(3, 6, 9, 0.8) 100%),
+    url('secret-pathways-assets/generated/kage-sanmon-preview.webp') center / cover no-repeat;
+  outline: 1px solid rgba(223, 231, 224, 0.22);
+  outline-offset: -1px;
+  box-shadow: 0 26px 54px -16px rgba(0, 0, 0, 0.9), 0 0 20px rgba(0, 0, 0, 0.5);
+  transition: outline-color 0.4s ease, box-shadow 0.4s ease;
+  overflow: hidden;
+}
+.peek:hover .peek-fr {
+  outline-color: var(--vermilion, #e0231c);
+  box-shadow: 0 30px 65px -12px rgba(224, 35, 28, 0.3), 0 0 30px rgba(0, 0, 0, 0.8);
+}
+.peek-play {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.peek-play svg {
+  width: 32px;
+  height: 32px;
+  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.8));
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.peek:hover .peek-play svg {
+  transform: scale(1.15);
+}
+.peek-cap {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+}
+.peek-cap b {
+  font-family: var(--font-jp, serif);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--bone, #dfe7e0);
+  letter-spacing: 0.25em;
+}
+.peek-cap i {
+  font-style: normal;
+  text-transform: uppercase;
+  color: var(--muted, #8e9a92);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+}
+@media (max-width: 900px) {
+  .peek {
+    right: 20px;
+    bottom: clamp(68px, 9vh, 88px);
+    width: clamp(140px, 32vw, 180px);
+    display: block;
+  }
+}
+
+/* Scene 2 to 7: THE 6 DEDICATED SACRED ARTIFACT STAGES (SPLIT LAYOUT WITH EDITORIAL PLATES) */
+.scene-layer.flank-right, .scene-layer.flank-left {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(32px, 5vw, 84px);
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 clamp(24px, 4.5vw, 72px);
+  box-sizing: border-box;
+}
+.scene-layer.flank-right {
+  flex-direction: row-reverse;
+}
+.scene-layer.flank-left {
+  flex-direction: row;
+}
+.scene-layer.flank-right .work-flank, .scene-layer.flank-left .work-flank {
+  max-width: 520px;
+  width: 100%;
+  margin: 0;
+  text-align: left;
+}
+.work-flank {
+  max-width: 520px;
+  z-index: 10;
+  position: relative;
+}
+
+/* Chapter Showcase Plates (Kage Image 3 style) */
+.project-showcase-plate {
+  position: relative;
+  max-width: clamp(340px, 34vw, 520px);
+  width: 100%;
+  z-index: 12;
+  cursor: pointer;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: auto;
+}
+.project-showcase-plate:hover {
+  transform: translateY(-8px) scale(1.02);
+}
+.plate-fr {
+  position: relative;
+  display: block;
+  aspect-ratio: 16/10;
+  border-radius: 2px;
+  outline: 1px solid rgba(223, 231, 224, 0.2);
+  outline-offset: -1px;
+  box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 0, 0, 0.6);
+  background: #05080c;
+  overflow: hidden;
+  transition: outline-color 0.4s ease, box-shadow 0.4s ease;
+}
+.project-showcase-plate:hover .plate-fr {
+  outline-color: rgba(224, 35, 28, 0.65);
+  box-shadow: 0 35px 70px -15px rgba(224, 35, 28, 0.25), 0 0 40px rgba(0, 0, 0, 0.9);
+}
+.plate-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: saturate(0.92) brightness(0.88);
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s ease;
+}
+.project-showcase-plate:hover .plate-img {
+  transform: scale(1.05);
+  filter: saturate(1.05) brightness(0.98);
+}
+.plate-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(4, 7, 10, 0.1) 20%, rgba(4, 7, 10, 0.85) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 18px;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+.plate-tag {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.plate-tag .jp {
+  font-family: var(--font-jp, serif);
+  font-size: 13px;
+  color: var(--bone, #dfe7e0);
+  background: rgba(224, 35, 28, 0.85);
+  padding: 2px 8px;
+  border-radius: 2px;
+  letter-spacing: 0.2em;
+}
+.plate-tag b {
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: #fff;
+}
+.plate-pill {
+  align-self: flex-start;
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: #dfe7e0;
+  background: rgba(4, 6, 8, 0.82);
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  padding: 6px 14px;
+  border-radius: 2px;
+  backdrop-filter: blur(6px);
+  transition: all 0.3s ease;
+}
+.project-showcase-plate:hover .plate-pill {
+  border-color: #d4af37;
+  color: #fff;
+  background: rgba(224, 35, 28, 0.3);
+}
+.plate-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--muted, #8e9a92);
+  text-transform: uppercase;
+}
+.plate-meta span:first-child {
+  color: #9aa59f;
+}
+.plate-view-hint {
+  color: #d4af37;
+  transition: color 0.3s ease;
+}
+.project-showcase-plate:hover .plate-view-hint {
+  color: #fff;
+}
+.card-ar {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 3;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(223, 231, 224, 0.3);
+  background: rgba(4, 6, 8, 0.6);
+  display: grid;
+  place-items: center;
+  opacity: 0.7;
+  transform: translate3d(0, 0, 0);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.project-showcase-plate:hover .card-ar {
+  opacity: 1;
+  background: var(--vermilion, #e0231c);
+  border-color: var(--vermilion, #e0231c);
+  transform: translate3d(2px, -2px, 0);
+}
+.glow {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  left: var(--gx);
+  top: var(--gy);
+  width: calc(var(--gr) * 2);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  mix-blend-mode: screen;
+  animation: glow-swell var(--gt2, 7s) ease-in-out infinite alternate;
+}
+.glow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--gc1, rgba(255, 142, 60, 0.5)), var(--gc2, rgba(212, 56, 38, 0.25)) 40%, transparent 72%);
+  animation: glow-pulse var(--gt, 4s) ease-in-out infinite;
+}
+@keyframes glow-swell { from { transform: scale(0.92); } to { transform: scale(1.08); } }
+@keyframes glow-pulse { from { opacity: 0.75; } 50% { opacity: 1; } to { opacity: 0.75; } }
+@keyframes glow-flame {
+  0% { opacity: .74 } 6% { opacity: .97 } 12% { opacity: .63 } 19% { opacity: .90 }
+  27% { opacity: .55 } 34% { opacity: .94 } 42% { opacity: .71 } 51% { opacity: 1 }
+  58% { opacity: .60 } 66% { opacity: .88 } 74% { opacity: .67 } 83% { opacity: .96 }
+  91% { opacity: .72 } 100% { opacity: .74 }
+}
+.glow--flame::before { animation-name: glow-flame; }
+.glow--flame { animation-duration: var(--gt2, 6s); }
+
+@media (max-width: 960px) {
+  .scene-layer.flank-right, .scene-layer.flank-left {
+    flex-direction: column-reverse;
+    justify-content: center;
+    gap: 20px;
+    padding: 0 20px;
+  }
+  .project-showcase-plate {
+    max-width: 380px;
+    width: 100%;
+  }
+  .scene-layer.flank-right .work-flank, .scene-layer.flank-left .work-flank {
+    max-width: 100%;
+  }
+}
+.work-specs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #e2ded4;
+  margin-bottom: 32px;
+}
+.work-specs span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  background: rgba(4, 6, 8, 0.65);
+  border-radius: 2px;
+  color: #e2ded4;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+}
+.work-specs span::before {
+  content: '';
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 6px var(--red);
+}
+.work-specs span:hover {
+  border-color: #d4af37;
+  color: #fbfaf6;
+  background: rgba(212, 175, 55, 0.14);
+  box-shadow: 0 0 14px rgba(212, 175, 55, 0.3);
+}
+.dossier-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 28px;
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  background: rgba(4, 6, 8, 0.75);
+  backdrop-filter: blur(10px);
+  border-radius: 2px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #fbfaf6;
+  cursor: pointer;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.7);
+  transition: all 0.35s ease;
+}
+.dossier-btn:hover {
+  border-color: var(--red);
+  background: rgba(224, 35, 28, 0.16);
+  color: #ffffff;
+  box-shadow: 0 0 24px var(--red-glow), 0 4px 18px rgba(0, 0, 0, 0.8);
+  transform: translateY(-2px);
+}
+.dossier-btn .plus {
+  color: var(--red);
+  font-weight: 700;
+  text-shadow: 0 0 8px var(--red);
+}
+
+/* Horizontal Chapter Navigation Bar for Work Stages */
+#workStepper {
+  position: fixed;
+  bottom: clamp(24px, 4vh, 48px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: rgba(4, 6, 8, 0.65);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--line);
+  padding: 10px 24px;
+  border-radius: 40px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s, visibility 0.5s;
+}
+#workStepper.show {
+  opacity: 1;
+  visibility: visible;
+}
+.step-dot {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--bone-dim);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.step-dot.on {
+  color: #fbfaf6;
+  border-bottom: 1.5px solid var(--red);
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+
+/* Scene 8: THE PROCESS (TACTILE EDITORIAL CARDS) */
+.process-columns {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(18px, 2.8vw, 36px);
+  max-width: 1200px;
+  width: 100%;
+  margin-top: clamp(24px, 4vh, 48px);
+}
+.process-card {
+  position: relative;
+  background: rgba(4, 7, 10, 0.72);
+  border: 1px solid rgba(223, 231, 224, 0.14);
+  border-radius: 3px;
+  padding: clamp(22px, 2.5vw, 34px);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 20px 45px -15px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.4s ease,
+              box-shadow 0.4s ease,
+              background 0.4s ease;
+  pointer-events: auto;
+  cursor: pointer;
+}
+.process-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(224, 35, 28, 0.55);
+  background: rgba(10, 14, 18, 0.85);
+  box-shadow: 0 28px 60px -12px rgba(224, 35, 28, 0.22), 0 0 30px rgba(0, 0, 0, 0.9);
+}
+.process-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.process-card .p-k {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--vermilion, #e0231c);
+  letter-spacing: 0.22em;
+  font-weight: 600;
+  text-shadow: 0 0 10px rgba(224, 35, 28, 0.4);
+}
+.process-card .p-jp {
+  font-family: var(--font-jp, serif);
+  font-size: 12px;
+  color: rgba(223, 231, 224, 0.45);
+  letter-spacing: 0.2em;
+  transition: color 0.3s;
+}
+.process-card:hover .p-jp {
+  color: var(--bone, #dfe7e0);
+}
+.process-card h3 {
+  font-family: var(--font-display);
+  font-size: clamp(16px, 1.35vw, 20px);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fbfaf6;
+  line-height: 1.3;
+  margin-bottom: 12px;
+  transition: color 0.3s ease;
+}
+.process-card:hover h3 {
+  color: #ffffff;
+}
+.process-card p {
+  font-size: 13.5px;
+  line-height: 1.68;
+  color: #c2cdc5;
+  font-weight: 350;
+  margin-bottom: 22px;
+}
+.process-card .p-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-top: 14px;
+  border-top: 1px solid rgba(223, 231, 224, 0.08);
+}
+.process-card .p-meta span {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: var(--muted, #8e9a92);
+  text-transform: uppercase;
+  padding: 3px 8px;
+  background: rgba(223, 231, 224, 0.04);
+  border-radius: 2px;
+  border: 1px solid rgba(223, 231, 224, 0.08);
+  transition: all 0.3s;
+}
+.process-card:hover .p-meta span {
+  border-color: rgba(212, 175, 55, 0.35);
+  color: #dfe7e0;
+}
+@media (max-width: 900px) {
+  .process-columns {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    max-width: 480px;
+  }
+}
+
+/* Scene 9: AFTERLIGHT (CONTACT) - Void Gallery Style */
+.contact-flank {
+  max-width: 720px;
+}
+.contact-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+  margin-top: 36px;
+}
+.contact-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #fbfaf6;
+  text-decoration: none;
+  padding: 8px 18px;
+  background: rgba(200, 168, 106, 0.04);
+  border: 1px solid rgba(200, 168, 106, 0.25);
+  border-radius: 4px;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.9);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.25s ease,
+              color 0.25s ease,
+              box-shadow 0.25s ease,
+              background 0.25s ease;
+  position: relative;
+}
+.contact-link .link-num {
+  color: rgba(200, 168, 106, 0.75);
+  font-size: 0.92em;
+}
+.contact-link .link-label {
+  color: #fbfaf6;
+  font-weight: 500;
+}
+.contact-link .link-badge {
+  display: inline-flex;
+  align-items: center;
+  color: #c44030;
+  margin-left: 2px;
+}
+.contact-link .link-arrow {
+  color: rgba(226, 222, 212, 0.65);
+  font-size: 1.05em;
+  transition: transform 0.25s ease, color 0.25s ease;
+}
+.contact-link:hover {
+  transform: translateY(-2px);
+  color: #ffffff;
+  border-color: #c44030;
+  background: rgba(196, 64, 48, 0.08);
+  box-shadow: 0 4px 20px rgba(196, 64, 48, 0.35), 0 0 1px rgba(200, 168, 106, 0.5);
+}
+.contact-link:hover .link-label {
+  color: #ffffff;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.45);
+}
+.contact-link:hover .link-num {
+  color: #c44030;
+}
+.contact-link:hover .link-arrow {
+  transform: translate(2px, -2px);
+  color: #c44030;
+}
+.contact-sep {
+  width: 1px;
+  height: 20px;
+  background: rgba(200, 168, 106, 0.25);
+  display: inline-block;
+}
+@media (max-width: 600px) {
+  .contact-links {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .contact-sep {
+    display: none;
+  }
+}
+
+/* Bottom Progress HUD (Left Flank) */
+#hud {
+  position: fixed;
+  bottom: clamp(24px, 3.8vh, 48px);
+  left: clamp(28px, 4.5vw, 64px);
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--muted);
+  pointer-events: none;
+}
+.hud-bar {
+  width: 90px;
+  height: 1px;
+  background: var(--line);
+  position: relative;
+  overflow: hidden;
+}
+.hud-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--red);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.15s ease-out;
+}
+#hudCurSec {
+  color: var(--bone-dim);
+  font-weight: 500;
+}
+#hudPhase {
+  display: inline-block;
+  color: var(--bone);
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+#hudPhase.gliding {
+  opacity: 0;
+  transform: translateY(4px);
+}
+
+/* Whisper-thin Minimalist Keyboard Guide */
+#keyGuide {
+  position: fixed;
+  bottom: clamp(24px, 3.8vh, 48px);
+  right: clamp(28px, 4.5vw, 64px);
+  z-index: 45;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+  opacity: 0.65;
+  pointer-events: auto;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  background: rgba(4, 5, 7, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(242, 245, 242, 0.12);
+  border-radius: 2px;
+  transition: opacity 0.3s ease, border-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+}
+#keyGuide:hover {
+  opacity: 1;
+  color: #fbfaf6;
+  border-color: rgba(212, 175, 55, 0.45);
+  box-shadow: 0 0 16px rgba(212, 175, 55, 0.25);
+  transform: translateY(-1px);
+}
+#keyGuide .sep {
+  opacity: 0.5;
+  color: var(--red);
+}
+#keyGuide .key-hint {
+  color: var(--red);
+  font-weight: 700;
+  text-shadow: 0 0 8px rgba(224, 35, 28, 0.35);
+}
+
+/* Bottom Edge Editorial Metadata Coordinates HUD (z-index: 40) */
+#bottomMetaHud {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(20px, 3.2vw, 56px) clamp(8px, 1.2vh, 14px);
+  font-family: var(--font-mono), monospace;
+  font-size: clamp(9px, 0.72vw, 11px);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #a8a49c;
+  pointer-events: none;
+  user-select: none;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.95);
+  box-sizing: border-box;
+}
+
+#bottomMetaHud .meta-left {
+  color: rgba(226, 222, 212, 0.65);
+}
+
+#bottomMetaHud .meta-center {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(226, 222, 212, 0.85);
+}
+
+#bottomMetaHud .meta-yr {
+  color: rgba(200, 168, 106, 0.65);
+  font-size: 0.95em;
+}
+
+#bottomMetaHud .meta-inf {
+  color: #c44030;
+  font-size: 1.15em;
+  line-height: 1;
+}
+
+#bottomMetaHud #metaChapterIdx {
+  color: #fbfaf6;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+}
+
+#bottomMetaHud .meta-right {
+  color: rgba(226, 222, 212, 0.65);
+}
+
+@media (max-width: 768px) {
+  #bottomMetaHud {
+    padding: 0 16px 8px;
+    justify-content: center;
+  }
+  #bottomMetaHud .meta-left,
+  #bottomMetaHud .meta-right {
+    display: none;
+  }
+}
+@media (max-width: 900px) {
+  #keyGuide {
+    display: none;
+  }
+}
+
+/* Minimalist Kyoto Hotkey HUD Modal */
+.hotkey-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s;
+}
+.hotkey-modal.open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+.hotkey-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 3, 5, 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.hotkey-card {
+  position: relative;
+  width: min(520px, 90vw);
+  background: rgba(4, 5, 7, 0.94);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  box-shadow: 0 0 35px rgba(0, 0, 0, 0.95), 0 0 20px rgba(224, 35, 28, 0.15);
+  border-radius: 3px;
+  padding: clamp(20px, 4vw, 32px);
+  transform: translateY(12px) scale(0.98);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hotkey-modal.open .hotkey-card {
+  transform: translateY(0) scale(1);
+}
+.hotkey-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(242, 245, 242, 0.12);
+  padding-bottom: 14px;
+  margin-bottom: 20px;
+}
+.hotkey-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hotkey-hanko {
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--red);
+  background: rgba(224, 35, 28, 0.15);
+  display: grid;
+  place-items: center;
+  color: var(--red);
+  font-family: var(--font-jp);
+  font-size: 11px;
+  border-radius: 2px;
+}
+.hotkey-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #fbfaf6;
+}
+.hotkey-close {
+  background: none;
+  border: none;
+  color: var(--bone-dim);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+  transition: color 0.2s, transform 0.2s;
+}
+.hotkey-close:hover {
+  color: var(--red);
+  transform: scale(1.15);
+}
+.hotkey-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.hotkey-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(242, 245, 242, 0.03);
+  border: 1px solid rgba(242, 245, 242, 0.06);
+  border-radius: 2px;
+  transition: border-color 0.25s, background-color 0.25s;
+}
+.hotkey-row:hover {
+  border-color: rgba(212, 175, 55, 0.35);
+  background: rgba(212, 175, 55, 0.05);
+}
+.hotkey-key {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--red);
+  text-shadow: 0 0 8px rgba(224, 35, 28, 0.3);
+}
+.hotkey-desc {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #e2ded4;
+}
+.hotkey-foot {
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(242, 245, 242, 0.08);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* ================================================================
+   CINEMATIC CURSOR & HANKO SEAL RIPPLE
+   ================================================================ */
+#cursorRing, #cursorDot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  border-radius: 50%;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  will-change: transform, width, height, border-color, opacity;
+  transition: width 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              height 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.25s ease,
+              background-color 0.25s ease,
+              opacity 0.25s ease;
+}
+#cursorRing {
+  width: 24px;
+  height: 24px;
+  border: 1px solid rgba(242, 245, 242, 0.42);
+  box-shadow: 0 0 12px rgba(242, 245, 242, 0.08);
+}
+#cursorDot {
+  width: 4px;
+  height: 4px;
+  background: var(--red);
+  box-shadow: 0 0 8px var(--red);
+  transition: opacity 0.25s ease;
+}
+#cursorRing.hovering {
+  width: 38px;
+  height: 38px;
+  border-color: var(--red);
+  background: rgba(224, 35, 28, 0.06);
+  box-shadow: 0 0 16px var(--red-glow);
+}
+
+.hanko-ripple {
+  position: fixed;
+  width: 48px;
+  height: 48px;
+  pointer-events: none;
+  z-index: 9998;
+  border-radius: 50%;
+  border: 1.5px solid #c44030;
+  background: rgba(196, 64, 48, 0.12);
+  box-shadow: 0 0 20px rgba(196, 64, 48, 0.55), inset 0 0 10px rgba(196, 64, 48, 0.3);
+  transform: translate(-50%, -50%) scale(1.0);
+  opacity: 0.95;
+  animation: hankoRipple 500ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes hankoRipple {
+  0% {
+    transform: translate(-50%, -50%) scale(1.0);
+    opacity: 0.95;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.0);
+    opacity: 0;
+  }
+}
+
+@media (hover: none) or (pointer: coarse) {
+  #cursorRing, #cursorDot {
+    display: none !important;
+  }
+}
+
+/* Laptop and High-DPI Tablet Scaling (1440x900 Viewport) */
+@media (max-width: 1440px) {
+  .scene-layer.flank-right, .scene-layer.flank-left {
+    gap: clamp(24px, 4vw, 54px);
+    padding: 0 clamp(24px, 4vw, 64px);
+  }
+  .project-showcase-plate {
+    max-width: clamp(300px, 32vw, 460px);
+  }
+  .monumental-heading {
+    font-size: clamp(30px, 4.2vw, 64px);
+  }
+}
+
+/* ================================================================
+   RESPONSIVE EDITORIAL VIEWPORT (Down to 320px Mobile)
+   ================================================================ */
+@media (max-width: 900px) {
+  #nav {
+    height: 72px;
+    padding: 0 20px;
+  }
+  .nav-links {
+    display: none;
+  }
+  #kanjiWatermark {
+    display: none;
+  }
+  #watermark {
+    font-size: clamp(38px, 11vw, 84px);
+    letter-spacing: 0.16em;
+    bottom: 70px;
+  }
+  #rail {
+    display: none !important;
+  }
+  .rail-label {
+    display: none;
+  }
+  .scene-layer {
+    padding: 0 24px;
+    justify-content: center;
+    box-sizing: border-box;
+    max-width: 100vw;
+  }
+  .scene-layer.flank-right, .scene-layer.flank-left {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: left !important;
+    justify-content: center !important;
+    padding: 72px 24px 84px 24px !important;
+    gap: 18px !important;
+    overflow-y: auto !important;
+    max-height: 100vh !important;
+    box-sizing: border-box !important;
+  }
+  .scene-layer.flank-right .work-flank, .scene-layer.flank-left .work-flank {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+  .project-showcase-plate {
+    max-width: min(380px, 88vw) !important;
+    width: 100% !important;
+    margin-top: 8px !important;
+  }
+  .monumental-heading {
+    font-size: clamp(26px, 6.8vw, 44px);
+    line-height: 1.12;
+    letter-spacing: 0.03em;
+    margin-bottom: 18px;
+    max-width: 100%;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+  .monumental-heading:hover {
+    letter-spacing: 0.04em;
+  }
+  .chapter-eyebrow {
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .editorial-sub {
+    font-size: 13.5px;
+    line-height: 1.65;
+    margin-bottom: 24px;
+    max-width: 100%;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+  .maker-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    padding-top: 18px;
+    max-height: 54vh;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .maker-grid::-webkit-scrollbar {
+    display: none;
+  }
+  .maker-col {
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 14px;
+  }
+  .maker-col:last-child {
+    border-bottom: none;
+  }
+  .maker-col .num {
+    font-size: 9.5px;
+    margin-bottom: 4px;
+  }
+  .maker-col h4 {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+  .maker-col p {
+    font-size: 12px;
+    line-height: 1.55;
+  }
+  .fg-wall {
+    width: clamp(220px, 50vw, 360px);
+    right: -6vw;
+  }
+  .fg-stones {
+    width: clamp(160px, 40vw, 240px);
+    left: -4vw;
+  }
+  .fg-grass {
+    width: clamp(180px, 45vw, 260px);
+    left: 8vw;
+  }
+  .fg-maple {
+    width: clamp(140px, 35vw, 220px);
+    right: -4vw;
+  }
+  #hud {
+    position: fixed;
+    left: 20px;
+    bottom: 20px;
+    z-index: 45;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 9.5px;
+    letter-spacing: 0.2em;
+    background: rgba(4, 5, 7, 0.82);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(242, 245, 242, 0.12);
+  }
+  .hud-bar {
+    width: 60px;
+    height: 2px;
+  }
+  .peek {
+    position: absolute;
+    right: 20px;
+    bottom: 74px;
+    width: clamp(140px, 34vw, 190px);
+    display: block !important;
+    z-index: 25;
+  }
+}
+
+/* Compact Mobile Viewports (390x844 iPhone and 320px) */
+@media (max-width: 480px) {
+  .scene-layer.flank-right, .scene-layer.flank-left {
+    padding: 60px 18px 76px 18px !important;
+    gap: 14px !important;
+  }
+  .project-showcase-plate {
+    max-width: 100% !important;
+  }
+  .peek {
+    right: 16px;
+    bottom: 68px;
+    width: 130px;
+  }
+  .monumental-heading {
+    font-size: clamp(24px, 7vw, 34px);
+  }
+  .maker-grid {
+    max-height: 48vh;
+  }
+}
+
+${modalCss}
+
+/* ==================== DOSSIER MODAL EDITORIAL TYPOGRAPHY & POLISH ==================== */
+#modal {
+  background: #08080c !important;
+  color: #e2ded4 !important;
+}
+
+#mHead {
+  border-bottom: 1px solid rgba(200, 168, 106, 0.22) !important;
+}
+
+#mHead h2,
+#mTitle {
+  font-family: var(--font-cinzel), serif !important;
+  font-size: clamp(26px, 3.2vw, 36px) !important;
+  letter-spacing: 0.04em !important;
+  color: #fbfaf6 !important;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.85), 0 1px 3px rgba(0, 0, 0, 0.95) !important;
+}
+
+#mText .feat,
+.modal-title,
+.slide-title {
+  font-family: var(--font-cinzel), serif !important;
+  font-size: clamp(30px, 3.8vw, 56px) !important;
+  line-height: 1.05 !important;
+  letter-spacing: 0.02em !important;
+  color: #fbfaf6 !important;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.9), 0 1px 4px rgba(0, 0, 0, 0.95) !important;
+}
+
+#mText .desc,
+.modal-body,
+.modal-desc,
+#mBody p {
+  margin-top: 16px !important;
+  font-size: 14.5px !important;
+  line-height: 1.75 !important;
+  color: #e2ded4 !important;
+}
+
+#mText .specs {
+  background: rgba(12, 12, 16, 0.85) !important;
+  border: 1px solid rgba(200, 168, 106, 0.25) !important;
+  border-left: 3px solid #c44030 !important;
+  border-radius: 0 8px 8px 0 !important;
+}
+
+#mText .specs li {
+  font-size: 12.5px !important;
+  line-height: 1.6 !important;
+  color: #e2ded4 !important;
+}
+
+#mText .specs b {
+  color: #fbfaf6 !important;
+}
+
+#mText .tech,
+.tech,
+.tech-badge,
+.tech-tag {
+  margin-top: 18px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-family: var(--font-mono), monospace !important;
+  font-size: 11px !important;
+  letter-spacing: 0.12em !important;
+  color: #e2ded4 !important;
+  background: rgba(200, 168, 106, 0.08) !important;
+  border: 1px solid rgba(200, 168, 106, 0.35) !important;
+  border-radius: 20px !important;
+  padding: 6px 14px !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+#mText .tech::before,
+.tech::before,
+.tech-badge::before,
+.tech-tag::before {
+  content: '' !important;
+  display: inline-block !important;
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  background: #c44030 !important;
+  box-shadow: 0 0 8px rgba(196, 64, 48, 0.75) !important;
+  flex-shrink: 0 !important;
+}
+
+#mFoot {
+  border-top: 1px solid rgba(200, 168, 106, 0.22) !important;
+}
+
+/* Atmospheric Dossier Depth Blur */
+#scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 3, 5, 0.78) !important;
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
+  z-index: 9600;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease, backdrop-filter 0.45s ease, -webkit-backdrop-filter 0.45s ease !important;
+}
+#scrim.open {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+}
+
+/* WCAG AAA Keyboard Focus Indicators */
+#soundBtn:focus-visible, #soundBtn:focus,
+.nav-link:focus-visible, .nav-link:focus,
+.rail-btn:focus-visible, .rail-btn:focus,
+.dossier-btn:focus-visible, .dossier-btn:focus,
+.step-dot:focus-visible, .step-dot:focus,
+.mnav:focus-visible, .mnav:focus,
+#mClose:focus-visible, #mClose:focus,
+#mNext:focus-visible, #mNext:focus,
+#mPrev:focus-visible, #mPrev:focus,
+#mCta:focus-visible, #mCta:focus {
+  outline: 2px solid var(--red) !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 12px var(--red-glow) !important;
+}
+
+/* ============================================================= PRELOADER */
+#pre {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: #040507;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.8s;
+  pointer-events: all;
+}
+#pre.done {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.pre-in {
+  width: min(420px, 78vw);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.pre-hanko {
+  margin-bottom: 18px;
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
+  animation: preHankoPulse 2s infinite ease-in-out;
+}
+@keyframes preHankoPulse {
+  0%, 100% { box-shadow: 0 0 16px var(--red-glow); transform: scale(1); }
+  50% { box-shadow: 0 0 26px rgba(224, 35, 28, 0.85); transform: scale(1.05); }
+}
+.pre-jp {
+  font-family: var(--font-jp);
+  font-size: 12px;
+  letter-spacing: 0.5em;
+  color: var(--bone-dim);
+  margin-bottom: 22px;
+  padding-left: 0.5em;
+}
+.pre-bar {
+  width: 100%;
+  position: relative;
+  height: 1px;
+  background: rgba(223, 231, 224, 0.12);
+  overflow: hidden;
+}
+.pre-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 0%;
+  background: linear-gradient(90deg, var(--red), var(--bone));
+  transition: width 0.18s ease-out;
+}
+.pre-meta {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 14px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.pre-meta b {
+  font-weight: 500;
+  color: var(--bone-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Wordmark reveal */
+
+.bebas-display {
+  font-family: var(--font-bebas);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: 0.88;
+}
+.hero-heading.bebas-display {
+  font-size: clamp(3.8rem, 11vw, 9.5rem);
+  font-weight: 400;
+  color: #fbfaf6;
+  letter-spacing: 0.015em;
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.7);
+}
+.dot-red {
+  color: #c0392b;
+  display: inline-block;
+}
+.exit-heading.bebas-display {
+  font-size: clamp(3.8rem, 11vw, 9.5rem);
+  font-weight: 400;
+  line-height: 0.88;
+  letter-spacing: 0.015em;
+  margin-bottom: 2rem;
+}
+.exit-outline {
+  display: inline-block;
+  color: transparent;
+  -webkit-text-stroke: 1.8px #fbfaf6;
+}
+
+.hero-heading {
+  transition: opacity 1.0s cubic-bezier(0.16, 1, 0.3, 1), transform 1.0s cubic-bezier(0.16, 1, 0.3, 1);
+}
+body:not(.loaded) .hero-heading {
+  opacity: 0;
+  transform: translateY(16px);
+}
+body.loaded .hero-heading {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Editorial Modal Micro-Transitions & Dossier Alias */
+#dossierModal {
+  display: contents;
+}
+@keyframes slideGlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.slide-glide {
+  animation: slideGlideIn 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+/* Segmented Hairline Slide Stepper (~16px wide, 2px high, spaced 4px apart) */
+#mDots {
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+#mDots i, #mDots .m-dash {
+  width: 16px !important;
+  height: 2px !important;
+  border-radius: 1px !important;
+  background: rgba(223, 231, 224, 0.22) !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  display: inline-block !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+#mDots i:hover:not(.on), #mDots .m-dash:hover:not(.on) {
+  background: rgba(223, 231, 224, 0.6) !important;
+  transform: scaleY(1.6) !important;
+}
+#mDots i.on, #mDots .m-dash.on {
+  background: var(--red) !important;
+  box-shadow: 0 0 10px var(--red-glow) !important;
+  transform: scaleY(1.6) !important;
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================ PRELOADER -->
+<div id="pre">
+  <div class="pre-in">
+    <div class="pre-hanko">影</div>
+    <div class="pre-jp">静寂の刻</div>
+    <div class="pre-bar"><div id="preFill" class="pre-fill"></div></div>
+    <div class="pre-meta">
+      <span>SANCTUARY INITIALIZING // 2026</span>
+      <b><span id="prePct">0</span>%</b>
+    </div>
+  </div>
+</div>
+
+<canvas id="gl" aria-hidden="true"></canvas>
+<div id="cursorRing" aria-hidden="true"></div>
+<div id="cursorDot" aria-hidden="true"></div>
+<div id="vignette"></div>
+<div id="grain"></div>
+
+<div id="watermark">SUBADEEPAN</div>
+<div id="kanjiWatermark" class="ink-breath kanji-breath">影の道</div>
+
+<!-- Kage Foreground Staging Sky Container (Reparents active foreground stage) -->
+<div id="fg-sky" aria-hidden="true"></div>
+<div id="fg" aria-hidden="true" style="pointer-events:none; position:fixed; inset:0; z-index:4;">
+  <img id="fgWall" class="fg-el fg-wall" src="secret-pathways-assets/foreground/png/temple-wall.webp" alt="" style="position:fixed; left:-5%; bottom:-20px; width:45vw; max-width:650px; pointer-events:none; will-change:transform;">
+  <img id="fgStones" class="fg-el fg-stones" src="secret-pathways-assets/foreground/png/basalt-stones.webp" alt="" style="position:fixed; right:-4%; bottom:-20px; width:35vw; max-width:500px; pointer-events:none; will-change:transform;">
+  <img id="fgGrass" class="fg-el fg-grass" src="secret-pathways-assets/foreground/png/tall-grass.webp" alt="" style="position:fixed; left:22%; bottom:-30px; width:28vw; max-width:400px; pointer-events:none; will-change:transform;">
+  <img id="fgMaple" class="fg-el fg-maple" src="secret-pathways-assets/foreground/png/maple-leaves.webp" alt="" style="position:fixed; right:8%; top:-10px; width:25vw; max-width:350px; pointer-events:none; will-change:transform;">
+</div>
+
+<header id="nav">
+  <div class="brand" onclick="jumpTo(0)">
+    <div class="brand-hanko">影</div>
+    <div>
+      <div class="brand-title">SUBADEEPAN</div>
+      <div class="brand-sub">KYOTO SANCTUARY // 2026</div>
+    </div>
+  </div>
+  <nav class="nav-links">
+    <button type="button" class="nav-link on" onclick="jumpTo(0)" aria-label="Hero Stage">HERO</button>
+    <button type="button" class="nav-link" onclick="jumpTo(1)" aria-label="About The Maker">ABOUT</button>
+    <button type="button" class="nav-link" onclick="jumpTo(2)" aria-label="Work Sacred Artifacts">WORK</button>
+    <button type="button" class="nav-link" onclick="jumpTo(8)" aria-label="Ritual Process">PROCESS</button>
+    <button type="button" class="nav-link" onclick="jumpTo(9)" aria-label="Afterlight Contact">CONTACT</button>
+  </nav>
+  <button type="button" id="soundBtn" title="Toggle Sound" aria-label="Toggle Sound">
+    <div class="sound-icon">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+        <path class="sound-arc" d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+      </svg>
+    </div>
+    <div class="sound-wave-bars" aria-hidden="true">
+      <span class="bar b1"></span>
+      <span class="bar b2"></span>
+      <span class="bar b3"></span>
+    </div>
+  </button>
+</header>
+
+<audio id="bgm" src="bgm.mp3" loop preload="none" style="display:none;"></audio>
+
+<div id="rail" role="navigation" aria-label="Chapter Progression Rail">
+  <button type="button" class="rail-btn on" onclick="jumpTo(0)" aria-label="Chapter 00: The Hidden Gate"><span class="rail-label"><span class="rail-num">00</span> THE HIDDEN GATE <span class="rail-kanji">隠門</span></span><span class="rail-dot"></span></button>
+  <button type="button" class="rail-btn" onclick="jumpTo(1)" aria-label="Chapter 01: The Maker"><span class="rail-label"><span class="rail-num">01</span> THE MAKER <span class="rail-kanji">門跡</span></span><span class="rail-dot"></span></button>
+  <button type="button" class="rail-btn" onclick="jumpTo(2)" aria-label="Chapter 02: iGradeify"><span class="rail-label"><span class="rail-num">02</span> IGRADEIFY <span class="rail-kanji">学宮</span></span><span class="rail-dot"></span></button>
+  <button type="button" class="rail-btn" onclick="jumpTo(3)" aria-label="Chapter 03: manim-ts"><span class="rail-label"><span class="rail-num">03</span> MANIM-TS <span class="rail-kanji">三重塔</span></span><span class="rail-dot"></span></button>
+  <button type="button" class="rail-btn" onclick="jumpTo(4)" aria-label="Chapter 04: Duel Deck"><span class="rail-label"><span class="rail-num">04</span> DUEL DECK <span class="rail-kanji">両極殿</span></span><span class="rail-dot"></span></button>
+  <button type="button" class="rail-btn" onclick="jumpTo(5)" aria-label="Chapter 05: Desktop Buddy"><span class="rail-label"><span class="rail-num">05</span> DESKTOP BUDDY <span class="rail-kanji">茶室</span></span><span class="rail-dot"></span></button>
+  <button type="button" class="rail-btn" onclick="jumpTo(6)" aria-label="Chapter 06: Greate Engine"><span class="rail-label"><span class="rail-num">06</span> GREATE ENGINE <span class="rail-kanji">天守閣</span></span><span class="rail-dot"></span></button>
+  <button type="button" class="rail-btn" onclick="jumpTo(7)" aria-label="Chapter 07: Personal Cloud"><span class="rail-label"><span class="rail-num">07</span> PERSONAL CLOUD <span class="rail-kanji">宝蔵</span></span><span class="rail-dot"></span></button>
+  <button type="button" class="rail-btn" onclick="jumpTo(8)" aria-label="Chapter 08: The Ritual"><span class="rail-label"><span class="rail-num">08</span> THE RITUAL <span class="rail-kanji">作法</span></span><span class="rail-dot"></span></button>
+  <button type="button" class="rail-btn" onclick="jumpTo(9)" aria-label="Chapter 09: Afterlight"><span class="rail-label"><span class="rail-num">09</span> AFTERLIGHT <span class="rail-kanji">残光</span></span><span class="rail-dot"></span></button>
+</div>
+
+<!-- ==================== CENTRAL ATMOSPHERIC STAGE ==================== -->
+<main id="stage">
+
+  <!-- Stage 0: HERO // THE HIDDEN GATE -->
+  <section class="scene-layer active" id="sec0">
+    <div class="fg" data-fg="sec0" aria-hidden="true">
+      <span class="fg-el fg-grass" data-fg-in="up">
+        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/tall-grass.webp" alt="" width="1717" height="916" loading="lazy" decoding="async">
+      </span>
+      <span class="fg-el fg-sakura fg-el--sway" data-fg-in="left">
+        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/sakura-branch.webp" alt="" width="1536" height="1024" loading="lazy" decoding="async">
+      </span>
+      <span class="fg-el fg-leaves fg-el--sway" data-fg-in="right">
+        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/maple-leaves.webp" alt="" width="1536" height="1024" loading="lazy" decoding="async">
+      </span>
+    </div>
+    <div class="chapter-eyebrow">
+      <span class="dot"></span>
+      <span>CHAPTER 00 — THE HIDDEN GATE</span>
+      <span class="rule"></span>
+      <span class="kanji-marker">隠門</span>
+    </div>
+    <h1 class="monumental-heading hero-heading bebas-display">BUILT TO SOLVE<span class="dot-red">.</span><br>SHIPPED TO WORK<span class="dot-red">.</span></h1>
+    <p class="editorial-sub">AI tutors. Animation engines. Game compilers. Leveraging modern stacks to build what's missing.</p>
+    <div class="hero-actions">
+      <div class="scroll-cue" onclick="jumpTo(1)">
+        <span>SCROLL TO ENTER</span>
+        <div class="track"><i></i></div>
+      </div>
+    </div>
+    <div class="peek" onclick="jumpTo(1)" data-cursor aria-label="Preview: Sanmon, before the bell">
+      <span class="peek-fr" data-frame></span>
+      <span class="peek-play">
+        <svg viewBox="0 0 22 22" fill="none">
+          <circle cx="11" cy="11" r="10" stroke="#dfe7e0" stroke-width="1.2" stroke-opacity="0.35"/>
+          <path d="M9 7.2 L15.5 11 L9 14.8 Z" fill="#dfe7e0"/>
+        </svg>
+      </span>
+      <span class="peek-cap"><b class="jp">山門</b><i>01 // THE ENTRY POINT</i></span>
+    </div>
+  </section>
+
+  <!-- Stage 1: THE MAKER // SANMON -->
+  <section class="scene-layer" id="sec1">
+    <div class="fg" data-fg="sec1" aria-hidden="true">
+      <span class="fg-el fg-wall" data-fg-in="left">
+        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/temple-wall.webp" alt="" width="1536" height="884" loading="lazy" decoding="async">
+      </span>
+      <span class="fg-el fg-pine" data-fg-in="right">
+        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/pine-tree.webp" alt="" width="1024" height="1438" loading="lazy" decoding="async">
+      </span>
+      <span class="fg-el fg-grass" data-fg-in="up">
+        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/tall-grass.webp" alt="" width="1717" height="916" loading="lazy" decoding="async">
+      </span>
+    </div>
+    <div class="chapter-eyebrow">
+      <span class="dot"></span>
+      <span>CHAPTER 01 — THE MAKER</span>
+      <span class="rule"></span>
+      <span class="kanji-marker">門跡</span>
+    </div>
+    <h2 class="monumental-heading bebas-display" style="font-size: clamp(3rem, 7vw, 5.5rem);">TOOLS OTHER PEOPLE<br>WISH EXISTED<span class="dot-red">.</span></h2>
+    <div class="maker-grid">
+      <div class="maker-col">
+        <span class="num">01 // PRINCIPLE</span>
+        <h4>Zero Bloat Handcrafted</h4>
+        <p>No heavy third-party black boxes. Every computation runs on lean, hand-tuned execution loops with native GPU rendering.</p>
+      </div>
+      <div class="maker-col">
+        <span class="num">02 // TOOLCHAIN</span>
+        <h4>Modern Low-Latency</h4>
+        <p>TypeScript, WebGL, Node.js, WebAssembly, GLSL shaders, and resilient state machines engineered for continuous 60fps execution.</p>
+      </div>
+      <div class="maker-col">
+        <span class="num">03 // RECORD</span>
+        <h4>6 Shipped Products</h4>
+        <p>From visual education platforms to browser animation runtimes, complete architectures built and deployed to real users worldwide.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stage 2: ARTIFACT 01 — iGradeify -->
+  <section class="scene-layer flank-right" id="sec2">
+    <div class="fg" data-fg="sec2" aria-hidden="true">
+      <span class="fg-el fg-stones" data-fg-in="left">
+        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/basalt-stones.webp" alt="" width="1536" height="996" loading="lazy" decoding="async">
+      </span>
+      <span class="fg-el fg-lantern" data-fg-in="left">
+        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/stone-lantern.webp" alt="" width="1024" height="1499" loading="lazy" decoding="async">
+      </span>
+      <span class="fg-el fg-grass" data-fg-in="up">
+        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/tall-grass.webp" alt="" width="1717" height="916" loading="lazy" decoding="async">
+      </span>
+    </div>
+    <div class="work-flank">
+      <div class="chapter-eyebrow">
+        <span class="dot"></span>
+        <span>02 // SACRED CRAFT // 01 OF 06</span>
+        <span class="rule"></span>
+        <span class="kanji-marker">学宮</span>
+      </div>
+      <h2 class="monumental-heading">IGRADEIFY</h2>
+      <p class="editorial-sub">All-in-one CBSE study ecosystem with automated 80-mark blueprint generator, multi-chapter library, and animated visual explainers.</p>
+      <div class="work-specs">
+        <span>BLUEPRINT GENERATOR</span>
+        <span>AI STUDY ROOMS</span>
+        <span>VISUAL EXPLAINER</span>
+        <span>60 FPS</span>
+      </div>
+      <button type="button" class="dossier-btn" onclick="openModal(0)">
+        <span>EXPLORE DOSSIER</span>
+        <span class="plus">[ + ]</span>
+      </button>
+    </div>
+    <div class="project-showcase-plate" onclick="openModal(0)" data-cursor aria-label="Explore iGradeify Dossier">
+      <div class="plate-fr">
+        <img class="plate-img" src="shots/landing.png" alt="iGradeify Visual Showcase" loading="lazy">
+        <span class="card-ar"><svg viewBox="0 0 14 14" fill="none"><path d="M3 11 11 3M5 3h6v6" stroke="#dfe7e0" stroke-width="1.3"/></svg></span>
+        <i class="glow glow--flame" style="--gx:75%; --gy:32%; --gr:22%; --gt:4.2s; --gt2:6.8s; --gc1:rgba(255,142,60,0.55); --gc2:rgba(224,35,28,0.25)"></i>
+        <div class="plate-overlay">
+          <div class="plate-tag"><span class="jp">学宮</span><b>IGRADEIFY</b></div>
+          <span class="plate-pill">EXPLORE DOSSIER [ + ]</span>
+        </div>
+      </div>
+      <div class="plate-meta">
+        <span>01 / 06 — BLUEPRINT &amp; STUDY ROOMS</span>
+        <span class="plate-view-hint">OPEN DOSSIER ↗</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stage 3: ARTIFACT 02 — manim-ts -->
+  <section class="scene-layer flank-left" id="sec3">
+    <div class="fg" data-fg="sec3" aria-hidden="true">
+      <span class="fg-el fg-pine" data-fg-in="left">
+        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/pine-tree.webp" alt="" width="1024" height="1438" loading="lazy" decoding="async">
+      </span>
+      <span class="fg-el fg-bush" data-fg-in="right">
+        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/garden-bush.webp" alt="" width="1717" height="876" loading="lazy" decoding="async">
+      </span>
+      <span class="fg-el fg-leaves fg-el--sway" data-fg-in="right">
+        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/maple-leaves.webp" alt="" width="1536" height="1024" loading="lazy" decoding="async">
+      </span>
+    </div>
+    <div class="work-flank">
+      <div class="chapter-eyebrow">
+        <span class="dot"></span>
+        <span>02 // SACRED CRAFT // 02 OF 06</span>
+        <span class="rule"></span>
+        <span class="kanji-marker">三重塔</span>
+      </div>
+      <h2 class="monumental-heading">MANIM-TS</h2>
+      <p class="editorial-sub">Browser-native port of 3Blue1Brown's animation engine. 25+ geometric primitives, mathematical equation parsing, and zero-install client execution.</p>
+      <div class="work-specs">
+        <span>CANVAS 2D / WEBGL</span>
+        <span>MATH ANIMATION</span>
+        <span>VECTOR MORPHING</span>
+        <span>ZERO INSTALL</span>
+      </div>
+      <button type="button" class="dossier-btn" onclick="openModal(1)">
+        <span>EXPLORE DOSSIER</span>
+        <span class="plus">[ + ]</span>
+      </button>
+    </div>
+    <div class="project-showcase-plate" onclick="openModal(1)" data-cursor aria-label="Explore Manim-TS Dossier">
+      <div class="plate-fr">
+        <img class="plate-img" src="shots/manim_hero.png" alt="Manim-TS Visual Showcase" loading="lazy">
+        <span class="card-ar"><svg viewBox="0 0 14 14" fill="none"><path d="M3 11 11 3M5 3h6v6" stroke="#dfe7e0" stroke-width="1.3"/></svg></span>
+        <i class="glow" style="--gx:28%; --gy:35%; --gr:20%; --gt:6.1s; --gt2:9.4s; --gc1:rgba(255,198,124,0.55); --gc2:rgba(226,118,40,0.25)"></i>
+        <div class="plate-overlay">
+          <div class="plate-tag"><span class="jp">三重塔</span><b>MANIM-TS</b></div>
+          <span class="plate-pill">EXPLORE DOSSIER [ + ]</span>
+        </div>
+      </div>
+      <div class="plate-meta">
+        <span>02 / 06 — MATH ANIMATION ENGINE</span>
+        <span class="plate-view-hint">OPEN DOSSIER ↗</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stage 4: ARTIFACT 03 — Duel Deck -->
+  <section class="scene-layer flank-right" id="sec4">
+    <div class="fg" data-fg="sec4" aria-hidden="true">
+      <span class="fg-el fg-sakura fg-el--sway" data-fg-in="left">
+        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/sakura-branch.webp" alt="" width="1536" height="1024" loading="lazy" decoding="async">
+      </span>
+      <span class="fg-el fg-stones" data-fg-in="right">
+        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/basalt-stones.webp" alt="" width="1536" height="996" loading="lazy" decoding="async">
+      </span>
+      <span class="fg-el fg-grass" data-fg-in="up">
+        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/tall-grass.webp" alt="" width="1717" height="916" loading="lazy" decoding="async">
+      </span>
+    </div>
+    <div class="work-flank">
+      <div class="chapter-eyebrow">
+        <span class="dot"></span>
+        <span>02 // SACRED CRAFT // 03 OF 06</span>
+        <span class="rule"></span>
+        <span class="kanji-marker">両極殿</span>
+      </div>
+      <h2 class="monumental-heading">DUEL DECK</h2>
+      <p class="editorial-sub">Tactical card battler featuring dual-faced card transformations, light/dark lane rotations, and a strict zero-asset DOM animation runtime.</p>
+      <div class="work-specs">
+        <span>DUAL-SIDED DECK</span>
+        <span>3D CARD FLIP</span>
+        <span>MULTIPLAYER ARENA</span>
+        <span>ZERO ASSET</span>
+      </div>
+      <button type="button" class="dossier-btn" onclick="openModal(2)">
+        <span>EXPLORE DOSSIER</span>
+        <span class="plus">[ + ]</span>
+      </button>
+    </div>
+    <div class="project-showcase-plate" onclick="openModal(2)" data-cursor aria-label="Explore Duel Deck Dossier">
+      <div class="plate-fr">
+        <img class="plate-img" src="shots/duel_home.png" alt="Duel Deck Visual Showcase" loading="lazy">
+        <span class="card-ar"><svg viewBox="0 0 14 14" fill="none"><path d="M3 11 11 3M5 3h6v6" stroke="#dfe7e0" stroke-width="1.3"/></svg></span>
+        <i class="glow glow--flame" style="--gx:70%; --gy:45%; --gr:22%; --gt:3.8s; --gt2:5.6s; --gc1:rgba(255,138,104,0.55); --gc2:rgba(208,54,36,0.25)"></i>
+        <div class="plate-overlay">
+          <div class="plate-tag"><span class="jp">両極殿</span><b>DUEL DECK</b></div>
+          <span class="plate-pill">EXPLORE DOSSIER [ + ]</span>
+        </div>
+      </div>
+      <div class="plate-meta">
+        <span>03 / 06 — TACTICAL CARD BATTLER</span>
+        <span class="plate-view-hint">OPEN DOSSIER ↗</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stage 5: ARTIFACT 04 — Desktop Buddy -->
+  <section class="scene-layer flank-left" id="sec5">
+    <div class="fg" data-fg="sec5" aria-hidden="true">
+      <span class="fg-el fg-wall" data-fg-in="right">
+        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/temple-wall.webp" alt="" width="1536" height="884" loading="lazy" decoding="async">
+      </span>
+      <span class="fg-el fg-bush" data-fg-in="left">
+        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/garden-bush.webp" alt="" width="1717" height="876" loading="lazy" decoding="async">
+      </span>
+      <span class="fg-el fg-lantern" data-fg-in="right">
+        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/stone-lantern.webp" alt="" width="1024" height="1499" loading="lazy" decoding="async">
+      </span>
+    </div>
+    <div class="work-flank">
+      <div class="chapter-eyebrow">
+        <span class="dot"></span>
+        <span>02 // SACRED CRAFT // 04 OF 06</span>
+        <span class="rule"></span>
+        <span class="kanji-marker">茶室</span>
+      </div>
+      <h2 class="monumental-heading">DESKTOP BUDDY</h2>
+      <p class="editorial-sub">Autonomous desktop companion with visual screen perception, idle behavior trees, multi-emotion states, and transparent overlay rendering.</p>
+      <div class="work-specs">
+        <span>SCREEN VISION</span>
+        <span>5 LANGUAGES</span>
+        <span>TRANSPARENT HUD</span>
+        <span>100% OFFLINE</span>
+      </div>
+      <button type="button" class="dossier-btn" onclick="openModal(3)">
+        <span>EXPLORE DOSSIER</span>
+        <span class="plus">[ + ]</span>
+      </button>
+    </div>
+    <div class="project-showcase-plate" onclick="openModal(3)" data-cursor aria-label="Explore Desktop Buddy Dossier">
+      <div class="plate-fr">
+        <img class="plate-img" src="shots/buddy_desktop.png" alt="Desktop Buddy Visual Showcase" loading="lazy">
+        <span class="card-ar"><svg viewBox="0 0 14 14" fill="none"><path d="M3 11 11 3M5 3h6v6" stroke="#dfe7e0" stroke-width="1.3"/></svg></span>
+        <i class="glow" style="--gx:32%; --gy:28%; --gr:20%; --gt:5.8s; --gt2:8.2s; --gc1:rgba(255,160,110,0.52); --gc2:rgba(215,60,35,0.22)"></i>
+        <div class="plate-overlay">
+          <div class="plate-tag"><span class="jp">茶室</span><b>DESKTOP BUDDY</b></div>
+          <span class="plate-pill">EXPLORE DOSSIER [ + ]</span>
+        </div>
+      </div>
+      <div class="plate-meta">
+        <span>04 / 06 — AUTONOMOUS DESKTOP COMPANION</span>
+        <span class="plate-view-hint">OPEN DOSSIER ↗</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stage 6: ARTIFACT 05 — Greate Engine -->
+  <section class="scene-layer flank-right" id="sec6">
+    <div class="fg" data-fg="sec6" aria-hidden="true">
+      <span class="fg-el fg-hill" data-fg-in="left">
+        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/hill.webp" alt="" width="1774" height="887" loading="lazy" decoding="async">
+      </span>
+      <span class="fg-el fg-stones" data-fg-in="right">
+        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/basalt-stones.webp" alt="" width="1536" height="996" loading="lazy" decoding="async">
+      </span>
+      <span class="fg-el fg-grass" data-fg-in="up">
+        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/tall-grass.webp" alt="" width="1717" height="916" loading="lazy" decoding="async">
+      </span>
+    </div>
+    <div class="work-flank">
+      <div class="chapter-eyebrow">
+        <span class="dot"></span>
+        <span>02 // SACRED CRAFT // 05 OF 06</span>
+        <span class="rule"></span>
+        <span class="kanji-marker">天守閣</span>
+      </div>
+      <h2 class="monumental-heading">GREATE ENGINE</h2>
+      <p class="editorial-sub">Visual scripting game engine IDE with real-time node graphs, hot-reloading preview compiler, and multi-platform bytecode compilation.</p>
+      <div class="work-specs">
+        <span>VISUAL LEVEL EDITOR</span>
+        <span>2D KINEMATICS</span>
+        <span>PLAIN-ENGLISH AI</span>
+        <span>GAME EXPORT</span>
+      </div>
+      <button type="button" class="dossier-btn" onclick="openModal(4)">
+        <span>EXPLORE DOSSIER</span>
+        <span class="plus">[ + ]</span>
+      </button>
+    </div>
+    <div class="project-showcase-plate" onclick="openModal(4)" data-cursor aria-label="Explore Greate Engine Dossier">
+      <div class="plate-fr">
+        <img class="plate-img" src="secret-pathways-assets/generated/kage-approach.webp" alt="Greate Engine Visual Showcase" loading="lazy">
+        <span class="card-ar"><svg viewBox="0 0 14 14" fill="none"><path d="M3 11 11 3M5 3h6v6" stroke="#dfe7e0" stroke-width="1.3"/></svg></span>
+        <i class="glow glow--flame" style="--gx:68%; --gy:38%; --gr:22%; --gt:4.4s; --gt2:7.1s; --gc1:rgba(255,142,60,0.55); --gc2:rgba(224,35,28,0.25)"></i>
+        <div class="plate-overlay">
+          <div class="plate-tag"><span class="jp">天守閣</span><b>GREATE ENGINE</b></div>
+          <span class="plate-pill">EXPLORE DOSSIER [ + ]</span>
+        </div>
+      </div>
+      <div class="plate-meta">
+        <span>05 / 06 — VISUAL 2D GAME IDE</span>
+        <span class="plate-view-hint">OPEN DOSSIER ↗</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stage 7: ARTIFACT 06 — Personal Cloud -->
+  <section class="scene-layer flank-left" id="sec7">
+    <div class="fg" data-fg="sec7" aria-hidden="true">
+      <span class="fg-el fg-ruins" data-fg-in="left">
+        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/shrine-ruins.webp" alt="" width="1536" height="1001" loading="lazy" decoding="async">
+      </span>
+      <span class="fg-el fg-pine" data-fg-in="right">
+        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/pine-tree.webp" alt="" width="1024" height="1438" loading="lazy" decoding="async">
+      </span>
+      <span class="fg-el fg-grass" data-fg-in="up">
+        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/tall-grass.webp" alt="" width="1717" height="916" loading="lazy" decoding="async">
+      </span>
+    </div>
+    <div class="work-flank">
+      <div class="chapter-eyebrow">
+        <span class="dot"></span>
+        <span>02 // SACRED CRAFT // 06 OF 06</span>
+        <span class="rule"></span>
+        <span class="kanji-marker">宝蔵</span>
+      </div>
+      <h2 class="monumental-heading">PERSONAL CLOUD</h2>
+      <p class="editorial-sub">Self-hosted zero-knowledge encrypted vault with client-side chunking, peer-to-peer sync, and background differential versioning.</p>
+      <div class="work-specs">
+        <span>26GB STORAGE</span>
+        <span>9MB CHUNKED UPLOADS</span>
+        <span>SHA-256 INTEGRITY</span>
+        <span>PRIVATE LOCK</span>
+      </div>
+      <button type="button" class="dossier-btn" onclick="openModal(5)">
+        <span>EXPLORE DOSSIER</span>
+        <span class="plus">[ + ]</span>
+      </button>
+    </div>
+    <div class="project-showcase-plate" onclick="openModal(5)" data-cursor aria-label="Explore Personal Cloud Dossier">
+      <div class="plate-fr">
+        <img class="plate-img" src="secret-pathways-assets/generated/kage-moonwater.webp" alt="Personal Cloud Visual Showcase" loading="lazy">
+        <span class="card-ar"><svg viewBox="0 0 14 14" fill="none"><path d="M3 11 11 3M5 3h6v6" stroke="#dfe7e0" stroke-width="1.3"/></svg></span>
+        <i class="glow" style="--gx:45%; --gy:25%; --gr:24%; --gt:7.2s; --gt2:10.5s; --gc1:rgba(255,138,104,0.52); --gc2:rgba(208,54,36,0.24)"></i>
+        <div class="plate-overlay">
+          <div class="plate-tag"><span class="jp">宝蔵</span><b>PERSONAL CLOUD</b></div>
+          <span class="plate-pill">EXPLORE DOSSIER [ + ]</span>
+        </div>
+      </div>
+      <div class="plate-meta">
+        <span>06 / 06 — ZERO-KNOWLEDGE ENCRYPTED VAULT</span>
+        <span class="plate-view-hint">OPEN DOSSIER ↗</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stage 8: THE PROCESS // RITUAL -->
+  <section class="scene-layer" id="sec8">
+    <div class="fg" data-fg="sec8" aria-hidden="true">
+      <span class="fg-el fg-wall fg-el--flip" data-fg-in="right">
+        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/temple-wall.webp" alt="" width="1536" height="884" loading="lazy" decoding="async">
+      </span>
+      <span class="fg-el fg-sakura fg-el--sway" data-fg-in="left">
+        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/sakura-branch.webp" alt="" width="1536" height="1024" loading="lazy" decoding="async">
+      </span>
+      <span class="fg-el fg-stones" data-fg-in="up">
+        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/basalt-stones.webp" alt="" width="1536" height="996" loading="lazy" decoding="async">
+      </span>
+    </div>
+    <div class="chapter-eyebrow">
+      <span class="dot"></span>
+      <span>CHAPTER 03 — THE RITUAL</span>
+      <span class="rule"></span>
+      <span class="kanji-marker">作法</span>
+    </div>
+    <h2 class="monumental-heading">CRAFT BEFORE CODE.<br>SPEED AS A VIRTUE.</h2>
+    <div class="process-columns">
+      <div class="process-card" data-cursor>
+        <div class="process-card-top">
+          <span class="p-k">01 // PRIMITIVES</span>
+          <span class="p-jp">根源</span>
+        </div>
+        <h3>Core Architecture, Zero Fluff</h3>
+        <p>Strip unnecessary abstractions until only raw mathematics and memory buffers remain. Clean execution always beats layered dependencies.</p>
+        <div class="p-meta">
+          <span>ZERO BLOAT</span>
+          <span>NATIVE C2 LOOPS</span>
+        </div>
+      </div>
+      <div class="process-card" data-cursor>
+        <div class="process-card-top">
+          <span class="p-k">02 // KINETIC RIGOR</span>
+          <span class="p-jp">律動</span>
+        </div>
+        <h3>60+ FPS, Damped Inertia</h3>
+        <p>Every transition runs on GPU transform matrices, calibrated spring physics, and C2 spline curves, eliminating dropped frames across all viewports.</p>
+        <div class="p-meta">
+          <span>60+ FPS</span>
+          <span>DAMPED INERTIA</span>
+        </div>
+      </div>
+      <div class="process-card" data-cursor>
+        <div class="process-card-top">
+          <span class="p-k">03 // LASTING IMPACT</span>
+          <span class="p-jp">永続</span>
+        </div>
+        <h3>Shipped to Production</h3>
+        <p>Accessible keyboard bindings, pristine dark-mode color balance, and zero external packages ensure the software runs forever without bitrot.</p>
+        <div class="p-meta">
+          <span>WCAG AAA</span>
+          <span>ZERO BITROT</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stage 9: AFTERLIGHT // CONTACT -->
+  <section class="scene-layer" id="sec9">
+    <div class="fg" data-fg="sec9" aria-hidden="true">
+      <span class="fg-el fg-lantern" data-fg-in="left">
+        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/stone-lantern.webp" alt="" width="1024" height="1499" loading="lazy" decoding="async">
+      </span>
+      <span class="fg-el fg-sakura fg-el--flip fg-el--sway" data-fg-in="right">
+        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/sakura-branch.webp" alt="" width="1536" height="1024" loading="lazy" decoding="async">
+      </span>
+      <span class="fg-el fg-grass" data-fg-in="up">
+        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/tall-grass.webp" alt="" width="1717" height="916" loading="lazy" decoding="async">
+      </span>
+    </div>
+    <div class="contact-flank">
+      <div class="chapter-eyebrow">
+        <span class="dot"></span>
+        <span>THE EXIT</span>
+        <span class="rule"></span>
+        <span class="kanji-marker">残光</span>
+      </div>
+      <h2 class="monumental-heading exit-heading bebas-display"><span>LET'S BUILD</span><br><span class="exit-outline">SOMETHING<span class="dot-red">.</span></span></h2>
+      <p class="editorial-sub">AI tutors. Animation engines. Game compilers. Available for high-impact software architectures and technical tooling.</p>
+      <div class="contact-links">
+        <a href="mailto:subadeepankgm@gmail.com" onclick="if (typeof copyInquiryContact === 'function') copyInquiryContact('subadeepankgm@gmail.com', 'EMAIL COPIED')" class="contact-link" data-cursor aria-label="01 // Mail">
+          <span class="link-num">01 //</span>
+          <span class="link-label">MAIL</span>
+          <span class="link-badge" aria-hidden="true">
+            <svg viewBox="0 0 16 16" fill="none" width="13" height="13">
+              <rect x="1.5" y="3.5" width="13" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/>
+              <path d="M2.5 4.5l5.5 4.5 5.5-4.5" stroke="currentColor" stroke-width="1.2"/>
+            </svg>
+          </span>
+          <span class="link-arrow">↗</span>
+        </a>
+        <span class="contact-sep" aria-hidden="true"></span>
+        <a href="https://www.instagram.com/theepanxub/" target="_blank" rel="noopener" class="contact-link" data-cursor aria-label="02 // Instagram">
+          <span class="link-num">02 //</span>
+          <span class="link-label">INSTAGRAM</span>
+          <span class="link-arrow">↗</span>
+        </a>
+        <span class="contact-sep" aria-hidden="true"></span>
+        <a href="https://github.com/Subadeepan-Y" target="_blank" rel="noopener" class="contact-link" data-cursor aria-label="03 // GitHub">
+          <span class="link-num">03 //</span>
+          <span class="link-label">GITHUB</span>
+          <span class="link-arrow">↗</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- Bottom Horizontal Stepper for Work Stages -->
+<div id="workStepper">
+  <button type="button" class="step-dot" onclick="jumpTo(2)">01 IGRADEIFY</button>
+  <button type="button" class="step-dot" onclick="jumpTo(3)">02 MANIM-TS</button>
+  <button type="button" class="step-dot" onclick="jumpTo(4)">03 DUEL DECK</button>
+  <button type="button" class="step-dot" onclick="jumpTo(5)">04 BUDDY</button>
+  <button type="button" class="step-dot" onclick="jumpTo(6)">05 GREATE</button>
+  <button type="button" class="step-dot" onclick="jumpTo(7)">06 VAULT</button>
+</div>
+
+<!-- Bottom Scrubber HUD -->
+<div id="hud">
+  <span id="hudCurSec">00</span>
+  <div class="hud-bar"><div class="hud-fill" id="hudFill"></div></div>
+  <span id="hudPhase">THE HIDDEN GATE</span>
+</div>
+
+<!-- Whisper-thin Minimalist Keyboard Guide -->
+<div id="keyGuide" onclick="openHotkeyModal()" aria-label="Open Keyboard Shortcuts" role="button" tabindex="0">
+  <span>[0-9] JUMP</span>
+  <span class="sep">·</span>
+  <span>[M] AUDIO</span>
+  <span class="sep">·</span>
+  <span>[SPACE] DOSSIER</span>
+  <span class="sep">·</span>
+  <span class="key-hint">[?] ALL</span>
+</div>
+
+<!-- Bottom Edge Editorial Metadata Coordinates HUD -->
+<div id="hankoToast" aria-live="polite">COPIED // 影</div>
+  <div id="bottomMetaHud" class="bottom-meta-hud" aria-hidden="true">
+  <div class="meta-left">— 35°00'N 135°46'E // KYOTO VOID</div>
+  <div class="meta-center">
+    <span class="meta-yr">1611</span>
+    <span class="meta-inf">∞</span>
+    <span id="metaChapterIdx" class="meta-chapter">00</span>
+    <span class="meta-inf">∞</span>
+    <span class="meta-yr">2026</span>
+  </div>
+  <div class="meta-right">EST. 2026 // STILLNESS IN CRAFT</div>
+</div>
+
+<!-- ==================== MINIMALIST KYOTO HOTKEY HUD MODAL ==================== -->
+<div id="hotkeyModal" class="hotkey-modal" role="dialog" aria-modal="true" aria-label="Keyboard Shortcuts">
+  <div class="hotkey-scrim" onclick="closeHotkeyModal()"></div>
+  <div class="hotkey-card">
+    <div class="hotkey-head">
+      <div class="hotkey-title">
+        <span class="hotkey-hanko">影</span>
+        <span class="hotkey-label">SANCTUARY SHORTCUTS // 作法</span>
+      </div>
+      <button type="button" class="hotkey-close" onclick="closeHotkeyModal()" aria-label="Close shortcuts">✕</button>
+    </div>
+    <div class="hotkey-grid">
+      <div class="hotkey-row">
+        <span class="hotkey-key">[ 0 - 9 ]</span>
+        <span class="hotkey-desc">CHAPTER JUMP (00 TO 09)</span>
+      </div>
+      <div class="hotkey-row">
+        <span class="hotkey-key">[ M ]</span>
+        <span class="hotkey-desc">SOUND TOGGLE // 静寂</span>
+      </div>
+      <div class="hotkey-row">
+        <span class="hotkey-key">[ SPACE / ENTER ]</span>
+        <span class="hotkey-desc">EXPLORE DOSSIER</span>
+      </div>
+      <div class="hotkey-row">
+        <span class="hotkey-key">[ ← / → ]</span>
+        <span class="hotkey-desc">SLIDE PREV / NEXT</span>
+      </div>
+      <div class="hotkey-row">
+        <span class="hotkey-key">[ ? ]</span>
+        <span class="hotkey-desc">TOGGLE SHORTCUTS HUD</span>
+      </div>
+      <div class="hotkey-row">
+        <span class="hotkey-key">[ ESC ]</span>
+        <span class="hotkey-desc">CLOSE ACTIVE MODAL</span>
+      </div>
+    </div>
+    <div class="hotkey-foot">
+      <span>KYOTO VOID // PRESS [ESC] OR CLICK OUTSIDE TO RETURN</span>
+    </div>
+  </div>
+</div>
+
+${modalHtml}
+
+<!-- Three.js Local Runtime -->
+<script src="secret-pathways-assets/three.min.js"></script>
+
+<script>
+(function () {
+  'use strict';
+
+  // Interactive Camera Focus Dolly-In & 3D Landmark Raycast State
+  let targetFocusAmt = 0.0;
+  let focusAmt = 0.0;
+  let mouseIsOverInteractiveDom = false;
+  let isHouseHovered = false;
+  let hoveredHouseIdx = -1;
+  const houseRaycaster = new THREE.Raycaster();
+  const houseRayMouse = new THREE.Vector2(-999, -999);
+  window.__houseRaycaster = houseRaycaster;
+  window.__houseRayMouse = houseRayMouse;
+  window.__isHouseHovered = false;
+  window.__hoveredHouseIndex = -1;
+
+  // --- 0. MINIMALIST KYOTO PRELOADER INITIALIZATION ---
+  const pre = document.getElementById('pre');
+  const preFill = document.getElementById('preFill');
+  const prePct = document.getElementById('prePct');
+  let loadProgress = 15;
+  let preDone = false;
+
+  function setPreProgress(val) {
+    if (preDone) return;
+    loadProgress = Math.max(loadProgress, Math.min(100, val));
+    if (preFill) preFill.style.width = loadProgress + '%';
+    if (prePct) prePct.textContent = String(Math.round(loadProgress));
+    if (loadProgress >= 100) {
+      finishPreloader();
+    }
+  }
+  window.setPreProgress = setPreProgress;
+
+  function finishPreloader() {
+    if (preDone) return;
+    preDone = true;
+    if (preFill) preFill.style.width = '100%';
+    if (prePct) prePct.textContent = '100';
+    if (pre) {
+      pre.classList.add('done');
+      pre.style.pointerEvents = 'none';
+    }
+    document.body.classList.add('loaded');
+  }
+  window.finishPreloader = finishPreloader;
+
+  // --- 1. PROCEDURAL TEXTURES & GEOMETRY GENERATORS ---
+  function cvs(w, h) {
+    const c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    return c;
+  }
+
+  function texWetStoneNormal() {
+    const W = 128, H = 128, c = cvs(W, H), x = c.getContext('2d');
+    const imgData = x.createImageData(W, H);
+    for (let y = 0; y < H; y++) {
+      for (let i = 0; i < W; i++) {
+        const idx = (y * W + i) * 4;
+        const nx = Math.sin(i * 0.35) * Math.cos(y * 0.35);
+        const ny = Math.cos(i * 0.35) * Math.sin(y * 0.35);
+        imgData.data[idx] = Math.floor(128 + nx * 55);      // Normal X (Red)
+        imgData.data[idx + 1] = Math.floor(128 + ny * 55);  // Normal Y (Green)
+        imgData.data[idx + 2] = 255;                        // Normal Z (Blue)
+        imgData.data[idx + 3] = 255;
+      }
+    }
+    x.putImageData(imgData, 0, 0);
+    const tex = new THREE.CanvasTexture(c);
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(24, 24);
+    return tex;
+  }
+
+  function texMountainRidge(isRear) {
+    const W = 1024, H = 256;
+    const c = cvs(W, H), x = c.getContext('2d');
+    x.clearRect(0, 0, W, H);
+
+    const grad = x.createLinearGradient(0, 0, 0, H);
+    if (isRear) {
+      grad.addColorStop(0, 'rgba(8, 6, 11, 0.96)');
+      grad.addColorStop(0.62, 'rgba(5, 4, 8, 0.75)');
+      grad.addColorStop(1.0, 'rgba(4, 5, 7, 0.0)');
+    } else {
+      grad.addColorStop(0, 'rgba(12, 9, 15, 0.98)');
+      grad.addColorStop(0.58, 'rgba(7, 5, 10, 0.82)');
+      grad.addColorStop(1.0, 'rgba(4, 5, 7, 0.0)');
+    }
+    x.fillStyle = grad;
+
+    x.beginPath();
+    x.moveTo(0, H);
+
+    const stepCount = isRear ? 64 : 96;
+    const dx = W / stepCount;
+    for (let i = 0; i <= stepCount; i++) {
+      const px = i * dx;
+      const normX = i / stepCount;
+      let py;
+      if (isRear) {
+        py = 38 + Math.sin(normX * Math.PI * 2.8) * 26 + Math.cos(normX * Math.PI * 5.2) * 16 + Math.sin(normX * Math.PI * 11) * 8;
+      } else {
+        py = 52 + Math.sin(normX * Math.PI * 3.4) * 22 + Math.cos(normX * Math.PI * 7.1) * 14 + Math.sin(normX * Math.PI * 15) * 6;
+      }
+      x.lineTo(px, py);
+    }
+
+    x.lineTo(W, H);
+    x.closePath();
+    x.fill();
+
+    const tex = new THREE.CanvasTexture(c);
+    return tex;
+  }
+
+  function texShoji() {
+    const W = 512, H = 512, c = cvs(W, H), x = c.getContext('2d');
+    x.fillStyle = 'rgba(235, 175, 95, 0.22)';
+    x.fillRect(0, 0, W, H);
+    x.strokeStyle = 'rgba(20, 12, 10, 0.95)';
+    x.lineWidth = 4;
+    const cols = 8, rows = 8;
+    for (let i = 1; i < cols; i++) {
+      x.beginPath(); x.moveTo(W / cols * i, 0); x.lineTo(W / cols * i, H); x.stroke();
+    }
+    for (let j = 1; j < rows; j++) {
+      x.beginPath(); x.moveTo(0, H / rows * j); x.lineTo(W, H / rows * j); x.stroke();
+    }
+    x.lineWidth = 10;
+    x.strokeRect(0, 0, W, H);
+    return new THREE.CanvasTexture(c);
+  }
+
+  function texShojiViolet() {
+    const W = 512, H = 512, c = cvs(W, H), x = c.getContext('2d');
+    x.fillStyle = 'rgba(165, 95, 235, 0.22)';
+    x.fillRect(0, 0, W, H);
+    x.strokeStyle = 'rgba(16, 10, 24, 0.95)';
+    x.lineWidth = 4;
+    const cols = 8, rows = 8;
+    for (let i = 1; i < cols; i++) {
+      x.beginPath(); x.moveTo(W / cols * i, 0); x.lineTo(W / cols * i, H); x.stroke();
+    }
+    for (let j = 1; j < rows; j++) {
+      x.beginPath(); x.moveTo(0, H / rows * j); x.lineTo(W, H / rows * j); x.stroke();
+    }
+    x.lineWidth = 10;
+    x.strokeRect(0, 0, W, H);
+    return new THREE.CanvasTexture(c);
+  }
+
+  const shojiTex = texShoji();
+  const shojiVioletTex = texShojiViolet();
+
+  function texTanzaku() {
+    const W = 64, H = 256, c = cvs(W, H), x = c.getContext('2d');
+    x.fillStyle = '#f5eedc';
+    x.fillRect(0, 0, W, H);
+    // Subtle paper edge border
+    x.strokeStyle = '#e0d5c1';
+    x.lineWidth = 2;
+    x.strokeRect(2, 2, W - 4, H - 4);
+    // Vermilion header accent band
+    x.fillStyle = '#c82a20';
+    x.fillRect(16, 24, 32, 8);
+    // Kanji accent for wind
+    x.fillStyle = '#1a1816';
+    x.font = 'bold 28px serif';
+    x.textAlign = 'center';
+    x.textBaseline = 'middle';
+    x.fillText('風', 32, 110);
+    // Vermilion red hanko stamp
+    x.fillStyle = '#c82a20';
+    x.fillRect(22, 180, 20, 20);
+    x.fillStyle = '#f5eedc';
+    x.fillRect(26, 184, 12, 12);
+    return new THREE.CanvasTexture(c);
+  }
+  const tanzakuTex = texTanzaku();
+
+  // Curving Japanese Hip-and-Gable Roof Generator (From Kage Source)
+  function roofGeo(A, B, R, Hr, thick, flare) {
+    const NX = 28, NZ = 20, FL = flare === undefined ? 0.30 : flare, e = 1e-3;
+    const smooth = (min, max, t) => {
+      const v = Math.max(0, Math.min(1, (t - min) / (max - min)));
+      return v * v * (3 - 2 * v);
+    };
+    const hAt = (x, z) => {
+      const cx = Math.min(1, Math.abs(x) / A), cz = Math.min(1, Math.abs(z) / B);
+      const tx = Math.max(0, (Math.abs(x) - R) / Math.max(A - R, 1e-4));
+      const t = Math.min(1, Math.max(tx, cz));
+      return Hr * Math.pow(1 - t, 1.45) + FL * Hr * smooth(0.72, 1, t) * (0.52 + 0.68 * Math.min(cx, cz));
+    };
+
+    const pos = [], nor = [], uv = [], idx = [];
+    const N = new THREE.Vector3();
+    const VPS = (NX + 1) * (NZ + 1);
+
+    for (let k = 0; k < 2; k++) {
+      for (let j = 0; j <= NZ; j++) for (let i = 0; i <= NX; i++) {
+        const x = -A + 2 * A * i / NX, z = -B + 2 * B * j / NZ;
+        N.set(-(hAt(x + e, z) - hAt(x - e, z)) / (2 * e), 1, -(hAt(x, z + e) - hAt(x, z - e)) / (2 * e)).normalize();
+        if (k) N.negate();
+        pos.push(x, hAt(x, z) - (k ? thick : 0), z);
+        nor.push(N.x, N.y, N.z);
+        uv.push(x * 0.14, z * 0.14);
+      }
+      for (let j = 0; j < NZ; j++) for (let i = 0; i < NX; i++) {
+        const a = k * VPS + j * (NX + 1) + i, b = a + 1, c = a + NX + 2, d = a + NX + 1;
+        k ? idx.push(a, c, b, a, d, c) : idx.push(a, b, c, a, c, d);
+      }
+    }
+
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
+    g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+    g.setIndex(idx);
+    return g;
+  }
+
+  // --- 2. THREE.JS SCENE, CAMERA, RENDERER ---
+  const canvas = document.getElementById('gl');
+  const renderer = new THREE.WebGLRenderer({
+    canvas: canvas,
+    antialias: true,
+    alpha: false,
+    powerPreference: 'high-performance'
+  });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.15;
+  window.renderer = renderer;
+  window.__glRenderer = renderer;
+
+  let rafId = null;
+  let isContextLost = false;
+
+  canvas.addEventListener('webglcontextlost', function (e) {
+    e.preventDefault();
+    isContextLost = true;
+    console.warn('WebGL context lost. Pausing render loop.');
+    if (rafId) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+  }, false);
+
+  canvas.addEventListener('webglcontextrestored', function () {
+    console.log('WebGL context restored. Rebuilding procedural textures and resuming render loop.');
+    isContextLost = false;
+    if (typeof reloadShojiTextures === 'function') {
+      reloadShojiTextures();
+    }
+    if (typeof mistPlane !== 'undefined' && mistPlane && mistPlane.material && typeof texMistGradient === 'function') {
+      try { if (mistTex) mistTex.dispose(); } catch (_) {}
+      mistTex = texMistGradient();
+      mistPlane.material.map = mistTex;
+      mistPlane.material.needsUpdate = true;
+    }
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    if (!document.hidden && !rafId) {
+      rafId = requestAnimationFrame(tick);
+    }
+  }, false);
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x040507);
+  scene.fog = new THREE.FogExp2(0x06080c, 0.022);
+  window.scene = scene;
+
+  const camera = new THREE.PerspectiveCamera(46, window.innerWidth / window.innerHeight, 0.1, 280);
+
+  // --- 3. ATMOSPHERIC LIGHTING WITH DYNAMIC CHROMATIC HARMONY ---
+  const ambientLight = new THREE.AmbientLight(0x0d121a, 1.4);
+  scene.add(ambientLight);
+  scene.add(camera);
+
+  // --- 3B. KAGE 3D ETHEREAL AMBER WISP / FIREFLY TRAIL ---
+  function texWispDot() {
+    const S = 64, c = cvs(S, S), x = c.getContext('2d');
+    const g = x.createRadialGradient(S / 2, S / 2, 0, S / 2, S / 2, S / 2);
+    g.addColorStop(0.0, 'rgba(255, 250, 230, 1.0)');     // Intense luminous white-gold core
+    g.addColorStop(0.12, 'rgba(255, 200, 100, 0.95)');   // Warm golden aura
+    g.addColorStop(0.35, 'rgba(255, 150, 50, 0.60)');    // Warm amber glow
+    g.addColorStop(0.65, 'rgba(220, 85, 20, 0.20)');     // Soft twilight edge
+    g.addColorStop(1.0, 'rgba(180, 50, 10, 0.0)');       // Transparent outer fade
+    x.fillStyle = g;
+    x.fillRect(0, 0, S, S);
+    return new THREE.CanvasTexture(c);
+  }
+
+  const WISP_COUNT = 64;
+  const WISP_D = 3.2;
+  const wispGeo = new THREE.BufferGeometry();
+  const wispPositions = new Float32Array(WISP_COUNT * 3);
+  const wispAlphas = new Float32Array(WISP_COUNT);
+  const wispSizes = new Float32Array(WISP_COUNT);
+
+  for (let i = 0; i < WISP_COUNT; i++) {
+    wispPositions[i * 3 + 0] = 0;
+    wispPositions[i * 3 + 1] = 0;
+    wispPositions[i * 3 + 2] = -WISP_D;
+    wispAlphas[i] = 0.0;
+    wispSizes[i] = 0.024;
+  }
+
+  wispGeo.setAttribute('position', new THREE.BufferAttribute(wispPositions, 3));
+  wispGeo.setAttribute('aA', new THREE.BufferAttribute(wispAlphas, 1));
+  wispGeo.setAttribute('aS', new THREE.BufferAttribute(wispSizes, 1));
+
+  const wispMat = new THREE.ShaderMaterial({
+    uniforms: {
+      uTex: { value: texWispDot() },
+      uPx: { value: window.innerHeight }
+    },
+    transparent: true,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    depthTest: false,
+    fog: false,
+    vertexShader: 'attribute float aA; attribute float aS; uniform float uPx; varying float vA; void main() { vA = aA; vec4 mv = modelViewMatrix * vec4(position, 1.0); gl_PointSize = uPx * aS / max(-mv.z, 0.4); gl_Position = projectionMatrix * mv; }',
+    fragmentShader: 'uniform sampler2D uTex; varying float vA; void main() { if (vA <= 0.001) discard; vec4 t = texture2D(uTex, gl_PointCoord); gl_FragColor = vec4(t.rgb, t.a * vA); }'
+  });
+
+  const wispPoints = new THREE.Points(wispGeo, wispMat);
+  wispPoints.frustumCulled = false;
+  wispPoints.renderOrder = 999;
+  camera.add(wispPoints);
+  window.wispPoints = wispPoints;
+
+  const WISP_STATE = {
+    list: [],
+    idx: 0,
+    acc: 0,
+    emitterX: 0,
+    emitterY: 0,
+    lastX: 0,
+    lastY: 0,
+    idleTimer: 0,
+    initialized: false
+  };
+
+  for (let i = 0; i < WISP_COUNT; i++) {
+    WISP_STATE.list.push({
+      life: 1.0,
+      duration: 1.2,
+      vx: 0,
+      vy: 0,
+      sz: 0.024,
+      ph: Math.random() * Math.PI * 2
+    });
+  }
+  window.WISP_STATE = WISP_STATE;
+
+  function updateWisps(clock) {
+    if (!wispPoints) return;
+    const g = wispGeo;
+    const P = g.attributes.position.array;
+    const A = g.attributes.aA.array;
+    const S = g.attributes.aS.array;
+    const L = WISP_STATE.list;
+    const dt = 0.016;
+
+    const halfH = Math.tan(((camera.fov || 46) * Math.PI) / 360) * WISP_D;
+    const halfW = halfH * (camera.aspect || 1.77);
+    const targetX = mouse.x * halfW;
+    const targetY = -mouse.y * halfH;
+
+    if (!WISP_STATE.initialized) {
+      WISP_STATE.emitterX = WISP_STATE.lastX = targetX;
+      WISP_STATE.emitterY = WISP_STATE.lastY = targetY;
+      WISP_STATE.initialized = true;
+    }
+
+    WISP_STATE.emitterX += (targetX - WISP_STATE.emitterX) * 0.24;
+    WISP_STATE.emitterY += (targetY - WISP_STATE.emitterY) * 0.24;
+
+    const dx = WISP_STATE.emitterX - WISP_STATE.lastX;
+    const dy = WISP_STATE.emitterY - WISP_STATE.lastY;
+    const moved = Math.hypot(dx, dy);
+    const ang = moved > 1e-4 ? Math.atan2(dy, dx) : 0;
+
+    const spawn = (x, y, a, weak) => {
+      const i = WISP_STATE.idx;
+      WISP_STATE.idx = (WISP_STATE.idx + 1) % WISP_COUNT;
+      const w = L[i];
+      const k = i * 3;
+
+      P[k] = x + (Math.random() - 0.5) * 0.09;
+      P[k + 1] = y + (Math.random() - 0.5) * 0.09;
+      P[k + 2] = -WISP_D + (Math.random() - 0.5) * 0.22;
+
+      w.life = 0;
+      w.duration = (weak ? 1.9 : 1.35) + Math.random() * 0.8;
+      w.vx = -Math.cos(a) * 0.06 + (Math.random() - 0.5) * 0.16;
+      w.vy = -Math.sin(a) * 0.06 + (Math.random() - 0.5) * 0.14 + 0.025;
+      w.sz = (weak ? 0.020 : 0.032) + Math.random() * 0.016;
+      w.ph = Math.random() * Math.PI * 2;
+    };
+
+    WISP_STATE.acc += moved;
+    const STEP = 0.038;
+    let guard = 0;
+    while (WISP_STATE.acc >= STEP && guard++ < 8) {
+      WISP_STATE.acc -= STEP;
+      const t = moved > 1e-5 ? Math.min(1, (guard * STEP) / moved) : 0;
+      spawn(WISP_STATE.lastX + dx * t, WISP_STATE.lastY + dy * t, ang, false);
+    }
+
+    if (moved < 0.003) {
+      WISP_STATE.idleTimer += dt;
+      if (WISP_STATE.idleTimer > 0.40) {
+        WISP_STATE.idleTimer = 0;
+        spawn(WISP_STATE.emitterX, WISP_STATE.emitterY, Math.random() * Math.PI * 2, true);
+      }
+    } else {
+      WISP_STATE.idleTimer = 0;
+    }
+
+    WISP_STATE.lastX = WISP_STATE.emitterX;
+    WISP_STATE.lastY = WISP_STATE.emitterY;
+
+    for (let i = 0; i < WISP_COUNT; i++) {
+      const w = L[i];
+      const k = i * 3;
+      if (w.life >= 1.0) {
+        A[i] = 0;
+        continue;
+      }
+      w.life += dt / w.duration;
+      const u = Math.min(1.0, w.life);
+
+      P[k] += (w.vx + Math.sin(clock * 1.6 + w.ph) * 0.09) * dt;
+      P[k + 1] += (w.vy + Math.cos(clock * 1.3 + w.ph * 1.5) * 0.08 + 0.022) * dt;
+      w.vx *= 0.95;
+      w.vy *= 0.95;
+
+      const fadeIn = Math.min(1.0, u * 7.0);
+      const fadeOut = Math.pow(1.0 - u, 1.7);
+      A[i] = fadeIn * fadeOut * 0.92;
+      S[i] = w.sz * (1.0 + u * 0.5);
+    }
+
+    g.attributes.position.needsUpdate = true;
+    g.attributes.aA.needsUpdate = true;
+    g.attributes.aS.needsUpdate = true;
+  }
+
+  const moonLight = new THREE.DirectionalLight(0xe0231c, 2.2);
+  moonLight.position.set(22, 28, -35);
+  scene.add(moonLight);
+  window.moonLight = moonLight;
+
+  // Dynamic Shrine Light Color Palette for Project-Specific 3D Lighting Modulation
+  const STAGE_LIGHT_COLORS = [
+    0xff5a3c, // Stage 0 (Hero): Vermilion Moon glow
+    0xff7a3c, // Stage 1 (Maker): Charred cedar amber
+    0xf59e0b, // Stage 2 (iGradeify): Imperial scholar gold & amber
+    0x38bdf8, // Stage 3 (manim-ts): Celestial astronomical cyan
+    0xc026d3, // Stage 4 (Duel Deck): Dual crimson & amethyst flare
+    0xfbbf24, // Stage 5 (Desktop Buddy): Warm garden hearth amber
+    0xef4444, // Stage 6 (Greate Engine): Forge kiln molten flame
+    0x10b981, // Stage 7 (Personal Cloud): Sacred vault emerald
+    0xff5a3c, // Stage 8 (Process): Quiet twilight embers
+    0xff5a3c  // Stage 9 (Afterlight): Quiet twilight embers
+  ];
+  window.STAGE_LIGHT_COLORS = STAGE_LIGHT_COLORS;
+
+  // Stage-Specific Atmospheric Fog Density Curve (Mountain Temple Depth Dynamics)
+  const STAGE_FOG_DENSITIES = [
+    0.022, // Stage 0 (The Hidden Gate): distant Sanmon palace softly veiled in mountain fog
+    0.020, // Stage 1 (The Maker): gently thinning atmospheric mist
+    0.016, // Stage 2 (iGradeify): cleared mist for razor-sharp artifact details
+    0.016, // Stage 3 (manim-ts): cleared mist for razor-sharp artifact details
+    0.016, // Stage 4 (Duel Deck): cleared mist for razor-sharp artifact details
+    0.016, // Stage 5 (Desktop Buddy): cleared mist for razor-sharp artifact details
+    0.016, // Stage 6 (Greate Engine): cleared mist for razor-sharp artifact details
+    0.016, // Stage 7 (Personal Cloud): cleared mist for razor-sharp artifact details
+    0.024, // Stage 8 (The Ritual): deeper temple precinct fog
+    0.026  // Stage 9 (Afterlight): mystic twilight mountain haze
+  ];
+  window.STAGE_FOG_DENSITIES = STAGE_FOG_DENSITIES;
+
+  const targetLightColor = new THREE.Color(STAGE_LIGHT_COLORS[0]);
+  const shrineLight = new THREE.PointLight(STAGE_LIGHT_COLORS[0], 3.2, 35);
+  shrineLight.position.set(0, 4.5, -6);
+  scene.add(shrineLight);
+  window.shrineLight = shrineLight;
+
+  // Common Materials
+  const woodMat = new THREE.MeshStandardMaterial({ color: 0x140f10, roughness: 0.85 });
+  const pillarWoodMat = new THREE.MeshStandardMaterial({ color: 0x221a18, roughness: 0.75 });
+  const redLacquerMat = new THREE.MeshStandardMaterial({ color: 0x9b1b1b, roughness: 0.45, metalness: 0.25 });
+  const purpleLacquerMat = new THREE.MeshStandardMaterial({ color: 0x4c1d6b, roughness: 0.45, metalness: 0.25 });
+  const goldBrassMat = new THREE.MeshStandardMaterial({ color: 0xc89b3c, roughness: 0.35, metalness: 0.85 });
+  window.__goldBrassMat = goldBrassMat;
+  const darkTileMat = new THREE.MeshStandardMaterial({ color: 0x1b2328, roughness: 0.72, metalness: 0.12 });
+  const redTileMat = new THREE.MeshStandardMaterial({ color: 0x5a1816, roughness: 0.75, metalness: 0.1 });
+  const purpleTileMat = new THREE.MeshStandardMaterial({ color: 0x2a1438, roughness: 0.75, metalness: 0.1 });
+  const whitePlasterMat = new THREE.MeshStandardMaterial({ color: 0xe8e5dc, roughness: 0.92 });
+  const stoneMat = new THREE.MeshStandardMaterial({ color: 0x24282e, roughness: 0.92 });
+  const paperMat = new THREE.MeshStandardMaterial({
+    color: 0xffaa48,
+    emissive: 0xffaa48,
+    emissiveIntensity: 0.85,
+    roughness: 0.9,
+    metalness: 0.0
+  });
+  const paperVioletMat = new THREE.MeshStandardMaterial({
+    color: 0xc27aff,
+    emissive: 0xc27aff,
+    emissiveIntensity: 0.85,
+    roughness: 0.9,
+    metalness: 0.0
+  });
+  const cedarShingleMat = new THREE.MeshStandardMaterial({ color: 0x3d271d, roughness: 0.88 });
+  const hinokiMat = new THREE.MeshStandardMaterial({ color: 0x8a5d3b, roughness: 0.78 });
+  const darkIronMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1c, roughness: 0.55, metalness: 0.85 });
+  function texWaterRipple() {
+    const W = 256, H = 256, c = cvs(W, H), ctx = c.getContext('2d');
+    const img = ctx.createImageData(W, H);
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        const u = (x / W) * Math.PI * 8;
+        const v = (y / H) * Math.PI * 8;
+        const dx = Math.sin(u) * Math.cos(v * 0.8) + Math.cos(u * 1.6 + v * 1.2) * 0.4;
+        const dy = Math.cos(u * 0.8) * Math.sin(v) + Math.sin(u * 1.4 + v * 1.7) * 0.4;
+        const nx = Math.floor(Math.min(255, Math.max(0, (dx * 0.35 + 0.5) * 255)));
+        const ny = Math.floor(Math.min(255, Math.max(0, (dy * 0.35 + 0.5) * 255)));
+        const idx = (y * W + x) * 4;
+        img.data[idx] = nx;
+        img.data[idx + 1] = ny;
+        img.data[idx + 2] = 255;
+        img.data[idx + 3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+    const tex = new THREE.CanvasTexture(c);
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(4, 3);
+    return tex;
+  }
+  const waterRippleTex = texWaterRipple();
+  window.waterRippleTex = waterRippleTex;
+
+  const waterReflectMat = new THREE.MeshStandardMaterial({
+    color: 0x050e18,
+    roughness: 0.08,
+    metalness: 0.92,
+    normalMap: waterRippleTex,
+    normalScale: new THREE.Vector2(0.22, 0.22)
+  });
+  window.waterReflectMat = waterReflectMat;
+
+  // Windswept Dark Japanese Black Pine (Kuromatsu)
+  function createJapanesePineTree(scale = 1.0, isLeft = true) {
+    const tree = new THREE.Group();
+    const pineBarkMat = pillarWoodMat;
+    const pineNeedleMat = new THREE.MeshStandardMaterial({
+      color: 0x0a1c12,
+      roughness: 0.92,
+      metalness: 0.04
+    });
+
+    const dir = isLeft ? 1 : -1;
+    const trunkCurve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(0, 0, 0),
+      new THREE.Vector3(dir * 0.35 * scale, 1.2 * scale, 0.1 * scale),
+      new THREE.Vector3(dir * 0.65 * scale, 2.4 * scale, -0.2 * scale),
+      new THREE.Vector3(dir * 0.40 * scale, 3.6 * scale, 0.1 * scale),
+      new THREE.Vector3(dir * 0.10 * scale, 4.5 * scale, 0)
+    ]);
+    const trunkGeo = new THREE.TubeGeometry(trunkCurve, 20, 0.18 * scale, 8, false);
+    const trunk = new THREE.Mesh(trunkGeo, pineBarkMat);
+    tree.add(trunk);
+
+    const padConfigs = [
+      { x: dir * 0.55 * scale, y: 1.8 * scale, z: 0.4 * scale, rx: 1.1 * scale },
+      { x: -dir * 0.45 * scale, y: 2.6 * scale, z: -0.3 * scale, rx: 1.2 * scale },
+      { x: dir * 0.85 * scale, y: 3.2 * scale, z: 0.2 * scale, rx: 1.3 * scale },
+      { x: -dir * 0.35 * scale, y: 3.9 * scale, z: 0.3 * scale, rx: 1.0 * scale },
+      { x: dir * 0.15 * scale, y: 4.6 * scale, z: 0, rx: 0.9 * scale }
+    ];
+
+    padConfigs.forEach(cfg => {
+      const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.06 * scale, 0.09 * scale, 0.8 * scale, 6), pineBarkMat);
+      arm.position.set(cfg.x * 0.6, cfg.y - 0.15 * scale, (cfg.z || 0) * 0.6);
+      arm.rotation.z = dir * 0.45;
+      tree.add(arm);
+
+      const pad = new THREE.Mesh(new THREE.CylinderGeometry(cfg.rx * 0.7, cfg.rx, 0.24 * scale, 10), pineNeedleMat);
+      pad.position.set(cfg.x, cfg.y, cfg.z || 0);
+      tree.add(pad);
+      const cap = new THREE.Mesh(new THREE.SphereGeometry(cfg.rx * 0.75, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2), pineNeedleMat);
+      cap.position.set(cfg.x, cfg.y + 0.12 * scale, cfg.z || 0);
+      tree.add(cap);
+    });
+
+    return tree;
+  }
+  const bambooMat = new THREE.MeshStandardMaterial({ color: 0x6e783a, roughness: 0.65 });
+  const bronzeBellMat = new THREE.MeshStandardMaterial({ color: 0x4a3b22, roughness: 0.40, metalness: 0.75 });
+
+  // Scholar plaque calligraphy texture
+  function texScholarPlaque() {
+    const W = 256, H = 128, c = cvs(W, H), x = c.getContext('2d');
+    x.fillStyle = '#110d0e';
+    x.fillRect(0, 0, W, H);
+    x.strokeStyle = '#c89b3c';
+    x.lineWidth = 6;
+    x.strokeRect(6, 6, W - 12, H - 12);
+    x.lineWidth = 2;
+    x.strokeRect(12, 12, W - 24, H - 24);
+    x.fillStyle = '#f5eedc';
+    x.font = 'bold 54px serif';
+    x.textAlign = 'center';
+    x.textBaseline = 'middle';
+    x.fillText('\u5b78\u5bae', W / 2, H / 2);
+    return new THREE.CanvasTexture(c);
+  }
+
+  // Japanese Tokukyo (Dougong) Eaves Bracket Complex
+  function createDougongBracket(scale = 1.0) {
+    const bg = new THREE.Group();
+    const daito = new THREE.Mesh(new THREE.BoxGeometry(0.32 * scale, 0.18 * scale, 0.32 * scale), pillarWoodMat);
+    daito.position.y = 0.09 * scale;
+    bg.add(daito);
+    const hijiki = new THREE.Mesh(new THREE.BoxGeometry(0.88 * scale, 0.14 * scale, 0.22 * scale), pillarWoodMat);
+    hijiki.position.set(0, 0.23 * scale, 0.08 * scale);
+    bg.add(hijiki);
+    [-0.34, 0.34].forEach(x => {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(0.18 * scale, 0.12 * scale, 0.18 * scale), pillarWoodMat);
+      m.position.set(x * scale, 0.34 * scale, 0.08 * scale);
+      bg.add(m);
+    });
+    const upperArm = new THREE.Mesh(new THREE.BoxGeometry(0.20 * scale, 0.14 * scale, 0.55 * scale), pillarWoodMat);
+    upperArm.position.set(0, 0.40 * scale, 0.18 * scale);
+    bg.add(upperArm);
+    return bg;
+  }
+
+  function createTokukyoRow(width, count, y, z, rotY = 0) {
+    const rowGroup = new THREE.Group();
+    const step = width / Math.max(1, count - 1);
+    for (let i = 0; i < count; i++) {
+      const b = createDougongBracket(0.85);
+      b.position.set(-width / 2 + i * step, y, z);
+      if (rotY) b.rotation.y = rotY;
+      rowGroup.add(b);
+    }
+    return rowGroup;
+  }
+
+  // Wind-bell (Furin / Futaku) with wind-catching tanzaku
+  function createFurinBell(scale = 0.7) {
+    const bellGroup = new THREE.Group();
+    const bell = new THREE.Mesh(new THREE.ConeGeometry(0.18 * scale, 0.30 * scale, 12), bronzeBellMat);
+    bell.rotation.x = Math.PI;
+    bell.position.y = -0.15 * scale;
+    bellGroup.add(bell);
+    const bead = new THREE.Mesh(new THREE.SphereGeometry(0.06 * scale, 8, 8), goldBrassMat);
+    bead.position.y = -0.32 * scale;
+    bellGroup.add(bead);
+    const tanzaku = new THREE.Mesh(new THREE.PlaneGeometry(0.12 * scale, 0.50 * scale), new THREE.MeshBasicMaterial({
+      map: tanzakuTex,
+      transparent: true,
+      side: THREE.DoubleSide
+    }));
+    tanzaku.position.y = -0.62 * scale;
+    bellGroup.add(tanzaku);
+    return bellGroup;
+  }
+
+  // Japanese Kouran Balustrade
+  function createBalustrade(width, height = 0.72, numPosts = 5) {
+    const balGroup = new THREE.Group();
+    const topRail = new THREE.Mesh(new THREE.BoxGeometry(width, 0.08, 0.12), pillarWoodMat);
+    topRail.position.y = height;
+    balGroup.add(topRail);
+    const botRail = new THREE.Mesh(new THREE.BoxGeometry(width, 0.06, 0.10), pillarWoodMat);
+    botRail.position.y = 0.08;
+    balGroup.add(botRail);
+    const step = width / Math.max(1, numPosts - 1);
+    for (let i = 0; i < numPosts; i++) {
+      const px = -width / 2 + i * step;
+      const post = new THREE.Mesh(new THREE.BoxGeometry(0.08, height, 0.08), pillarWoodMat);
+      post.position.set(px, height / 2, 0);
+      balGroup.add(post);
+      const giboshi = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.12, 8), goldBrassMat);
+      giboshi.position.set(px, height + 0.06, 0);
+      balGroup.add(giboshi);
+    }
+    return balGroup;
+  }
+
+  // Golden Dragon-Carp Shachi (Shachihoko)
+  function createShachihoko(scale = 1.0) {
+    const sGroup = new THREE.Group();
+    const bodyCurve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(0, 0, 0),
+      new THREE.Vector3(0.12 * scale, 0.35 * scale, 0),
+      new THREE.Vector3(0.05 * scale, 0.70 * scale, 0),
+      new THREE.Vector3(-0.10 * scale, 0.95 * scale, 0)
+    ]);
+    const bodyGeo = new THREE.TubeGeometry(bodyCurve, 16, 0.14 * scale, 8, false);
+    const body = new THREE.Mesh(bodyGeo, goldBrassMat);
+    sGroup.add(body);
+    const head = new THREE.Mesh(new THREE.BoxGeometry(0.26 * scale, 0.24 * scale, 0.22 * scale), goldBrassMat);
+    head.position.set(0, 0.10 * scale, 0);
+    sGroup.add(head);
+    const tail = new THREE.Mesh(new THREE.ConeGeometry(0.22 * scale, 0.40 * scale, 4), goldBrassMat);
+    tail.rotation.z = -Math.PI / 4;
+    tail.position.set(-0.16 * scale, 1.08 * scale, 0);
+    sGroup.add(tail);
+    for (let i = 0; i < 3; i++) {
+      const fin = new THREE.Mesh(new THREE.ConeGeometry(0.06 * scale, 0.16 * scale, 4), goldBrassMat);
+      fin.position.set(0.14 * scale, (0.35 + i * 0.22) * scale, 0);
+      fin.rotation.z = -Math.PI / 3;
+      sGroup.add(fin);
+    }
+    return sGroup;
+  }
+
+  // Helper for Shoji window bay
+  function createShojiBay(w, h, isViolet) {
+    const bayGroup = new THREE.Group();
+    const bayPaperMat = isViolet ? paperVioletMat.clone() : paperMat.clone();
+    const paperMesh = new THREE.Mesh(new THREE.PlaneGeometry(w, h), bayPaperMat);
+    paperMesh.userData.isShoji = true;
+    paperMesh.userData.baseEmissive = 0.85;
+    const gridMesh = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({
+      map: isViolet ? shojiVioletTex : shojiTex,
+      transparent: true,
+      side: THREE.DoubleSide
+    }));
+    gridMesh.position.z = 0.04;
+    bayGroup.add(paperMesh);
+    bayGroup.add(gridMesh);
+    return bayGroup;
+  }
+
+  // --- 4. THE GRAND BACKGROUND TEMPLE SANCTUARY ---
+  const WORLD_BG = new THREE.Group();
+  scene.add(WORLD_BG);
+
+  // Wet Stone Courtyard Ground
+  const wetStoneNormal = texWetStoneNormal();
+  const groundMat = new THREE.MeshStandardMaterial({
+    color: 0x070b10,
+    metalness: 0.25,
+    roughness: 0.35,
+    normalMap: wetStoneNormal,
+    normalScale: new THREE.Vector2(0.25, 0.25)
+  });
+  const groundMesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(160, 220, 32, 48),
+    groundMat
+  );
+  groundMesh.rotation.x = -Math.PI / 2;
+  groundMesh.position.set(0, -0.05, -42.5);
+  WORLD_BG.add(groundMesh);
+  window.__groundMesh = groundMesh;
+
+  // Central Sacred Stone Pathway (参道 - Sandō) along the entire mountain avenue (z = 20 down to z = -105)
+  const pathMat = new THREE.MeshStandardMaterial({
+    color: 0x181d24,
+    metalness: 0.22,
+    roughness: 0.68,
+    normalMap: wetStoneNormal,
+    normalScale: new THREE.Vector2(0.3, 0.3)
+  });
+  const pathGeo = new THREE.PlaneGeometry(5.6, 130, 8, 64);
+  const pathMesh = new THREE.Mesh(pathGeo, pathMat);
+  pathMesh.rotation.x = -Math.PI / 2;
+  pathMesh.position.set(0, 0.01, -42.5);
+  WORLD_BG.add(pathMesh);
+  window.__pathMesh = pathMesh;
+
+  // Curbs and stone borders along the avenue
+  const curbGeo = new THREE.BoxGeometry(0.32, 0.10, 130);
+  const curbMat = new THREE.MeshStandardMaterial({ color: 0x22272e, roughness: 0.90 });
+  const curbL = new THREE.Mesh(curbGeo, curbMat);
+  curbL.position.set(-2.8, 0.04, -42.5);
+  WORLD_BG.add(curbL);
+  const curbR = new THREE.Mesh(curbGeo, curbMat);
+  curbR.position.set(2.8, 0.04, -42.5);
+  WORLD_BG.add(curbR);
+
+  // Stepping flagstones along the avenue up to the Moonwater Sanctuary entrance
+  const slabGeo = new THREE.BoxGeometry(5.0, 0.04, 1.4);
+  const slabMat = new THREE.MeshStandardMaterial({ color: 0x2b323c, roughness: 0.82 });
+  const SLAB_GROUP = new THREE.Group();
+  for (let sz = 18; sz >= -92; sz -= 2.6) {
+    const slab = new THREE.Mesh(slabGeo, slabMat);
+    slab.position.set(0, 0.025, sz);
+    SLAB_GROUP.add(slab);
+  }
+  WORLD_BG.add(SLAB_GROUP);
+
+  // --- 4.5 SUMMIT MOONWATER SANCTUARY POND (STAGE 9: z = -94 to -108) ---
+  // Reflective Water Mirror Basin
+  const basinBorderGeo = new THREE.BoxGeometry(18.6, 0.40, 15.0);
+  const basinBorder = new THREE.Mesh(basinBorderGeo, stoneMat);
+  basinBorder.position.set(0, 0.12, -101.0);
+  WORLD_BG.add(basinBorder);
+
+  const moonwaterMat = new THREE.MeshStandardMaterial({
+    color: 0x040b15,
+    metalness: 0.95,
+    roughness: 0.05,
+    normalMap: waterRippleTex,
+    normalScale: new THREE.Vector2(0.20, 0.20)
+  });
+  window.moonwaterMat = moonwaterMat;
+
+  const moonwaterGeo = new THREE.PlaneGeometry(18.0, 14.4);
+  const moonPoolWater = new THREE.Mesh(moonwaterGeo, moonwaterMat);
+  moonPoolWater.rotation.x = -Math.PI / 2;
+  moonPoolWater.position.set(0, 0.24, -101.0);
+  WORLD_BG.add(moonPoolWater);
+  window.__moonPoolWater = moonPoolWater;
+
+  // Solitary Weathered Stone Lantern resting on Raised Stone Cairn Islet directly inside pool
+  const cairnGroup = new THREE.Group();
+  cairnGroup.position.set(2.4, 0, -100.0);
+
+  const cairnBase = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.50, 2.4), stoneMat);
+  cairnBase.position.y = 0.25; cairnGroup.add(cairnBase);
+  const cairnUpper = new THREE.Mesh(new THREE.DodecahedronGeometry(0.85, 1), stoneMat);
+  cairnUpper.scale.set(1.4, 0.65, 1.4);
+  cairnUpper.position.y = 0.48; cairnGroup.add(cairnUpper);
+
+  const lBase = new THREE.Mesh(new THREE.CylinderGeometry(0.40, 0.52, 0.25, 6), stoneMat);
+  lBase.position.y = 0.68; cairnGroup.add(lBase);
+  const lPost = new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.24, 1.25, 8), stoneMat);
+  lPost.position.y = 1.38; cairnGroup.add(lPost);
+  const lPlat = new THREE.Mesh(new THREE.CylinderGeometry(0.65, 0.50, 0.22, 6), stoneMat);
+  lPlat.position.y = 2.08; cairnGroup.add(lPlat);
+  const lChamber = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.55, 0.62), stoneMat);
+  lChamber.position.y = 2.45; cairnGroup.add(lChamber);
+
+  const moonwaterFire = new THREE.Mesh(new THREE.SphereGeometry(0.20, 16, 16), new THREE.MeshBasicMaterial({ color: 0xffaa48 }));
+  moonwaterFire.position.y = 2.45; cairnGroup.add(moonwaterFire);
+
+  const moonwaterLight = new THREE.PointLight(0xff8a38, 2.4, 14);
+  moonwaterLight.position.y = 2.45; cairnGroup.add(moonwaterLight);
+
+  const lCap = new THREE.Mesh(new THREE.ConeGeometry(1.15, 0.50, 6), stoneMat);
+  lCap.position.y = 2.90; cairnGroup.add(lCap);
+  const lFinial = new THREE.Mesh(new THREE.SphereGeometry(0.16, 10, 10), stoneMat);
+  lFinial.position.y = 3.25; cairnGroup.add(lFinial);
+
+  WORLD_BG.add(cairnGroup);
+  window.__moonwaterLantern = { fire: moonwaterFire, light: moonwaterLight };
+
+  // 7 Mossy Basalt Stepping Stones traversing across pool towards distant Torii arch
+  const basaltCoords = [
+    { x: -1.6, z: -94.8, r: 0.62 },
+    { x: -1.8, z: -96.8, r: 0.58 },
+    { x: -1.3, z: -99.0, r: 0.65 },
+    { x: -0.5, z: -101.2, r: 0.60 },
+    { x:  0.3, z: -103.4, r: 0.66 },
+    { x:  0.7, z: -105.6, r: 0.62 },
+    { x:  0.4, z: -107.8, r: 0.68 }
+  ];
+  const basaltMat = new THREE.MeshStandardMaterial({
+    color: 0x182416,
+    roughness: 0.94,
+    metalness: 0.06
+  });
+  const basaltStones = [];
+  basaltCoords.forEach((c, idx) => {
+    const stone = new THREE.Mesh(
+      new THREE.CylinderGeometry(c.r * 0.90, c.r, 0.22, 12),
+      basaltMat
+    );
+    stone.position.set(c.x, 0.28, c.z);
+    stone.rotation.y = idx * 0.55;
+    stone.rotation.x = (idx % 2 === 0 ? 0.03 : -0.03);
+    WORLD_BG.add(stone);
+    basaltStones.push(stone);
+  });
+  window.__moonwaterBasalts = basaltStones;
+
+  // Subtle Water Mist Plane hovering right above water surface with gentle breathing opacity
+  function texMoonwaterMist() {
+    const W = 512, H = 256;
+    const c = cvs(W, H), ctx = c.getContext('2d');
+    const grad = ctx.createRadialGradient(W / 2, H / 2, 10, W / 2, H / 2, W / 2);
+    grad.addColorStop(0.0, 'rgba(220, 235, 245, 0.75)');
+    grad.addColorStop(0.40, 'rgba(180, 205, 225, 0.35)');
+    grad.addColorStop(0.75, 'rgba(140, 165, 190, 0.12)');
+    grad.addColorStop(1.0, 'rgba(0, 0, 0, 0.0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+    return new THREE.CanvasTexture(c);
+  }
+  const moonwaterMistMat = new THREE.MeshBasicMaterial({
+    map: texMoonwaterMist(),
+    transparent: true,
+    opacity: 0.18,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    side: THREE.DoubleSide
+  });
+  const moonwaterMist = new THREE.Mesh(new THREE.PlaneGeometry(17.4, 14.0), moonwaterMistMat);
+  moonwaterMist.rotation.x = -Math.PI / 2;
+  moonwaterMist.position.set(0, 0.32, -101.0);
+  WORLD_BG.add(moonwaterMist);
+  window.__moonwaterMist = moonwaterMist;
+
+  // Distant Torii Arch Silhouette at head of pool
+  const toriiSummit = createGrandTorii(-111.0, 1.35);
+  WORLD_BG.add(toriiSummit);
+  window.__toriiSummit = toriiSummit;
+
+  // Podium & Grand Staircase leading up to the Sanmon Sanctuary in the far mist
+  const PODIUM_Y = 6.0;
+  const TEMPLE_Z = -128;
+
+  const podium = new THREE.Mesh(new THREE.BoxGeometry(46, PODIUM_Y, 26), stoneMat);
+  podium.position.set(0, PODIUM_Y / 2, TEMPLE_Z);
+  WORLD_BG.add(podium);
+
+  const stepCount = 20;
+  for (let i = 0; i < stepCount; i++) {
+    const sy = (i + 1) * (PODIUM_Y / stepCount);
+    const sz = -115 - i * 0.60;
+    const step = new THREE.Mesh(new THREE.BoxGeometry(10.4, PODIUM_Y / stepCount + 0.04, 0.64), stoneMat);
+    step.position.set(0, sy - (PODIUM_Y / stepCount) / 2, sz);
+    WORLD_BG.add(step);
+  }
+
+  // Sanctuary Ground Mist & Luminous Light Spill Band across podium steps
+  function texMistGradient() {
+    const W = 512, H = 256;
+    const c = cvs(W, H), ctx = c.getContext('2d');
+    const grad = ctx.createRadialGradient(W / 2, H / 2, 20, W / 2, H / 2, W / 2);
+    grad.addColorStop(0.0, 'rgba(255, 185, 120, 0.95)');
+    grad.addColorStop(0.35, 'rgba(235, 130, 70, 0.55)');
+    grad.addColorStop(0.70, 'rgba(160, 90, 70, 0.20)');
+    grad.addColorStop(1.0, 'rgba(0, 0, 0, 0.0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+    return new THREE.CanvasTexture(c);
+  }
+
+  let mistTex = texMistGradient();
+  const mistMat = new THREE.MeshBasicMaterial({
+    map: mistTex,
+    transparent: true,
+    opacity: 0.18,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    fog: false,
+    side: THREE.DoubleSide
+  });
+  const mistGeo = new THREE.PlaneGeometry(16.0, 10.0);
+  const mistPlane = new THREE.Mesh(mistGeo, mistMat);
+  mistPlane.rotation.x = -Math.PI / 2 + 0.26;
+  mistPlane.position.set(0, 2.7, -92.0);
+  WORLD_BG.add(mistPlane);
+  window.mistPlane = mistPlane;
+
+  // The Grand Imperial Sanmon Palace
+  const palaceGroup = new THREE.Group();
+  palaceGroup.position.set(0, PODIUM_Y, TEMPLE_Z);
+
+  const gHall = new THREE.Mesh(new THREE.BoxGeometry(15.2, 5.2, 8.4), woodMat);
+  gHall.position.set(0, 2.6, 0);
+  palaceGroup.add(gHall);
+
+  for (let i = 0; i < 5; i++) {
+    const bay = createShojiBay(1.8, 2.7, false);
+    bay.position.set(-5.6 + i * 2.8, 2.6, 4.25);
+    palaceGroup.add(bay);
+  }
+  for (let i = 0; i < 6; i++) {
+    const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.36, 5.2, 12), pillarWoodMat);
+    pillar.position.set(-7.0 + i * 2.8, 2.6, 4.3);
+    palaceGroup.add(pillar);
+  }
+
+  // Authentic Japanese Ornamental Gilded Onigawara (Demon / Flower Ridge-End Tile)
+  function createGildedOnigawara(scale = 1.0) {
+    const oniGroup = new THREE.Group();
+    // Base stepped tile slab
+    const baseTile = new THREE.Mesh(new THREE.BoxGeometry(0.24 * scale, 0.62 * scale, 0.52 * scale), darkTileMat);
+    oniGroup.add(baseTile);
+    // Toribusuma curved arched brim
+    const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.28 * scale, 0.28 * scale, 0.22 * scale, 12, 1, false, 0, Math.PI), darkTileMat);
+    brim.rotation.z = Math.PI / 2;
+    brim.position.set(0, 0.22 * scale, 0);
+    oniGroup.add(brim);
+    // Gilded flower / demon relief medallion
+    const goldPlate = new THREE.Mesh(new THREE.CylinderGeometry(0.22 * scale, 0.22 * scale, 0.08 * scale, 16), goldBrassMat);
+    goldPlate.rotation.z = Math.PI / 2;
+    goldPlate.position.set(0.12 * scale, 0, 0);
+    oniGroup.add(goldPlate);
+    // Gilded Chrysanthemum 8-facet inner blossom
+    const flower = new THREE.Mesh(new THREE.CylinderGeometry(0.15 * scale, 0.15 * scale, 0.10 * scale, 8), goldBrassMat);
+    flower.rotation.z = Math.PI / 2;
+    flower.position.set(0.13 * scale, 0, 0);
+    oniGroup.add(flower);
+    // Gilded curved demon horns / crown finials
+    [-0.14 * scale, 0.14 * scale].forEach((zOff, hi) => {
+      const horn = new THREE.Mesh(new THREE.ConeGeometry(0.055 * scale, 0.32 * scale, 4), goldBrassMat);
+      horn.position.set(0.04 * scale, 0.28 * scale, zOff);
+      horn.rotation.z = (hi === 0 ? -0.25 : 0.25);
+      horn.rotation.x = (hi === 0 ? -0.2 : 0.2);
+      oniGroup.add(horn);
+    });
+    // Gilded flaring wings (hire)
+    [-0.24 * scale, 0.24 * scale].forEach(zOff => {
+      const wing = new THREE.Mesh(new THREE.BoxGeometry(0.06 * scale, 0.28 * scale, 0.10 * scale), goldBrassMat);
+      wing.position.set(0.04 * scale, -0.10 * scale, zOff);
+      oniGroup.add(wing);
+    });
+    return oniGroup;
+  }
+  const sanmonOnigawara = [];
+
+  const lowerRoof = new THREE.Mesh(roofGeo(10.2, 6.8, 3.4, 2.8, 0.42, 0.32), darkTileMat);
+  lowerRoof.position.set(0, 5.6, 0);
+  palaceGroup.add(lowerRoof);
+
+  // Lower roof ridge-end gilded onigawara tiles
+  [-4.7, 4.7].forEach((x, idx) => {
+    const oni = createGildedOnigawara(0.95);
+    oni.position.set(x, 8.55, 0);
+    oni.rotation.y = idx === 0 ? -Math.PI / 2 : Math.PI / 2;
+    palaceGroup.add(oni);
+    sanmonOnigawara.push(oni);
+  });
+
+  // 4 Procedural Bronze Wind Bells (Fūrin 風鈴) on Sanmon Eaves
+  const furinBells = [];
+  const furinTanzaku = [];
+  // bronzeBellMat is already declared above
+  const tanzakuMat = new THREE.MeshStandardMaterial({
+    map: tanzakuTex,
+    roughness: 0.85,
+    side: THREE.DoubleSide,
+    transparent: true
+  });
+
+  const furinCorners = [
+    [-9.8, 6.2, 6.5],   // Front-Left
+    [9.8, 6.2, 6.5],    // Front-Right
+    [9.8, 6.2, -6.5],   // Rear-Right
+    [-9.8, 6.2, -6.5]   // Rear-Left
+  ];
+
+  furinCorners.forEach((pos) => {
+    const furin = new THREE.Group();
+    furin.position.set(pos[0], pos[1], pos[2]);
+
+    // Suspension wire from roof eave
+    const wire = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.22, 6), bronzeBellMat);
+    wire.position.y = -0.11;
+    furin.add(wire);
+
+    // Bronze Bell Cup
+    const bell = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.14, 0.22, 16), bronzeBellMat);
+    bell.position.y = -0.32;
+    furin.add(bell);
+
+    // Bronze Clapper Bead
+    const clapper = new THREE.Mesh(new THREE.SphereGeometry(0.035, 8, 8), bronzeBellMat);
+    clapper.position.y = -0.42;
+    furin.add(clapper);
+
+    // Tanzaku (短冊) Paper Wind Strip Group (Pivot at suspension bead)
+    const tanzakuGroup = new THREE.Group();
+    tanzakuGroup.position.set(0, -0.42, 0);
+
+    const thread = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.12, 6), bronzeBellMat);
+    thread.position.y = -0.06;
+    tanzakuGroup.add(thread);
+
+    const paperStrip = new THREE.Mesh(new THREE.PlaneGeometry(0.12, 0.70), tanzakuMat);
+    paperStrip.position.y = -0.12 - 0.35; // Top attached to thread bottom
+    tanzakuGroup.add(paperStrip);
+
+    furin.add(tanzakuGroup);
+    palaceGroup.add(furin);
+
+    furinBells.push(furin);
+    furinTanzaku.push(tanzakuGroup);
+  });
+  window.__furinBells = furinBells;
+  window.__furinTanzaku = furinTanzaku;
+
+  const upHall = new THREE.Mesh(new THREE.BoxGeometry(10.8, 3.8, 6.2), woodMat);
+  upHall.position.set(0, 9.6, 0);
+  palaceGroup.add(upHall);
+
+  const deck = new THREE.Mesh(new THREE.BoxGeometry(13.2, 0.3, 8.6), pillarWoodMat);
+  deck.position.set(0, 7.8, 0);
+  palaceGroup.add(deck);
+
+  for (let i = 0; i < 4; i++) {
+    const bay = createShojiBay(1.3, 1.7, false);
+    bay.position.set(-4.5 + i * 3.0, 9.7, 3.15);
+    palaceGroup.add(bay);
+  }
+
+  const plaque = new THREE.Mesh(new THREE.BoxGeometry(2.0, 1.4, 0.16), goldBrassMat);
+  plaque.position.set(0, 9.8, 3.2);
+  palaceGroup.add(plaque);
+
+  const upperRoof = new THREE.Mesh(roofGeo(11.8, 7.8, 3.8, 4.8, 0.48, 0.35), darkTileMat);
+  upperRoof.position.set(0, 12.0, 0);
+  palaceGroup.add(upperRoof);
+
+  const ridge = new THREE.Mesh(new THREE.BoxGeometry(8.2, 0.7, 1.1), darkTileMat);
+  ridge.position.set(0, 17.6, 0);
+  palaceGroup.add(ridge);
+
+  // Upper roof ridge-end gilded onigawara tiles
+  [-4.15, 4.15].forEach((x, idx) => {
+    const oni = createGildedOnigawara(1.15);
+    oni.position.set(x, 17.85, 0);
+    oni.rotation.y = idx === 0 ? -Math.PI / 2 : Math.PI / 2;
+    palaceGroup.add(oni);
+    sanmonOnigawara.push(oni);
+  });
+
+  // Copper Ridge-Crest Ornament Line along Upper Roof Peak
+  const copperMat = new THREE.MeshStandardMaterial({ color: 0xb86c38, roughness: 0.32, metalness: 0.88 });
+  const copperRidgeGroup = new THREE.Group();
+
+  // Continuous copper ridge spine
+  const copperSpine = new THREE.Mesh(new THREE.BoxGeometry(8.35, 0.14, 0.32), copperMat);
+  copperSpine.position.set(0, 18.0, 0);
+  copperRidgeGroup.add(copperSpine);
+
+  // 15 repeating ornamental copper crest finials across ridge peak
+  const crestCount = 15;
+  for (let ci = 0; ci < crestCount; ci++) {
+    const cx = -3.7 + (ci / (crestCount - 1)) * 7.4;
+    // Base collet
+    const collet = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.07, 0.07, 8), copperMat);
+    collet.position.set(cx, 18.10, 0);
+    copperRidgeGroup.add(collet);
+    // Trefoil diamond crest spike
+    const spike = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.32, 4), copperMat);
+    spike.position.set(cx, 18.28, 0);
+    spike.rotation.y = Math.PI / 4;
+    copperRidgeGroup.add(spike);
+    // Copper bead
+    const bead = new THREE.Mesh(new THREE.SphereGeometry(0.04, 8, 8), copperMat);
+    bead.position.set(cx, 18.44, 0);
+    copperRidgeGroup.add(bead);
+  }
+
+  // Central Sacred Flaming Pearl Jewel Finial (Hōju 宝珠) at roof apex
+  const hojuBase = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.30, 0.12, 12), copperMat);
+  hojuBase.position.set(0, 18.12, 0);
+  copperRidgeGroup.add(hojuBase);
+  const hojuPearl = new THREE.Mesh(new THREE.SphereGeometry(0.18, 16, 16), copperMat);
+  hojuPearl.position.set(0, 18.30, 0);
+  copperRidgeGroup.add(hojuPearl);
+  const hojuFlame = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.46, 8), goldBrassMat);
+  hojuFlame.position.set(0, 18.58, 0);
+  copperRidgeGroup.add(hojuFlame);
+  const hojuFin = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.36, 0.20), goldBrassMat);
+  hojuFin.position.set(0, 18.52, 0);
+  copperRidgeGroup.add(hojuFin);
+
+  palaceGroup.add(copperRidgeGroup);
+  window.__sanmonOnigawara = sanmonOnigawara;
+  window.__sanmonCopperCrest = copperRidgeGroup;
+
+  [-1, 1].forEach(s => {
+    const wing = new THREE.Mesh(new THREE.BoxGeometry(8.0, 3.6, 5.6), woodMat);
+    wing.position.set(s * 11.6, 1.8, 1.6);
+    palaceGroup.add(wing);
+
+    for (let i = 0; i < 3; i++) {
+      const bay = createShojiBay(1.4, 1.8, false);
+      bay.position.set(s * 11.6 + (i - 1) * 2.4, 1.8, 4.45);
+      palaceGroup.add(bay);
+    }
+
+    const wingRoof = new THREE.Mesh(roofGeo(5.4, 4.2, 1.5, 2.0, 0.34, 0.28), darkTileMat);
+    wingRoof.position.set(s * 11.6, 3.6, 1.6);
+    palaceGroup.add(wingRoof);
+  });
+
+  WORLD_BG.add(palaceGroup);
+
+  // Grand Torii Gate Avenue
+  function createGrandTorii(z, scale) {
+    const tGroup = new THREE.Group();
+    const pillarGeo = new THREE.CylinderGeometry(0.42 * scale, 0.50 * scale, 12 * scale, 16);
+    const pL = new THREE.Mesh(pillarGeo, redLacquerMat); pL.position.set(-5.2 * scale, 6 * scale, 0); tGroup.add(pL);
+    const pR = new THREE.Mesh(pillarGeo, redLacquerMat); pR.position.set(5.2 * scale, 6 * scale, 0); tGroup.add(pR);
+
+    [-1, 1].forEach(side => {
+      const ring = new THREE.Mesh(new THREE.CylinderGeometry(0.46 * scale, 0.46 * scale, 0.4 * scale, 16), goldBrassMat);
+      ring.position.set(side * 5.2 * scale, 9.8 * scale, 0);
+      tGroup.add(ring);
+    });
+
+    const kasagi = new THREE.Mesh(new THREE.BoxGeometry(15 * scale, 0.85 * scale, 1.0 * scale), redLacquerMat);
+    kasagi.position.set(0, 12.2 * scale, 0);
+    tGroup.add(kasagi);
+
+    [-1, 1].forEach(side => {
+      const cap = new THREE.Mesh(new THREE.BoxGeometry(0.7 * scale, 0.95 * scale, 1.1 * scale), goldBrassMat);
+      cap.position.set(side * 7.5 * scale, 12.2 * scale, 0);
+      tGroup.add(cap);
+    });
+
+    const nuki = new THREE.Mesh(new THREE.BoxGeometry(12.8 * scale, 0.6 * scale, 0.7 * scale), redLacquerMat);
+    nuki.position.set(0, 10.4 * scale, 0);
+    tGroup.add(nuki);
+
+    tGroup.position.z = z;
+    return tGroup;
+  }
+  const toriiFront = createGrandTorii(9.5, 1.0); WORLD_BG.add(toriiFront);
+  const toriiMid = createGrandTorii(-2.0, 1.15); WORLD_BG.add(toriiMid);
+  const toriiInner = createGrandTorii(-60.0, 1.25); WORLD_BG.add(toriiInner);
+
+  // Sacred Shimenawa Cord & Wind-Swaying Shide Streamers on Entrance Torii
+  const shimenawaMat = new THREE.MeshStandardMaterial({ color: 0xcbb07a, roughness: 0.88, metalness: 0.08 });
+  const shideMat = new THREE.MeshStandardMaterial({ color: 0xf5f3ea, roughness: 0.82, side: THREE.DoubleSide });
+  const tieMat = new THREE.MeshStandardMaterial({ color: 0xc82a20, roughness: 0.55 });
+
+  const ropePoints = [];
+  const numRopePts = 16;
+  for (let i = 0; i <= numRopePts; i++) {
+    const u = (i / numRopePts) * 2 - 1; // -1 to 1
+    const x = u * 4.9;
+    const sag = (1 - u * u) * 0.85;
+    const y = 9.85 - sag;
+    const z = 0.15 + (1 - u * u) * 0.08;
+    ropePoints.push(new THREE.Vector3(x, y, z));
+  }
+  const ropeCurve = new THREE.CatmullRomCurve3(ropePoints);
+  const ropeGeo = new THREE.TubeGeometry(ropeCurve, 40, 0.13, 8, false);
+  const shimenawaRope = new THREE.Mesh(ropeGeo, shimenawaMat);
+  toriiFront.add(shimenawaRope);
+  window.__shimenawaRope = shimenawaRope;
+
+  // Vermilion binding ties at rope anchor ends
+  [-4.8, 4.8].forEach(endX => {
+    const endTie = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.28, 12), tieMat);
+    endTie.rotation.z = Math.PI / 2;
+    endTie.position.set(endX, 9.85, 0.15);
+    toriiFront.add(endTie);
+  });
+
+  // 4 Hanging Japanese zigzag paper streamers (Shide 紙垂)
+  const shideStreamers = [];
+  const shideXPositions = [-3.0, -1.0, 1.0, 3.0];
+  shideXPositions.forEach((x, idx) => {
+    const u = x / 4.9;
+    const sag = (1 - u * u) * 0.85;
+    const hangY = 9.85 - sag;
+    const hangZ = 0.15 + (1 - u * u) * 0.08;
+
+    // Vermilion binding tie at streamer suspension point
+    const tie = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.22, 12), tieMat);
+    tie.rotation.z = Math.PI / 2;
+    tie.position.set(x, hangY, hangZ);
+    toriiFront.add(tie);
+
+    // Streamer Group with pivot at the rope tie point
+    const shideGroup = new THREE.Group();
+    shideGroup.position.set(x, hangY - 0.06, hangZ + 0.05);
+
+    // Zigzag paper segments (alternating stepped panels)
+    const segs = [
+      { w: 0.32, h: 0.30, dx: -0.06, dy: -0.15 },
+      { w: 0.28, h: 0.30, dx:  0.06, dy: -0.42 },
+      { w: 0.24, h: 0.30, dx: -0.05, dy: -0.68 },
+      { w: 0.20, h: 0.34, dx:  0.05, dy: -0.96 }
+    ];
+    segs.forEach(s => {
+      const segMesh = new THREE.Mesh(new THREE.PlaneGeometry(s.w, s.h), shideMat);
+      segMesh.position.set(s.dx, s.dy, 0);
+      shideGroup.add(segMesh);
+    });
+
+    toriiFront.add(shideGroup);
+    shideStreamers.push(shideGroup);
+  });
+  window.__shideStreamers = shideStreamers;
+
+  // --- TORII ENTRANCE PERIMETER STONE WALLS (TSUIJIBEI 築地塀, z = 9.5) ---
+  const darkBaseStoneMat = new THREE.MeshStandardMaterial({ color: 0x22262a, roughness: 0.88, metalness: 0.12 });
+  const toriiPerimeterWalls = [];
+
+  function createTemplePerimeterWall(side) {
+    const wallGroup = new THREE.Group();
+    const startX = side * 5.8;
+    const endX = side * 14.0;
+    const wallCenterX = (startX + endX) / 2;
+    const wallLength = Math.abs(endX - startX); // 8.2m
+    const wallZ = 9.5;
+
+    // 1. Weathered Dark Stone Base (Ishigaki plinth, height 0.55m, depth 0.70m)
+    const baseStone = new THREE.Mesh(new THREE.BoxGeometry(wallLength, 0.55, 0.70), darkBaseStoneMat);
+    baseStone.position.set(wallCenterX, 0.275, wallZ);
+    wallGroup.add(baseStone);
+
+    // Stone base bevel lip
+    const baseLip = new THREE.Mesh(new THREE.BoxGeometry(wallLength + 0.10, 0.08, 0.74), darkBaseStoneMat);
+    baseLip.position.set(wallCenterX, 0.55, wallZ);
+    wallGroup.add(baseLip);
+
+    // 2. White-Plastered Wall Body (Shikkui wall, height 1.42m, depth 0.44m)
+    const plasterBody = new THREE.Mesh(new THREE.BoxGeometry(wallLength, 1.42, 0.44), whitePlasterMat);
+    plasterBody.position.set(wallCenterX, 0.55 + 0.71, wallZ);
+    wallGroup.add(plasterBody);
+
+    // Horizontal dark timber battens (Nageshi) running along mid-wall
+    [-0.14, 0.14].forEach(dz => {
+      const batten = new THREE.Mesh(new THREE.BoxGeometry(wallLength, 0.07, 0.04), pillarWoodMat);
+      batten.position.set(wallCenterX, 1.25, wallZ + dz);
+      wallGroup.add(batten);
+    });
+
+    // Sub-eave wooden purlin beam directly beneath tile coping
+    const purlin = new THREE.Mesh(new THREE.BoxGeometry(wallLength + 0.12, 0.10, 0.52), pillarWoodMat);
+    purlin.position.set(wallCenterX, 1.98, wallZ);
+    wallGroup.add(purlin);
+
+    // 3. Miniature Ceramic/Cedar Tile Gable Coping Rooflet (Yane-gawara)
+    const copingRoof = new THREE.Mesh(roofGeo(wallLength + 0.35, 0.88, 0.36, 0.24, 0.14, 0.12), darkTileMat);
+    copingRoof.position.set(wallCenterX, 2.02, wallZ);
+    wallGroup.add(copingRoof);
+
+    // Cylindrical ceramic ridge tile bar along apex
+    const ridgeTile = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, wallLength + 0.38, 12), darkTileMat);
+    ridgeTile.rotation.z = Math.PI / 2;
+    ridgeTile.position.set(wallCenterX, 2.30, wallZ);
+    wallGroup.add(ridgeTile);
+
+    // 4. Framed Wooden Side Gate Posts with Brass Fittings
+    [startX, endX].forEach((postX) => {
+      const postGroup = new THREE.Group();
+      postGroup.position.set(postX, 0, wallZ);
+
+      // Post base stone collar
+      const postBase = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.42, 0.68), darkBaseStoneMat);
+      postBase.position.y = 0.21;
+      postGroup.add(postBase);
+
+      // Main vertical post timber
+      const postPillar = new THREE.Mesh(new THREE.BoxGeometry(0.54, 2.45, 0.54), pillarWoodMat);
+      postPillar.position.y = 1.225;
+      postGroup.add(postPillar);
+
+      // Post decorative top cap (Kasagi cap)
+      const postCap = new THREE.Mesh(new THREE.ConeGeometry(0.48, 0.32, 4), darkTileMat);
+      postCap.rotation.y = Math.PI / 4;
+      postCap.position.y = 2.52;
+      postGroup.add(postCap);
+
+      // Gilded/brass ornamental fittings (Kanamono)
+      [0.65, 1.85].forEach(by => {
+        const brassBand = new THREE.Mesh(new THREE.BoxGeometry(0.57, 0.10, 0.57), goldBrassMat);
+        brassBand.position.y = by;
+        postGroup.add(brassBand);
+      });
+
+      [-0.28, 0.28].forEach(bz => {
+        const stud = new THREE.Mesh(new THREE.SphereGeometry(0.045, 8, 8), goldBrassMat);
+        stud.position.set(0, 1.25, bz);
+        postGroup.add(stud);
+      });
+
+      wallGroup.add(postGroup);
+    });
+
+    return wallGroup;
+  }
+
+  const leftPerimeterWall = createTemplePerimeterWall(-1);
+  const rightPerimeterWall = createTemplePerimeterWall(1);
+  WORLD_BG.add(leftPerimeterWall);
+  WORLD_BG.add(rightPerimeterWall);
+  toriiPerimeterWalls.push(leftPerimeterWall, rightPerimeterWall);
+  window.__toriiPerimeterWalls = toriiPerimeterWalls;
+
+  // Vermilion Moon
+  const MOON_POS = new THREE.Vector3(22, 34, -130);
+  const moonDisc = new THREE.Mesh(
+    new THREE.SphereGeometry(8.8, 48, 48),
+    new THREE.MeshBasicMaterial({ color: 0xff3b30, fog: false })
+  );
+  moonDisc.position.copy(MOON_POS);
+  WORLD_BG.add(moonDisc);
+
+  const moonHalo = new THREE.Mesh(
+    new THREE.RingGeometry(8.9, 13.5, 48),
+    new THREE.MeshBasicMaterial({ color: 0xe0231c, side: THREE.DoubleSide, transparent: true, opacity: 0.42, fog: false })
+  );
+  moonHalo.position.copy(MOON_POS);
+  moonHalo.position.z += 0.2;
+  WORLD_BG.add(moonHalo);
+  window.__moonHalo = moonHalo;
+  window.__moonDisc = moonDisc;
+
+  // --- 4B. DISTANT SACRED MOUNTAIN SILHOUETTES BEHIND SANMON PALACE (z = -140, -160, -180) ---
+  function texSacredMountainRidge(layer) {
+    const W = 1024, H = 256;
+    const c = cvs(W, H), ctx = c.getContext('2d');
+    ctx.clearRect(0, 0, W, H);
+
+    const grad = ctx.createLinearGradient(0, 0, 0, H);
+    if (layer === 0) {
+      // Near ridge (z = -140): sharp dark Kyoto mountain silhouette
+      grad.addColorStop(0.0, 'rgba(12, 9, 15, 0.98)');
+      grad.addColorStop(0.60, 'rgba(8, 6, 11, 0.85)');
+      grad.addColorStop(1.0, 'rgba(4, 5, 8, 0.0)');
+    } else if (layer === 1) {
+      // Mid ridge (z = -160): indigo-crimson atmospheric fog absorption
+      grad.addColorStop(0.0, 'rgba(26, 14, 22, 0.90)');
+      grad.addColorStop(0.58, 'rgba(16, 9, 16, 0.70)');
+      grad.addColorStop(1.0, 'rgba(6, 4, 9, 0.0)');
+    } else {
+      // Far sacred peaks (z = -180): deep crimson haze blending into horizon sky
+      grad.addColorStop(0.0, 'rgba(38, 18, 28, 0.78)');
+      grad.addColorStop(0.55, 'rgba(22, 11, 20, 0.45)');
+      grad.addColorStop(1.0, 'rgba(8, 5, 10, 0.0)');
+    }
+    ctx.fillStyle = grad;
+
+    ctx.beginPath();
+    ctx.moveTo(0, H);
+
+    const stepCount = 128;
+    const dx = W / stepCount;
+    for (let i = 0; i <= stepCount; i++) {
+      const px = i * dx;
+      const u = i / stepCount;
+      let py;
+      if (layer === 0) {
+        py = 55 + Math.sin(u * Math.PI * 3.6) * 28 + Math.cos(u * Math.PI * 7.4) * 16 + Math.sin(u * Math.PI * 16.5) * 8 + Math.cos(u * Math.PI * 31.0) * 3;
+      } else if (layer === 1) {
+        py = 42 + Math.sin(u * Math.PI * 2.7) * 32 + Math.cos(u * Math.PI * 5.6) * 20 + Math.sin(u * Math.PI * 11.2) * 9;
+      } else {
+        const centerBell = Math.exp(-Math.pow((u - 0.45) * 4.2, 2)) * 65;
+        py = 35 + Math.sin(u * Math.PI * 2.1) * 25 + Math.cos(u * Math.PI * 4.4) * 15 - centerBell;
+      }
+      ctx.lineTo(px, py);
+    }
+    ctx.lineTo(W, H);
+    ctx.closePath();
+    ctx.fill();
+
+    return new THREE.CanvasTexture(c);
+  }
+
+  const mountainConfigs = [
+    { z: -140, y: 10.5, w: 260, h: 24, opacity: 0.96 },
+    { z: -160, y: 14.5, w: 320, h: 30, opacity: 0.90 },
+    { z: -180, y: 18.0, w: 380, h: 36, opacity: 0.82 }
+  ];
+  const mountainRidges = mountainConfigs.map((cfg, layerIdx) => {
+    const mat = new THREE.MeshBasicMaterial({
+      map: texSacredMountainRidge(layerIdx),
+      transparent: true,
+      opacity: cfg.opacity,
+      fog: false,
+      depthWrite: false
+    });
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(cfg.w, cfg.h), mat);
+    mesh.position.set(0, cfg.y, cfg.z);
+    WORLD_BG.add(mesh);
+    return mesh;
+  });
+  window.__mountainRidges = mountainRidges;
+  window.__rearRidge = mountainRidges[1];
+  window.__midRidge = mountainRidges[0];
+
+  // Stone Lanterns
+  function createStoneLantern(x, z) {
+    const lGroup = new THREE.Group();
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.7, 0.5, 8), stoneMat); base.position.y = 0.25; lGroup.add(base);
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.26, 2.2, 8), stoneMat); post.position.y = 1.4; lGroup.add(post);
+    const box = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.9), stoneMat); box.position.y = 2.8; lGroup.add(box);
+    const fire = new THREE.Mesh(new THREE.SphereGeometry(0.24, 16, 16), new THREE.MeshBasicMaterial({ color: 0xff7a3c }));
+    fire.position.y = 2.8; lGroup.add(fire);
+    const roof = new THREE.Mesh(new THREE.ConeGeometry(1.2, 0.6, 6), stoneMat); roof.position.y = 3.6; lGroup.add(roof);
+
+    const light = new THREE.PointLight(0xff5a28, 1.2, 10);
+    light.position.y = 2.8;
+    lGroup.add(light);
+
+    lGroup.position.set(x, 0, z);
+    return { group: lGroup, fire: fire, light: light };
+  }
+
+  const LANTERN_CONFIGS = [
+    { x: -3.8, z:   8 },
+    { x:  3.8, z:   0 },
+    { x: -3.8, z:  -8 },
+    { x:  3.8, z: -16 },
+    { x: -3.8, z: -24 },
+    { x:  3.8, z: -32 },
+    { x: -3.8, z: -40 },
+    { x:  3.8, z: -48 },
+    { x: -3.8, z: -56 },
+    { x:  3.8, z: -64 },
+    { x: -3.8, z: -72 },
+    { x:  3.8, z: -80 },
+    { x: -3.8, z: -88 }
+  ];
+  const lanterns = LANTERN_CONFIGS.map(c => createStoneLantern(c.x, c.z));
+  lanterns.forEach(l => WORLD_BG.add(l.group));
+  window.__lanterns = lanterns;
+
+  // --- 4A-2. ZEN GARDEN RAKED SAND RIPPLES (SAMON 砂紋) AROUND 13 LANTERN BASES ---
+  function texSamonDiffuse() {
+    const W = 512, H = 512;
+    const c = cvs(W, H), ctx = c.getContext('2d');
+    const imgData = ctx.createImageData(W, H);
+    const data = imgData.data;
+    const cx = W / 2, cy = H / 2;
+    const R = W / 2;
+    const rIn = 0.55 / 2.4; // ~0.229 normalized inner radius
+
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        const dx = (x - cx) / R;
+        const dy = (y - cy) / R;
+        const dist = Math.hypot(dx, dy);
+        const idx = (y * W + x) * 4;
+
+        if (dist > 1.0 || dist < rIn - 0.05) {
+          data[idx + 0] = 0;
+          data[idx + 1] = 0;
+          data[idx + 2] = 0;
+          data[idx + 3] = 0;
+          continue;
+        }
+
+        // 5 Concentric Raked Sand Ridges
+        const ridgeNorm = (dist - rIn) / (1.0 - rIn);
+        const ridgeVal = 0.5 + 0.5 * Math.sin(ridgeNorm * 5.0 * Math.PI * 2.0 - Math.PI / 2.0);
+
+        // Fine zen gravel tone with subtle sand grain
+        const grain = ((x * 13 + y * 29) % 17) / 17.0 * 8;
+        const tone = Math.floor(44 + ridgeVal * 28 + grain);
+
+        // Feathered alpha falloff: inner feather & soft feathered outer boundary
+        let alpha = 1.0;
+        if (dist < rIn) {
+          alpha = Math.max(0, (dist - (rIn - 0.05)) / 0.05);
+        } else if (dist > 0.78) {
+          alpha = Math.max(0, (1.0 - dist) / 0.22);
+        }
+        alpha *= 0.88;
+
+        data[idx + 0] = tone;
+        data[idx + 1] = Math.floor(tone * 1.02);
+        data[idx + 2] = Math.floor(tone * 1.05);
+        data[idx + 3] = Math.floor(alpha * 255);
+      }
+    }
+    ctx.putImageData(imgData, 0, 0);
+    return new THREE.CanvasTexture(c);
+  }
+
+  function texSamonNormal() {
+    const W = 512, H = 512;
+    const c = cvs(W, H), ctx = c.getContext('2d');
+    const imgData = ctx.createImageData(W, H);
+    const data = imgData.data;
+    const cx = W / 2, cy = H / 2;
+    const R = W / 2;
+    const rIn = 0.55 / 2.4;
+
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        const dx = (x - cx) / R;
+        const dy = (y - cy) / R;
+        const dist = Math.hypot(dx, dy);
+        const idx = (y * W + x) * 4;
+
+        if (dist > 1.0 || dist < rIn - 0.05) {
+          data[idx + 0] = 128;
+          data[idx + 1] = 128;
+          data[idx + 2] = 255;
+          data[idx + 3] = 255;
+          continue;
+        }
+
+        // Concentric ridge gradient in radial direction (5 ridges)
+        const ridgeNorm = (dist - rIn) / (1.0 - rIn);
+        const slope = Math.cos(ridgeNorm * 5.0 * Math.PI * 2.0 - Math.PI / 2.0);
+        const dirX = dist > 0.001 ? dx / dist : 0;
+        const dirY = dist > 0.001 ? dy / dist : 0;
+
+        // Tangent space normal vector: perturbation along radial gradient
+        const strength = 0.65;
+        let nx = -dirX * slope * strength;
+        let ny = -dirY * slope * strength;
+        let nz = 1.0;
+        const len = Math.hypot(nx, ny, nz);
+        nx /= len; ny /= len; nz /= len;
+
+        data[idx + 0] = Math.floor((nx * 0.5 + 0.5) * 255);
+        data[idx + 1] = Math.floor((ny * 0.5 + 0.5) * 255);
+        data[idx + 2] = Math.floor((nz * 0.5 + 0.5) * 255);
+        data[idx + 3] = 255;
+      }
+    }
+    ctx.putImageData(imgData, 0, 0);
+    return new THREE.CanvasTexture(c);
+  }
+
+  const samonGeo = new THREE.RingGeometry(0.55, 2.4, 48);
+  const samonMat = new THREE.MeshStandardMaterial({
+    map: texSamonDiffuse(),
+    normalMap: texSamonNormal(),
+    normalScale: new THREE.Vector2(0.95, 0.95),
+    roughness: 0.75,
+    metalness: 0.12,
+    transparent: true,
+    depthWrite: false,
+    polygonOffset: true,
+    polygonOffsetFactor: -1,
+    polygonOffsetUnits: -1
+  });
+
+  const samonRings = [];
+  LANTERN_CONFIGS.forEach((lc, idx) => {
+    const ring = new THREE.Mesh(samonGeo, samonMat);
+    ring.rotation.x = -Math.PI / 2;
+    ring.rotation.z = idx * 0.38;
+    ring.position.set(lc.x, 0.012, lc.z);
+    WORLD_BG.add(ring);
+    samonRings.push(ring);
+  });
+  window.__samonRings = samonRings;
+
+  // --- 4A-3. LANTERN GROUND LIGHT POOL DECALS ---
+  function texLanternLightPool() {
+    const W = 256, H = 256;
+    const c = cvs(W, H), ctx = c.getContext('2d');
+    const grad = ctx.createRadialGradient(128, 128, 4, 128, 128, 128);
+    grad.addColorStop(0.0, 'rgba(255, 175, 75, 0.58)');
+    grad.addColorStop(0.25, 'rgba(255, 135, 45, 0.38)');
+    grad.addColorStop(0.55, 'rgba(220, 95, 25, 0.16)');
+    grad.addColorStop(0.85, 'rgba(180, 60, 15, 0.04)');
+    grad.addColorStop(1.0, 'rgba(0, 0, 0, 0.0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+    return new THREE.CanvasTexture(c);
+  }
+
+  const decalGeo = new THREE.PlaneGeometry(3.6, 3.6);
+  const decalTex = texLanternLightPool();
+  const lanternLightDecals = [];
+
+  LANTERN_CONFIGS.forEach((lc) => {
+    const decalMat = new THREE.MeshBasicMaterial({
+      map: decalTex,
+      transparent: true,
+      opacity: 0.65,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+    const decal = new THREE.Mesh(decalGeo, decalMat);
+    decal.rotation.x = -Math.PI / 2;
+    decal.position.set(lc.x, 0.015, lc.z);
+    WORLD_BG.add(decal);
+    lanternLightDecals.push(decal);
+  });
+  window.__lanternLightDecals = lanternLightDecals;
+
+  // --- 4B. ETHEREAL FLOATING KANJI WATERMARK PLANES ---
+  function texKanjiWatermark(char) {
+    const W = 512, H = 512;
+    const c = cvs(W, H), ctx = c.getContext('2d');
+    ctx.clearRect(0, 0, W, H);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = '300px "NotoJP", "Cinzel", "Yu Mincho", serif';
+    ctx.fillStyle = 'rgba(255, 235, 210, 0.92)';
+    ctx.fillText(char, W / 2, H / 2);
+    ctx.strokeStyle = 'rgba(255, 130, 60, 0.45)';
+    ctx.lineWidth = 3.5;
+    ctx.strokeText(char, W / 2, H / 2);
+    return new THREE.CanvasTexture(c);
+  }
+
+  const KANJI_CHARS = ['影', '道', '玄', '寂', '匠'];
+  const KANJI_POSITIONS = [
+    { x: -5.2, y: 5.4, z: -18, scale: 5.2, baseOpacity: 0.055 },
+    { x: 5.0, y: 7.2, z: -28, scale: 6.8, baseOpacity: 0.060 },
+    { x: -5.8, y: 9.0, z: -38, scale: 8.4, baseOpacity: 0.050 },
+    { x: 5.4, y: 11.2, z: -48, scale: 10.2, baseOpacity: 0.055 },
+    { x: 0.0, y: 13.5, z: -58, scale: 12.5, baseOpacity: 0.065 }
+  ];
+
+  const kanjiPlanes = [];
+  KANJI_CHARS.forEach((char, idx) => {
+    const cfg = KANJI_POSITIONS[idx];
+    const tex = texKanjiWatermark(char);
+    const mat = new THREE.MeshBasicMaterial({
+      map: tex,
+      transparent: true,
+      opacity: cfg.baseOpacity,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      fog: false,
+      side: THREE.DoubleSide
+    });
+    const geo = new THREE.PlaneGeometry(cfg.scale, cfg.scale);
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(cfg.x, cfg.y, cfg.z);
+    mesh.userData = {
+      baseX: cfg.x,
+      baseY: cfg.y,
+      baseZ: cfg.z,
+      baseOpacity: cfg.baseOpacity,
+      seed: idx * 1.618
+    };
+    WORLD_BG.add(mesh);
+    kanjiPlanes.push(mesh);
+  });
+  window.kanjiPlanes = kanjiPlanes;
+
+  // --- 4C. LANTERN FIREFLY MICRO-SPARKS ---
+  function texFireflySpark() {
+    const W = 64, H = 64;
+    const c = cvs(W, H), ctx = c.getContext('2d');
+    const grad = ctx.createRadialGradient(32, 32, 2, 32, 32, 32);
+    grad.addColorStop(0.0, 'rgba(255, 240, 195, 1.0)');
+    grad.addColorStop(0.25, 'rgba(255, 165, 45, 0.85)');
+    grad.addColorStop(0.65, 'rgba(220, 85, 25, 0.35)');
+    grad.addColorStop(1.0, 'rgba(0, 0, 0, 0.0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+    return new THREE.CanvasTexture(c);
+  }
+
+  // --- 4C. HELICAL FIREFLIES AROUND 13 AVENUE STONE LANTERNS (39 PARTICLES TOTAL) ---
+  const fireflyCount = 39;
+  const fireflyGeo = new THREE.BufferGeometry();
+  const fireflyPositions = new Float32Array(fireflyCount * 3);
+  const fireflyMeta = [];
+
+  LANTERN_CONFIGS.forEach((lc, idx) => {
+    for (let k = 0; k < 3; k++) {
+      const pIdx = idx * 3 + k;
+      const speed = (k === 1 ? -1.65 : 1.45 + k * 0.4);
+      const radius = 0.52 + k * 0.18;
+      const phase = (k * (Math.PI * 2 / 3)) + idx * 0.75;
+      const lanternY = 2.0;
+
+      const px = lc.x + Math.cos(phase) * radius;
+      const py = lanternY + Math.sin(phase) * 0.3 + 0.8;
+      const pz = lc.z + Math.sin(phase) * radius;
+
+      fireflyPositions[pIdx * 3 + 0] = px;
+      fireflyPositions[pIdx * 3 + 1] = py;
+      fireflyPositions[pIdx * 3 + 2] = pz;
+
+      fireflyMeta.push({
+        lanternX: lc.x,
+        lanternY: lanternY,
+        lanternZ: lc.z,
+        speed: speed,
+        radius: radius,
+        phase: phase
+      });
+    }
+  });
+
+  fireflyGeo.setAttribute('position', new THREE.BufferAttribute(fireflyPositions, 3));
+  const fireflyMat = new THREE.PointsMaterial({
+    size: 0.62,
+    map: texFireflySpark(),
+    transparent: true,
+    opacity: 0.85,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    fog: false
+  });
+  const fireflyParticles = new THREE.Points(fireflyGeo, fireflyMat);
+  WORLD_BG.add(fireflyParticles);
+  window.fireflyParticles = fireflyParticles;
+  window.__lanternFireflies = fireflyParticles;
+  window.__fireflyCount = 39;
+
+  // --- 5. THE 6 GRAND ROYAL JAPANESE ESTATES ---
+  const PROJECT_HOUSES = [];
+  const HOUSES_GROUP = new THREE.Group();
+  scene.add(HOUSES_GROUP);
+
+  // House 0: iGradeify - Scholar's Grand Academy Palace
+  function buildHouse0() {
+    const h = new THREE.Group();
+
+    // Stepped Cut-Stone Plinth Foundation
+    const plinthLower = new THREE.Mesh(new THREE.BoxGeometry(11.2, 0.35, 8.4), stoneMat);
+    plinthLower.position.y = 0.18;
+    h.add(plinthLower);
+    const plinth = new THREE.Mesh(new THREE.BoxGeometry(9.8, 0.55, 7.2), stoneMat);
+    plinth.position.y = 0.60;
+    h.add(plinth);
+
+    // Lecture Terrace (Engawa / Butai)
+    const terrace = new THREE.Mesh(new THREE.BoxGeometry(9.2, 0.22, 2.2), pillarWoodMat);
+    terrace.position.set(0, 0.95, 2.8);
+    h.add(terrace);
+    // Terrace Balustrades
+    const balFrontL = createBalustrade(3.6, 0.70, 5); balFrontL.position.set(-2.6, 1.06, 3.8); h.add(balFrontL);
+    const balFrontR = createBalustrade(3.6, 0.70, 5); balFrontR.position.set(2.6, 1.06, 3.8); h.add(balFrontR);
+    // Center Steps
+    for (let s = 0; s < 4; s++) {
+      const step = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.20, 0.40), stoneMat);
+      step.position.set(0, 0.10 + s * 0.20, 4.0 + (3 - s) * 0.35);
+      h.add(step);
+    }
+
+    // Branching Stone Pathway Steps (Tobi-ishi) towards the main avenue
+    const pathCurve = new THREE.QuadraticBezierCurve3(
+      new THREE.Vector3(0, 0.06, 5.2),
+      new THREE.Vector3(1.8, 0.06, 6.8),
+      new THREE.Vector3(3.6, 0.06, 8.5)
+    );
+    const pathPoints = pathCurve.getPoints(9);
+    pathPoints.forEach((pt, idx) => {
+      const stepStone = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.55 + (idx % 2) * 0.06, 0.60, 0.10, 10),
+        stoneMat
+      );
+      stepStone.position.set(pt.x, pt.y, pt.z);
+      stepStone.rotation.y = (idx * 0.4);
+      h.add(stepStone);
+    });
+
+    // Flanking Low Stone Borders (Kerb stones)
+    [-0.9, 0.9].forEach(sideOffset => {
+      const borderCurve = new THREE.QuadraticBezierCurve3(
+        new THREE.Vector3(sideOffset * 0.8, 0.08, 5.0),
+        new THREE.Vector3(1.8 + sideOffset * 0.9, 0.08, 6.8),
+        new THREE.Vector3(3.6 + sideOffset * 0.9, 0.08, 8.5)
+      );
+      const bPts = borderCurve.getPoints(8);
+      for (let i = 0; i < bPts.length - 1; i++) {
+        const p1 = bPts[i], p2 = bPts[i + 1];
+        const mid = new THREE.Vector3().addVectors(p1, p2).multiplyScalar(0.5);
+        const dist = p1.distanceTo(p2);
+        const curb = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.16, dist + 0.04), stoneMat);
+        curb.position.copy(mid);
+        curb.lookAt(p2.x, p2.y, p2.z);
+        h.add(curb);
+      }
+    });
+
+    // Ground Floor Main Hall Core
+    const hall = new THREE.Mesh(new THREE.BoxGeometry(8.6, 3.6, 5.4), woodMat);
+    hall.position.y = 2.7;
+    h.add(hall);
+
+    // Colonnade: 6 Round Wooden Pillars with Stone Footings
+    for (let i = 0; i < 6; i++) {
+      const px = -3.8 + i * 1.52;
+      const col = new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.22, 3.6, 16), pillarWoodMat);
+      col.position.set(px, 2.7, 2.75);
+      h.add(col);
+      const baseStone = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.28, 0.16, 12), stoneMat);
+      baseStone.position.set(px, 0.96, 2.75);
+      h.add(baseStone);
+    }
+
+    // 5 Warm Glowing Shoji Window Bays
+    for (let i = 0; i < 5; i++) {
+      const bay = createShojiBay(1.3, 2.4, false);
+      bay.position.set(-3.04 + i * 1.52, 2.6, 2.72);
+      h.add(bay);
+    }
+
+    // Tokukyo Bracket Complexes Under Lower Eaves
+    const bracketsLower = createTokukyoRow(8.2, 7, 4.4, 2.6);
+    h.add(bracketsLower);
+
+    // Lower Sweeping Curved Irimoya Hip-and-Gable Roof
+    const r1 = new THREE.Mesh(roofGeo(5.8, 4.4, 2.2, 1.8, 0.30, 0.38), darkTileMat);
+    r1.position.y = 4.6;
+    h.add(r1);
+
+    // Upper Scholar Pavilion / Observatory Core
+    const up = new THREE.Mesh(new THREE.BoxGeometry(5.4, 2.5, 3.8), woodMat);
+    up.position.y = 6.2;
+    h.add(up);
+
+    // Upper Balustrade Viewing Gallery
+    const upBalFront = createBalustrade(5.6, 0.65, 7); upBalFront.position.set(0, 5.0, 2.0); h.add(upBalFront);
+    const upBalL = createBalustrade(3.8, 0.65, 5); upBalL.rotation.y = Math.PI / 2; upBalL.position.set(-2.8, 5.0, 0); h.add(upBalL);
+    const upBalR = createBalustrade(3.8, 0.65, 5); upBalR.rotation.y = -Math.PI / 2; upBalR.position.set(2.8, 5.0, 0); h.add(upBalR);
+
+    // 3 Upper Shoji Window Bays
+    for (let i = 0; i < 3; i++) {
+      const bayUp = createShojiBay(1.2, 1.5, false);
+      bayUp.position.set(-1.4 + i * 1.4, 6.2, 1.95);
+      h.add(bayUp);
+    }
+
+    // Scholar Plaque (Hengaku) with Kanji Inscription
+    const plaqueMat = new THREE.MeshBasicMaterial({ map: texScholarPlaque(), side: THREE.DoubleSide });
+    const plaque = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.8), plaqueMat);
+    plaque.position.set(0, 6.6, 2.0);
+    h.add(plaque);
+    const plaqueFrame = new THREE.Mesh(new THREE.BoxGeometry(1.72, 0.92, 0.08), goldBrassMat);
+    plaqueFrame.position.set(0, 6.6, 1.96);
+    h.add(plaqueFrame);
+
+    // Upper Bracket Complexes
+    const bracketsUpper = createTokukyoRow(5.0, 5, 7.3, 1.85);
+    h.add(bracketsUpper);
+
+    // Upper Sweeping Irimoya Roof
+    const r2 = new THREE.Mesh(roofGeo(4.2, 3.2, 1.5, 1.6, 0.28, 0.38), darkTileMat);
+    r2.position.y = 7.5;
+    h.add(r2);
+
+    // Ridge Beam & Ornamental Onigawara Finials
+    const crest = new THREE.Mesh(new THREE.ConeGeometry(0.35, 1.0, 6), goldBrassMat);
+    crest.position.y = 9.8;
+    h.add(crest);
+    [-2.2, 2.2].forEach(x => {
+      const oni = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.40, 0.25), darkTileMat);
+      oni.position.set(x, 9.4, 0);
+      h.add(oni);
+    });
+
+    // Warm Academy Hearth Lantern Light
+    const academyLight = new THREE.PointLight(0xf59e0b, 2.2, 14);
+    academyLight.position.set(0, 2.8, 3.2);
+    h.add(academyLight);
+
+    h.rotation.y = 0.22;
+    return h;
+  }
+
+  // House 1: manim-ts - 3-Tiered Astronomical Royal Pagoda
+  function buildHouse1() {
+    const h = new THREE.Group();
+
+    // Dual Stepped Stone Foundation
+    const b1 = new THREE.Mesh(new THREE.BoxGeometry(7.6, 0.6, 7.6), stoneMat); b1.position.y = 0.3; h.add(b1);
+    const b2 = new THREE.Mesh(new THREE.BoxGeometry(6.4, 0.6, 6.4), stoneMat); b2.position.y = 0.9; h.add(b2);
+
+    // --- TIER 1 (Ground Tier) ---
+    const t1 = new THREE.Mesh(new THREE.BoxGeometry(4.8, 2.8, 4.8), woodMat); t1.position.y = 2.4; h.add(t1);
+    [-2.2, 2.2].forEach(x => {
+      [-2.2, 2.2].forEach(z => {
+        const col = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.20, 2.8, 12), pillarWoodMat);
+        col.position.set(x, 2.4, z);
+        h.add(col);
+      });
+    });
+    [-1, 1].forEach(side => {
+      const bay = createShojiBay(1.4, 1.8, false); bay.position.set(side * 1.2, 2.4, 2.44); h.add(bay);
+    });
+    const t1Brackets = createTokukyoRow(4.4, 5, 3.7, 2.3); h.add(t1Brackets);
+    const r1 = new THREE.Mesh(roofGeo(4.4, 4.4, 1.4, 1.4, 0.26, 0.40), darkTileMat); r1.position.y = 3.9; h.add(r1);
+    [[-3.2, -3.2], [-3.2, 3.2], [3.2, -3.2], [3.2, 3.2]].forEach(pos => {
+      const bell = createFurinBell(0.85); bell.position.set(pos[0], 3.7, pos[1]); h.add(bell);
+    });
+
+    // --- TIER 2 (Middle Tier) ---
+    const bal2Front = createBalustrade(4.4, 0.65, 5); bal2Front.position.set(0, 4.7, 2.0); h.add(bal2Front);
+    const bal2Back = createBalustrade(4.4, 0.65, 5); bal2Back.position.set(0, 4.7, -2.0); h.add(bal2Back);
+    const bal2L = createBalustrade(4.0, 0.65, 5); bal2L.rotation.y = Math.PI / 2; bal2L.position.set(-2.1, 4.7, 0); h.add(bal2L);
+    const bal2R = createBalustrade(4.0, 0.65, 5); bal2R.rotation.y = -Math.PI / 2; bal2R.position.set(2.1, 4.7, 0); h.add(bal2R);
+
+    const t2 = new THREE.Mesh(new THREE.BoxGeometry(3.6, 2.4, 3.6), woodMat); t2.position.y = 5.8; h.add(t2);
+    const bay2 = createShojiBay(1.3, 1.5, false); bay2.position.set(0, 5.8, 1.84); h.add(bay2);
+    const t2Brackets = createTokukyoRow(3.4, 4, 6.9, 1.7); h.add(t2Brackets);
+    const r2 = new THREE.Mesh(roofGeo(3.6, 3.6, 1.0, 1.3, 0.24, 0.40), darkTileMat); r2.position.y = 7.1; h.add(r2);
+    [[-2.6, -2.6], [-2.6, 2.6], [2.6, -2.6], [2.6, 2.6]].forEach(pos => {
+      const bell = createFurinBell(0.80); bell.position.set(pos[0], 6.9, pos[1]); h.add(bell);
+    });
+
+    // --- TIER 3 (Upper Tier) ---
+    const bal3Front = createBalustrade(3.4, 0.60, 4); bal3Front.position.set(0, 7.8, 1.5); h.add(bal3Front);
+    const bal3Back = createBalustrade(3.4, 0.60, 4); bal3Back.position.set(0, 7.8, -1.5); h.add(bal3Back);
+    const bal3L = createBalustrade(3.0, 0.60, 4); bal3L.rotation.y = Math.PI / 2; bal3L.position.set(-1.6, 7.8, 0); h.add(bal3L);
+    const bal3R = createBalustrade(3.0, 0.60, 4); bal3R.rotation.y = -Math.PI / 2; bal3R.position.set(1.6, 7.8, 0); h.add(bal3R);
+
+    const t3 = new THREE.Mesh(new THREE.BoxGeometry(2.6, 2.0, 2.6), woodMat); t3.position.y = 8.8; h.add(t3);
+    const roundWin = new THREE.Mesh(new THREE.TorusGeometry(0.55, 0.08, 12, 24), goldBrassMat);
+    roundWin.position.set(0, 8.8, 1.32); h.add(roundWin);
+    const roundGlassMat = paperMat.clone();
+    const roundGlass = new THREE.Mesh(new THREE.CircleGeometry(0.52, 24), roundGlassMat);
+    roundGlass.userData.isShoji = true;
+    roundGlass.userData.baseEmissive = 0.85;
+    roundGlass.position.set(0, 8.8, 1.31); h.add(roundGlass);
+
+    const t3Brackets = createTokukyoRow(2.4, 3, 9.7, 1.25); h.add(t3Brackets);
+    const r3 = new THREE.Mesh(roofGeo(2.8, 2.8, 0.7, 1.2, 0.22, 0.42), darkTileMat); r3.position.y = 10.0; h.add(r3);
+    [[-2.0, -2.0], [-2.0, 2.0], [2.0, -2.0], [2.0, 2.0]].forEach(pos => {
+      const bell = createFurinBell(0.75); bell.position.set(pos[0], 9.8, pos[1]); h.add(bell);
+    });
+
+    // --- CROWNING 9-RING BRONZE SPIRE (SORIN) REACHING WORLD Y = 16.0 ---
+    // At world pos y = 1.0, spire atop roof 3 reaches local y = 15.0 (total world y = 16.0!)
+    const spireGroup = new THREE.Group();
+    spireGroup.position.y = 11.2;
+
+    const roban = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.22, 0.85), bronzeBellMat);
+    roban.position.y = 0.11; spireGroup.add(roban);
+    const fukubachi = new THREE.Mesh(new THREE.SphereGeometry(0.38, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2), bronzeBellMat);
+    fukubachi.position.y = 0.22; spireGroup.add(fukubachi);
+    const ukebana = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.28, 0.14, 16), bronzeBellMat);
+    ukebana.position.y = 0.46; spireGroup.add(ukebana);
+
+    const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.14, 3.6, 12), bronzeBellMat);
+    mast.position.y = 2.0; spireGroup.add(mast);
+
+    for (let k = 0; k < 9; k++) {
+      const ringR = 0.38 - k * 0.018;
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(ringR, 0.045, 10, 32), goldBrassMat);
+      ring.rotation.x = Math.PI / 2;
+      ring.position.y = 0.65 + k * 0.28;
+      spireGroup.add(ring);
+    }
+
+    for (let f = 0; f < 4; f++) {
+      const flameFin = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.50, 0.28), goldBrassMat);
+      flameFin.rotation.y = (f * Math.PI) / 2;
+      flameFin.position.set(0, 3.25, 0);
+      spireGroup.add(flameFin);
+    }
+
+    const hoju = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 16), goldBrassMat);
+    hoju.position.y = 3.55; spireGroup.add(hoju);
+    const hojuTip = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.45, 8), goldBrassMat);
+    hojuTip.position.y = 3.80; spireGroup.add(hojuTip);
+
+    h.add(spireGroup);
+
+    // Armillary Celestial Rings on Terrace
+    const armillary = new THREE.Group();
+    armillary.position.set(2.8, 1.2, 2.8);
+    const aRing1 = new THREE.Mesh(new THREE.TorusGeometry(0.40, 0.03, 8, 24), goldBrassMat);
+    const aRing2 = new THREE.Mesh(new THREE.TorusGeometry(0.40, 0.03, 8, 24), goldBrassMat);
+    aRing2.rotation.x = Math.PI / 3;
+    const aOrb = new THREE.Mesh(new THREE.SphereGeometry(0.14, 12, 12), goldBrassMat);
+    armillary.add(aRing1); armillary.add(aRing2); armillary.add(aOrb);
+    h.add(armillary);
+
+    // Flanking Pair of Dark Japanese Pine Trees (Kuromatsu)
+    const pineL = createJapanesePineTree(1.15, true);
+    pineL.position.set(-4.5, 0, 3.2);
+    pineL.rotation.y = 0.35;
+    h.add(pineL);
+
+    const pineR = createJapanesePineTree(1.15, false);
+    pineR.position.set(4.5, 0, 3.2);
+    pineR.rotation.y = -0.35;
+    h.add(pineR);
+
+    // Celestial Cyan Astronomical Glow
+    const astroLight = new THREE.PointLight(0x38bdf8, 2.2, 16);
+    astroLight.position.set(0, 5.0, 3.2);
+    h.add(astroLight);
+
+    h.rotation.y = -0.22;
+    return h;
+  }
+
+  // House 2: Duel Deck - Twin Yin-Yang Pavilions & Arched Moon Bridge
+  function buildHouse2() {
+    const h = new THREE.Group();
+
+    // Reflective Water Mirror Pond Basin
+    const pondBorder = new THREE.Mesh(new THREE.BoxGeometry(12.4, 0.35, 7.8), stoneMat);
+    pondBorder.position.set(0, 0.12, 0);
+    h.add(pondBorder);
+    const waterMirror = new THREE.Mesh(new THREE.PlaneGeometry(11.8, 7.2), waterReflectMat);
+    waterMirror.rotation.x = -Math.PI / 2;
+    waterMirror.position.set(0, 0.28, 0);
+    h.add(waterMirror);
+
+    // --- SUN PAVILION (Yang - Left Pavilion) ---
+    const sunPav = new THREE.Group();
+    sunPav.position.set(-3.8, 0, 0.3);
+
+    [[-1.4, -1.4], [-1.4, 1.4], [1.4, -1.4], [1.4, 1.4]].forEach(p => {
+      const stilt = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.8, 0.45), stoneMat);
+      stilt.position.set(p[0], 0.4, p[1]); sunPav.add(stilt);
+    });
+    const sunDeck = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.25, 3.6), pillarWoodMat);
+    sunDeck.position.y = 0.9; sunPav.add(sunDeck);
+    const sunHall = new THREE.Mesh(new THREE.BoxGeometry(3.2, 2.8, 3.2), woodMat);
+    sunHall.position.y = 2.4; sunPav.add(sunHall);
+    [[-1.5, -1.5], [-1.5, 1.5], [1.5, -1.5], [1.5, 1.5]].forEach(p => {
+      const col = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.18, 2.8, 12), redLacquerMat);
+      col.position.set(p[0], 2.4, p[1]); sunPav.add(col);
+    });
+    const sunShoji = createShojiBay(1.5, 1.8, false);
+    sunShoji.position.set(0, 2.4, 1.62); sunPav.add(sunShoji);
+    const sunBrackets = createTokukyoRow(3.0, 3, 3.7, 1.5);
+    sunPav.add(sunBrackets);
+    const sunRoof = new THREE.Mesh(roofGeo(2.8, 2.8, 0.8, 1.6, 0.26, 0.36), redTileMat);
+    sunRoof.position.y = 4.0; sunPav.add(sunRoof);
+    const sunCrest = new THREE.Mesh(new THREE.SphereGeometry(0.28, 16, 16), goldBrassMat);
+    sunCrest.position.y = 5.8; sunPav.add(sunCrest);
+    const sunLight = new THREE.PointLight(0xf59e0b, 2.0, 10);
+    sunLight.position.set(0, 2.4, 0); sunPav.add(sunLight);
+    h.add(sunPav);
+
+    // --- MOON PAVILION (Yin - Right Pavilion) ---
+    const moonPav = new THREE.Group();
+    moonPav.position.set(3.8, 0, -0.3);
+
+    [[-1.4, -1.4], [-1.4, 1.4], [1.4, -1.4], [1.4, 1.4]].forEach(p => {
+      const stilt = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.8, 0.45), stoneMat);
+      stilt.position.set(p[0], 0.4, p[1]); moonPav.add(stilt);
+    });
+    const moonDeck = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.25, 3.6), pillarWoodMat);
+    moonDeck.position.y = 0.9; moonPav.add(moonDeck);
+    const moonHall = new THREE.Mesh(new THREE.BoxGeometry(3.2, 2.8, 3.2), woodMat);
+    moonHall.position.y = 2.4; moonPav.add(moonHall);
+    [[-1.5, -1.5], [-1.5, 1.5], [1.5, -1.5], [1.5, 1.5]].forEach(p => {
+      const col = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.18, 2.8, 12), purpleLacquerMat);
+      col.position.set(p[0], 2.4, p[1]); moonPav.add(col);
+    });
+    const moonShoji = createShojiBay(1.5, 1.8, true);
+    moonShoji.position.set(0, 2.4, 1.62); moonPav.add(moonShoji);
+    const moonBrackets = createTokukyoRow(3.0, 3, 3.7, 1.5);
+    moonPav.add(moonBrackets);
+    const moonRoof = new THREE.Mesh(roofGeo(2.8, 2.8, 0.8, 1.6, 0.26, 0.36), purpleTileMat);
+    moonRoof.position.y = 4.0; moonPav.add(moonRoof);
+    const moonCrest = new THREE.Mesh(new THREE.TorusGeometry(0.24, 0.06, 8, 24, Math.PI * 1.4), goldBrassMat);
+    moonCrest.rotation.z = Math.PI / 4;
+    moonCrest.position.y = 5.8; moonPav.add(moonCrest);
+    const moonLight = new THREE.PointLight(0xc026d3, 2.0, 10);
+    moonLight.position.set(0, 2.4, 0); moonPav.add(moonLight);
+    h.add(moonPav);
+
+    // --- DRAMATIC CURVED ARCHED RED MOON BRIDGE (SORIHASHI) ---
+    const bridgeCurve = new THREE.QuadraticBezierCurve3(
+      new THREE.Vector3(-2.2, 0.9, 0),
+      new THREE.Vector3(0, 2.4, 0),
+      new THREE.Vector3(2.2, 0.9, 0)
+    );
+    const bridgePts = bridgeCurve.getPoints(24);
+    for (let i = 0; i < bridgePts.length - 1; i++) {
+      const pA = bridgePts[i];
+      const pB = bridgePts[i + 1];
+      const mid = new THREE.Vector3().addVectors(pA, pB).multiplyScalar(0.5);
+      const plank = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.08, 1.3), redLacquerMat);
+      plank.position.copy(mid);
+      plank.lookAt(pB.x, pB.y, pB.z);
+      h.add(plank);
+    }
+    [-0.65, 0.65].forEach(zOffset => {
+      const railCurve = new THREE.QuadraticBezierCurve3(
+        new THREE.Vector3(-2.2, 1.5, zOffset),
+        new THREE.Vector3(0, 3.0, zOffset),
+        new THREE.Vector3(2.2, 1.5, zOffset)
+      );
+      const railGeo = new THREE.TubeGeometry(railCurve, 24, 0.06, 8, false);
+      const railMesh = new THREE.Mesh(railGeo, redLacquerMat);
+      h.add(railMesh);
+      [-2.2, 2.2].forEach(xEnd => {
+        const gib = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.16, 8), goldBrassMat);
+        gib.position.set(xEnd, 1.58, zOffset);
+        h.add(gib);
+      });
+    });
+
+    h.rotation.y = 0.20;
+    return h;
+  }
+
+  // House 3: Desktop Buddy - Royal Sukiya-zukuri Villa & Garden Teahouse
+  function buildHouse3() {
+    const h = new THREE.Group();
+
+    // Natural Garden Base
+    const gardenBase = new THREE.Mesh(new THREE.BoxGeometry(11.0, 0.25, 8.0), stoneMat);
+    gardenBase.position.y = 0.12; h.add(gardenBase);
+
+    // Open Hinoki Engawa Veranda
+    const engawa = new THREE.Mesh(new THREE.BoxGeometry(8.6, 0.22, 6.4), hinokiMat);
+    engawa.position.set(0.2, 0.35, 0.2); h.add(engawa);
+
+    // Main Villa Wing
+    const villa = new THREE.Mesh(new THREE.BoxGeometry(5.4, 2.8, 4.2), woodMat);
+    villa.position.set(1.4, 1.7, -0.4); h.add(villa);
+    for (let i = 0; i < 3; i++) {
+      const bay = createShojiBay(1.4, 2.0, false);
+      bay.position.set(-0.2 + i * 1.5, 1.7, 1.72);
+      h.add(bay);
+    }
+
+    // Teahouse Annex (Chashitsu)
+    const teahouse = new THREE.Mesh(new THREE.BoxGeometry(3.6, 2.2, 3.2), woodMat);
+    teahouse.position.set(-2.5, 1.4, 0.8); h.add(teahouse);
+    const nijiriguchi = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.95, 0.08), hinokiMat);
+    nijiriguchi.position.set(-2.5, 0.95, 2.42); h.add(nijiriguchi);
+    const teaShoji = createShojiBay(1.0, 1.0, false);
+    teaShoji.position.set(-1.6, 1.6, 2.42); h.add(teaShoji);
+
+    // Cedar Shingle Multi-Level Roofs (Kokerabuki)
+    const villaRoof = new THREE.Mesh(roofGeo(4.4, 3.4, 1.4, 1.4, 0.22, 0.28), cedarShingleMat);
+    villaRoof.position.set(1.4, 3.2, -0.4); h.add(villaRoof);
+    const teaRoof = new THREE.Mesh(roofGeo(2.8, 2.4, 0.8, 1.1, 0.18, 0.26), cedarShingleMat);
+    teaRoof.position.set(-2.5, 2.6, 0.8); h.add(teaRoof);
+
+    // Slatted Bamboo Screens (Sudare) along Veranda
+    for (let i = 0; i < 3; i++) {
+      const sudare = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.4), bambooMat);
+      sudare.position.set(-0.2 + i * 1.5, 2.0, 1.80);
+      h.add(sudare);
+    }
+
+    // Tsukubai (Stone Water Basin) & Bamboo Spout
+    const basin = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.45, 0.60, 16), stoneMat);
+    basin.position.set(-3.6, 0.42, 2.6); h.add(basin);
+    const water = new THREE.Mesh(new THREE.CircleGeometry(0.44, 16), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }));
+    water.rotation.x = -Math.PI / 2;
+    water.position.set(-3.6, 0.73, 2.6); h.add(water);
+    const spout = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.75, 8), bambooMat);
+    spout.rotation.z = Math.PI / 3;
+    spout.position.set(-4.0, 0.85, 2.6); h.add(spout);
+    const ladleStick = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.65, 6), bambooMat);
+    ladleStick.rotation.z = Math.PI / 2;
+    ladleStick.position.set(-3.6, 0.76, 2.6); h.add(ladleStick);
+
+    // Stepping Stones (Tobi-ishi)
+    const stoneCoords = [
+      [-3.2, 3.4], [-2.6, 3.1], [-2.0, 3.4], [-1.4, 3.0], [-0.8, 3.3], [-0.2, 2.9]
+    ];
+    stoneCoords.forEach((c, idx) => {
+      const st = new THREE.Mesh(new THREE.CylinderGeometry(0.36 + (idx % 2) * 0.05, 0.40, 0.08, 10), stoneMat);
+      st.position.set(c[0], 0.26, c[1]);
+      h.add(st);
+    });
+
+    // Snow-Viewing Stone Lantern (Yukimi-doro)
+    const yukiGroup = new THREE.Group();
+    yukiGroup.position.set(-4.5, 0, 1.8);
+    const yBase = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.45, 0.30, 6), stoneMat); yBase.position.y = 0.15; yukiGroup.add(yBase);
+    const yBox = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.45, 0.55), stoneMat); yBox.position.y = 0.52; yukiGroup.add(yBox);
+    const yLight = new THREE.Mesh(new THREE.SphereGeometry(0.14, 8, 8), new THREE.MeshBasicMaterial({ color: 0xffaa48 }));
+    yLight.position.y = 0.52; yukiGroup.add(yLight);
+    const yCap = new THREE.Mesh(new THREE.ConeGeometry(0.95, 0.35, 6), stoneMat); yCap.position.y = 0.88; yukiGroup.add(yCap);
+    h.add(yukiGroup);
+
+    // Rustic Bamboo Garden Fence (Takegaki)
+    const fenceGroup = new THREE.Group();
+    fenceGroup.position.set(-2.5, 0, 3.8);
+    const fencePosts = 16;
+    const fenceWidth = 5.2;
+    const postStep = fenceWidth / (fencePosts - 1);
+    for (let i = 0; i < fencePosts; i++) {
+      const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.45, 8), bambooMat);
+      pole.position.set(-fenceWidth / 2 + i * postStep, 0.72, 0);
+      fenceGroup.add(pole);
+    }
+    [0.35, 0.85, 1.35].forEach(ry => {
+      const rail = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, fenceWidth + 0.2, 8), bambooMat);
+      rail.rotation.z = Math.PI / 2;
+      rail.position.set(0, ry, 0.04);
+      fenceGroup.add(rail);
+    });
+    for (let i = 0; i < fencePosts; i += 2) {
+      const tie = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.10, 0.12), darkIronMat);
+      tie.position.set(-fenceWidth / 2 + i * postStep, 0.85, 0.04);
+      fenceGroup.add(tie);
+    }
+    h.add(fenceGroup);
+
+    // 3 Mossy Boulder Clusters around Tsukubai Water Basin
+    const mossStoneMat = new THREE.MeshStandardMaterial({
+      color: 0x182416,
+      roughness: 0.95,
+      metalness: 0.05
+    });
+
+    // Cluster 1: Beside Tsukubai Basin (Yaku-ishi)
+    const cluster1 = [
+      { x: -4.3, y: 0.25, z: 2.3, r: 0.42 },
+      { x: -4.5, y: 0.18, z: 2.8, r: 0.32 },
+      { x: -3.8, y: 0.16, z: 3.2, r: 0.28 }
+    ];
+    cluster1.forEach(b => {
+      const m = new THREE.Mesh(new THREE.DodecahedronGeometry(b.r, 1), mossStoneMat);
+      m.position.set(b.x, b.y, b.z);
+      m.scale.set(1.1, 0.75, 1.0);
+      h.add(m);
+    });
+
+    // Cluster 2: Near Stepping Stone Approach (Kesho-ishi)
+    const cluster2 = [
+      { x: -2.1, y: 0.20, z: 2.5, r: 0.35 },
+      { x: -1.7, y: 0.15, z: 2.2, r: 0.25 }
+    ];
+    cluster2.forEach(b => {
+      const m = new THREE.Mesh(new THREE.DodecahedronGeometry(b.r, 1), mossStoneMat);
+      m.position.set(b.x, b.y, b.z);
+      m.scale.set(1.0, 0.7, 1.2);
+      h.add(m);
+    });
+
+    // Cluster 3: Near Snow-Viewing Lantern (Yukimi-ishi)
+    const cluster3 = [
+      { x: -4.9, y: 0.22, z: 1.3, r: 0.38 },
+      { x: -5.1, y: 0.16, z: 1.7, r: 0.28 },
+      { x: -4.3, y: 0.14, z: 1.1, r: 0.24 }
+    ];
+    cluster3.forEach(b => {
+      const m = new THREE.Mesh(new THREE.DodecahedronGeometry(b.r, 1), mossStoneMat);
+      m.position.set(b.x, b.y, b.z);
+      m.scale.set(1.2, 0.8, 1.0);
+      h.add(m);
+    });
+
+    // Warm Hearth Light
+    const hearthLight = new THREE.PointLight(0xfbbf24, 2.0, 12);
+    hearthLight.position.set(0.8, 1.8, 0.8);
+    h.add(hearthLight);
+
+    h.rotation.y = -0.20;
+    return h;
+  }
+
+  // House 4: Greate Engine - Imperial Castle Keep Fortress (Tenshukaku)
+  function buildHouse4() {
+    const h = new THREE.Group();
+
+    // Massive Battered Stone Rampart Base (Ishigaki)
+    const rampart = new THREE.Mesh(new THREE.ConeGeometry(6.4, 3.6, 4), stoneMat);
+    rampart.rotation.y = Math.PI / 4;
+    rampart.position.y = 1.8;
+    h.add(rampart);
+    const rampartSill = new THREE.Mesh(new THREE.BoxGeometry(6.6, 0.25, 6.6), stoneMat);
+    rampartSill.position.y = 3.6;
+    h.add(rampartSill);
+
+    // Defensive Wooden Palisade Timber Stakes (Mokusaku) along Rampart Approach
+    const palisadeGroup = new THREE.Group();
+    palisadeGroup.position.set(0, 0, 4.4);
+    const stakeCount = 10;
+    const stakeWidth = 6.4;
+    const stakeStep = stakeWidth / (stakeCount - 1);
+    for (let i = 0; i < stakeCount; i++) {
+      const px = -stakeWidth / 2 + i * stakeStep;
+      const stake = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.12, 2.2, 8), pillarWoodMat);
+      stake.rotation.x = Math.PI / 4.5;
+      stake.rotation.y = (i % 2 === 0 ? 0.15 : -0.15);
+      stake.position.set(px, 0.75, 0);
+      palisadeGroup.add(stake);
+
+      const tip = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.35, 8), pillarWoodMat);
+      tip.rotation.x = Math.PI / 4.5;
+      tip.position.set(px, 1.55, 0.72);
+      palisadeGroup.add(tip);
+    }
+    const crossBeam = new THREE.Mesh(new THREE.BoxGeometry(stakeWidth + 0.4, 0.16, 0.16), woodMat);
+    crossBeam.position.set(0, 0.75, 0.25);
+    palisadeGroup.add(crossBeam);
+    for (let i = 0; i < stakeCount; i += 2) {
+      const band = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.20, 0.20), darkIronMat);
+      band.position.set(-stakeWidth / 2 + i * stakeStep, 0.75, 0.25);
+      palisadeGroup.add(band);
+    }
+    h.add(palisadeGroup);
+
+    // --- TIER 1 KEEP: White Plaster with Arrow Slits ---
+    const hall1 = new THREE.Mesh(new THREE.BoxGeometry(5.4, 2.6, 5.4), whitePlasterMat);
+    hall1.position.y = 4.9;
+    h.add(hall1);
+    [-2.6, 2.6].forEach(x => {
+      [-2.6, 2.6].forEach(z => {
+        const post = new THREE.Mesh(new THREE.BoxGeometry(0.35, 2.6, 0.35), woodMat);
+        post.position.set(x, 4.9, z);
+        h.add(post);
+      });
+    });
+    [-1.6, 0, 1.6].forEach(x => {
+      const slit = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.65, 0.08), woodMat);
+      slit.position.set(x, 5.0, 2.73);
+      h.add(slit);
+      const port = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.20, 3), woodMat);
+      port.rotation.z = Math.PI;
+      port.position.set(x, 4.3, 2.73);
+      h.add(port);
+    });
+    const roof1 = new THREE.Mesh(roofGeo(4.4, 4.4, 1.6, 1.5, 0.30, 0.34), darkTileMat);
+    roof1.position.y = 6.2;
+    h.add(roof1);
+    const chidori = new THREE.Mesh(new THREE.ConeGeometry(1.6, 1.1, 3), whitePlasterMat);
+    chidori.position.set(0, 6.6, 2.3);
+    h.add(chidori);
+
+    // --- TIER 2 KEEP ---
+    const hall2 = new THREE.Mesh(new THREE.BoxGeometry(3.8, 2.4, 3.8), whitePlasterMat);
+    hall2.position.y = 7.7;
+    h.add(hall2);
+    [-0.9, 0.9].forEach(x => {
+      const slit = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.55, 0.08), woodMat);
+      slit.position.set(x, 7.8, 1.93);
+      h.add(slit);
+    });
+    const karaCurve = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 0.85, 0.35, 16, 1, false, 0, Math.PI), darkTileMat);
+    karaCurve.rotation.z = Math.PI / 2;
+    karaCurve.rotation.y = Math.PI / 2;
+    karaCurve.position.set(0, 8.4, 2.1);
+    h.add(karaCurve);
+    const roof2 = new THREE.Mesh(roofGeo(3.4, 3.4, 1.0, 1.4, 0.28, 0.35), darkTileMat);
+    roof2.position.y = 8.9;
+    h.add(roof2);
+
+    // --- TIER 3 KEEP: Watchtower & Lookout Balcony ---
+    const hall3 = new THREE.Mesh(new THREE.BoxGeometry(2.6, 2.0, 2.6), whitePlasterMat);
+    hall3.position.y = 10.1;
+    h.add(hall3);
+    const bal3 = createBalustrade(3.0, 0.55, 4);
+    bal3.position.set(0, 9.4, 1.4);
+    h.add(bal3);
+    const roof3 = new THREE.Mesh(roofGeo(2.6, 2.6, 0.7, 1.3, 0.26, 0.38), darkTileMat);
+    roof3.position.y = 11.2;
+    h.add(roof3);
+
+    // --- GOLDEN DRAGON-CARP SHACHI (SHACHIHOKO) ON ROOF RIDGE ---
+    [-1.1, 1.1].forEach(side => {
+      const shachi = createShachihoko(0.9);
+      shachi.position.set(side * 0.95, 12.0, 0);
+      shachi.rotation.y = side > 0 ? -Math.PI / 2 : Math.PI / 2;
+      h.add(shachi);
+    });
+
+    const keepShoji = createShojiBay(1.2, 1.4, false);
+    keepShoji.position.set(0, 7.7, 1.94);
+    h.add(keepShoji);
+
+    const forgeLight = new THREE.PointLight(0xef4444, 2.4, 15);
+    forgeLight.position.set(0, 5.2, 3.4);
+    h.add(forgeLight);
+
+    h.rotation.y = 0.18;
+    return h;
+  }
+
+  // House 5: Personal Cloud - Sacred Imperial Vault Sanctum (Hozo)
+  function buildHouse5() {
+    const h = new THREE.Group();
+
+    // --- TAKAYUKA: HEAVY TIMBER STILTS ELEVATED FOUNDATION ---
+    const stiltPositions = [
+      [-2.6, -1.8], [-0.9, -1.8], [0.9, -1.8], [2.6, -1.8],
+      [-2.6,  1.8], [-0.9,  1.8], [0.9,  1.8], [2.6,  1.8]
+    ];
+    stiltPositions.forEach(p => {
+      const soseki = new THREE.Mesh(new THREE.CylinderGeometry(0.40, 0.45, 0.30, 8), stoneMat);
+      soseki.position.set(p[0], 0.15, p[1]);
+      h.add(soseki);
+      const stilt = new THREE.Mesh(new THREE.CylinderGeometry(0.30, 0.32, 2.2, 12), pillarWoodMat);
+      stilt.position.set(p[0], 1.25, p[1]);
+      h.add(stilt);
+    });
+    const nukiFront = new THREE.Mesh(new THREE.BoxGeometry(6.2, 0.28, 0.22), pillarWoodMat);
+    nukiFront.position.set(0, 1.4, 1.8); h.add(nukiFront);
+    const nukiBack = new THREE.Mesh(new THREE.BoxGeometry(6.2, 0.28, 0.22), pillarWoodMat);
+    nukiBack.position.set(0, 1.4, -1.8); h.add(nukiBack);
+    const deck = new THREE.Mesh(new THREE.BoxGeometry(6.8, 0.35, 5.2), woodMat);
+    deck.position.y = 2.45; h.add(deck);
+    for (let s = 0; s < 5; s++) {
+      const step = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.18, 0.38), woodMat);
+      step.position.set(0, 0.20 + s * 0.40, 2.8 + (4 - s) * 0.35);
+      h.add(step);
+    }
+
+    // --- AZEKURA-ZUKURI LOG-CABIN CONSTRUCTION ---
+    const logWallGroup = new THREE.Group();
+    logWallGroup.position.y = 2.6;
+    const numLogs = 10;
+    const logHeight = 0.28;
+    for (let k = 0; k < numLogs; k++) {
+      const ly = k * logHeight + logHeight / 2;
+      const logFront = new THREE.Mesh(new THREE.BoxGeometry(6.4, 0.25, 0.32), hinokiMat);
+      logFront.position.set(0, ly, 2.1); logWallGroup.add(logFront);
+      const logBack = new THREE.Mesh(new THREE.BoxGeometry(6.4, 0.25, 0.32), hinokiMat);
+      logBack.position.set(0, ly, -2.1); logWallGroup.add(logBack);
+      const logL = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.25, 4.8), hinokiMat);
+      logL.position.set(-2.8, ly, 0); logWallGroup.add(logL);
+      const logR = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.25, 4.8), hinokiMat);
+      logR.position.set(2.8, ly, 0); logWallGroup.add(logR);
+    }
+    h.add(logWallGroup);
+
+    // --- HEAVY IRON-STUDDED LOCK DOORS ---
+    const doorFrame = new THREE.Mesh(new THREE.BoxGeometry(2.4, 2.8, 0.20), pillarWoodMat);
+    doorFrame.position.set(0, 4.0, 2.15); h.add(doorFrame);
+    const doorL = new THREE.Mesh(new THREE.BoxGeometry(1.0, 2.5, 0.15), woodMat);
+    doorL.position.set(-0.52, 4.0, 2.22); h.add(doorL);
+    const doorR = new THREE.Mesh(new THREE.BoxGeometry(1.0, 2.5, 0.15), woodMat);
+    doorR.position.set(0.52, 4.0, 2.22); h.add(doorR);
+    [-1, 1].forEach(side => {
+      [3.2, 4.0, 4.8].forEach(yPos => {
+        const strap = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.10, 0.04), darkIronMat);
+        strap.position.set(side * 0.55, yPos, 2.31);
+        h.add(strap);
+      });
+    });
+    for (let r = 0; r < 4; r++) {
+      for (let c = 0; c < 4; c++) {
+        const rivet = new THREE.Mesh(new THREE.SphereGeometry(0.035, 6, 6), darkIronMat);
+        rivet.position.set(-0.8 + c * 0.52, 3.1 + r * 0.55, 2.32);
+        h.add(rivet);
+      }
+    }
+    const lockPlate = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.65, 0.08), goldBrassMat);
+    lockPlate.position.set(0, 4.0, 2.33); h.add(lockPlate);
+    const padlock = new THREE.Mesh(new THREE.TorusGeometry(0.14, 0.04, 8, 16), goldBrassMat);
+    padlock.position.set(0, 3.85, 2.38); h.add(padlock);
+
+    // --- SACRED BRAIDED SHIMENAWA CORD & PAPER SHIDE ---
+    const ropeCurve = new THREE.QuadraticBezierCurve3(
+      new THREE.Vector3(-2.8, 5.2, 2.25),
+      new THREE.Vector3(0, 4.8, 2.35),
+      new THREE.Vector3(2.8, 5.2, 2.25)
+    );
+    const ropeGeo = new THREE.TubeGeometry(ropeCurve, 32, 0.12, 8, false);
+    const rope = new THREE.Mesh(ropeGeo, shimenawaMat);
+    h.add(rope);
+
+    [-2.0, -1.0, 0, 1.0, 2.0].forEach(x => {
+      const u = x / 2.8;
+      const hangY = 5.2 - (1 - u * u) * 0.40;
+      const shideGroup = new THREE.Group();
+      shideGroup.position.set(x, hangY, 2.36);
+      const segs = [
+        { w: 0.26, h: 0.22, dx: -0.04, dy: -0.12 },
+        { w: 0.22, h: 0.22, dx:  0.04, dy: -0.32 },
+        { w: 0.18, h: 0.25, dx: -0.03, dy: -0.52 }
+      ];
+      segs.forEach(s => {
+        const segMesh = new THREE.Mesh(new THREE.PlaneGeometry(s.w, s.h), shideMat);
+        segMesh.position.set(s.dx, s.dy, 0);
+        shideGroup.add(segMesh);
+      });
+      h.add(shideGroup);
+    });
+
+    const roof = new THREE.Mesh(roofGeo(5.0, 4.2, 2.0, 1.8, 0.35, 0.35), darkTileMat);
+    roof.position.y = 5.8;
+    h.add(roof);
+
+    const vaultShojiL = createShojiBay(1.0, 1.4, false);
+    vaultShojiL.position.set(-1.8, 3.8, 2.14);
+    h.add(vaultShojiL);
+    const vaultShojiR = createShojiBay(1.0, 1.4, false);
+    vaultShojiR.position.set(1.8, 3.8, 2.14);
+    h.add(vaultShojiR);
+
+    const emeraldLight = new THREE.PointLight(0x10b981, 2.2, 14);
+    emeraldLight.position.set(0, 4.0, 2.8);
+    h.add(emeraldLight);
+
+    h.rotation.y = -0.18;
+    return h;
+  }
+
+  // Position the 6 Distinct Architectural Landmarks along the Mountain Path
+  const house0 = buildHouse0(); house0.position.set(-8.5, 0.5, -14); HOUSES_GROUP.add(house0); PROJECT_HOUSES.push(house0);
+  const house1 = buildHouse1(); house1.position.set(8.5, 1.0, -26); HOUSES_GROUP.add(house1); PROJECT_HOUSES.push(house1);
+  const house2 = buildHouse2(); house2.position.set(-7.5, 0.2, -38); HOUSES_GROUP.add(house2); PROJECT_HOUSES.push(house2);
+  const house3 = buildHouse3(); house3.position.set(7.5, 0.5, -50); HOUSES_GROUP.add(house3); PROJECT_HOUSES.push(house3);
+  const house4 = buildHouse4(); house4.position.set(-8.0, 1.5, -64); HOUSES_GROUP.add(house4); PROJECT_HOUSES.push(house4);
+  const house5 = buildHouse5(); house5.position.set(7.0, 0.8, -76); HOUSES_GROUP.add(house5); PROJECT_HOUSES.push(house5);
+
+  // All 6 houses remain simultaneously visible throughout the journey & tagged for Raycaster
+  PROJECT_HOUSES.forEach((house, idx) => {
+    house.visible = true;
+    house.userData.projectIndex = idx;
+    house.userData.hoverFlare = 0.0;
+    house.userData.targetHoverFlare = 0.0;
+
+    const shojiMeshes = [];
+    const lanternLights = [];
+
+    house.traverse(obj => {
+      if (obj.isPointLight) {
+        obj.userData.baseIntensity = obj.intensity;
+        lanternLights.push(obj);
+      }
+      if (obj.isMesh && obj.userData && obj.userData.isShoji) {
+        if (obj.material && typeof obj.material.emissiveIntensity !== 'undefined') {
+          obj.userData.baseEmissive = obj.userData.baseEmissive || obj.material.emissiveIntensity || 0.85;
+          shojiMeshes.push(obj);
+        }
+      }
+    });
+
+    house.userData.shojiMeshes = shojiMeshes;
+    house.userData.lanternLights = lanternLights;
+  });
+  window.PROJECT_HOUSES = PROJECT_HOUSES;
+  window.HOUSES_GROUP = HOUSES_GROUP;
+
+  // Floating Embers
+  const emberCount = 650;
+  const emberGeo = new THREE.BufferGeometry();
+  const emberPositions = new Float32Array(emberCount * 3);
+  for (let i = 0; i < emberCount * 3; i += 3) {
+    emberPositions[i] = (Math.random() - 0.5) * 45;
+    emberPositions[i + 1] = Math.random() * 24;
+    emberPositions[i + 2] = (Math.random() - 0.5) * 45;
+  }
+  emberGeo.setAttribute('position', new THREE.BufferAttribute(emberPositions, 3));
+  const emberMat = new THREE.PointsMaterial({
+    color: 0xff4d36,
+    size: 0.12,
+    transparent: true,
+    opacity: 0.75
+  });
+  const embers = new THREE.Points(emberGeo, emberMat);
+  scene.add(embers);
+
+  // --- 5B. 3D TUMBLING AUTUMN MAPLE LEAVES & PETALS ---
+  const leafCount = 55;
+  const LEAVES_GROUP = new THREE.Group();
+  const leafPalettes = [0xe0231c, 0xc0392b, 0x991b1b, 0xd43f33, 0xa8201a];
+
+  const leafShape = new THREE.Shape();
+  leafShape.moveTo(0, 0.16);
+  leafShape.quadraticCurveTo(0.12, 0.08, 0.08, 0);
+  leafShape.quadraticCurveTo(0.15, -0.08, 0, -0.16);
+  leafShape.quadraticCurveTo(-0.15, -0.08, -0.08, 0);
+  leafShape.quadraticCurveTo(-0.12, 0.08, 0, 0.16);
+  const leafGeo = new THREE.ShapeGeometry(leafShape);
+
+  const leafData = [];
+  for (let i = 0; i < leafCount; i++) {
+    const col = leafPalettes[i % leafPalettes.length];
+    const mat = new THREE.MeshBasicMaterial({
+      color: col,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.82 + Math.random() * 0.16,
+      depthWrite: false
+    });
+    const leaf = new THREE.Mesh(leafGeo, mat);
+
+    // Spread across upper courtyard frustum (x: -25..25, y: 0..22, z: -35..10)
+    leaf.position.set(
+      (Math.random() - 0.5) * 50,
+      Math.random() * 22,
+      -35 + Math.random() * 45
+    );
+    leaf.rotation.set(
+      Math.random() * Math.PI,
+      Math.random() * Math.PI,
+      Math.random() * Math.PI
+    );
+    const scale = 0.75 + Math.random() * 0.65;
+    leaf.scale.set(scale, scale, scale);
+
+    LEAVES_GROUP.add(leaf);
+    leafData.push({
+      mesh: leaf,
+      speed: 0.8 + Math.random() * 0.8,
+      seed: Math.random() * 10,
+      spinX: (Math.random() - 0.5) * 0.03,
+      spinY: (Math.random() - 0.5) * 0.025,
+      spinZ: 0.012 + Math.random() * 0.018
+    });
+  }
+  scene.add(LEAVES_GROUP);
+  window.__leafData = leafData;
+
+  // --- 5B. 24 3D SAKURA PETAL PARTICLES (CHERRY BLOSSOM SWIRL & WIND VORTEX) ---
+  const SAKURA_GROUP = new THREE.Group();
+  scene.add(SAKURA_GROUP);
+
+  const sakuraShape = new THREE.Shape();
+  sakuraShape.moveTo(0, -0.16);
+  sakuraShape.bezierCurveTo(-0.12, -0.07, -0.15, 0.08, -0.04, 0.16);
+  sakuraShape.lineTo(0, 0.12); // signature notched cleft at petal tip
+  sakuraShape.lineTo(0.04, 0.16);
+  sakuraShape.bezierCurveTo(0.15, 0.08, 0.12, -0.07, 0, -0.16);
+  const sakuraGeo = new THREE.ShapeGeometry(sakuraShape);
+
+  const sakuraColors = [0xffe4e8, 0xffd2dc, 0xfff0f4, 0xfecad6];
+  const sakuraPetals = [];
+  const sakuraData = [];
+  const sakuraCount = 24;
+
+  for (let i = 0; i < sakuraCount; i++) {
+    const col = sakuraColors[i % sakuraColors.length];
+    const mat = new THREE.MeshBasicMaterial({
+      color: col,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.84,
+      depthWrite: false
+    });
+    const petal = new THREE.Mesh(sakuraGeo, mat);
+
+    petal.position.set(
+      (Math.random() - 0.5) * 22,
+      2.0 + Math.random() * 8.0,
+      10.0 - Math.random() * 95.0
+    );
+    petal.rotation.set(
+      Math.random() * Math.PI * 2,
+      Math.random() * Math.PI * 2,
+      Math.random() * Math.PI * 2
+    );
+    const sc = 0.55 + Math.random() * 0.45;
+    petal.scale.set(sc, sc, sc);
+
+    SAKURA_GROUP.add(petal);
+    sakuraPetals.push(petal);
+    sakuraData.push({
+      mesh: petal,
+      baseRadius: 2.2 + Math.random() * 2.6,
+      angle: (i / sakuraCount) * Math.PI * 2,
+      vortexSpeed: 1.4 + Math.random() * 1.6,
+      driftSpeed: 0.018 + Math.random() * 0.022,
+      spinX: (Math.random() - 0.5) * 0.04,
+      spinY: (Math.random() - 0.5) * 0.035,
+      spinZ: 0.02 + Math.random() * 0.03,
+      seed: Math.random() * 100
+    });
+  }
+  window.__sakuraPetals = sakuraPetals;
+  window.__sakuraData = sakuraData;
+
+  // --- 6. 10-STAGE CAMERA CHOREOGRAPHY WAYPOINTS ---
+  // Physical continuous glide through 3D space across all 10 stages
+  const CAM_WAYPOINTS = [
+    { p: new THREE.Vector3( 0.0, 4.0,  14.0), t: new THREE.Vector3( 0.0, 4.5,  -4.0) }, // 0: looking at Torii entrance
+    { p: new THREE.Vector3(-3.5, 3.2,   8.0), t: new THREE.Vector3( 0.5, 3.4,  -8.0) }, // 1: gliding through Torii into the avenue
+    { p: new THREE.Vector3(-4.0, 2.8,  -6.0), t: new THREE.Vector3(-8.5, 3.0, -14.0) }, // 2: framing House 0 (x = -8.5, z = -14) on the left
+    { p: new THREE.Vector3( 3.5, 4.0, -18.0), t: new THREE.Vector3( 8.5, 5.5, -26.0) }, // 3: framing House 1 Pagoda (x = 8.5, z = -26) on the right
+    { p: new THREE.Vector3(-3.0, 2.5, -30.0), t: new THREE.Vector3(-7.5, 2.8, -38.0) }, // 4: framing House 2 Twin Pavilions & Bridge (x = -7.5, z = -38) on the left
+    { p: new THREE.Vector3( 3.0, 2.4, -42.0), t: new THREE.Vector3( 7.5, 2.5, -50.0) }, // 5: framing House 3 Teahouse (x = 7.5, z = -50) on the right
+    { p: new THREE.Vector3(-3.5, 3.8, -54.0), t: new THREE.Vector3(-8.0, 4.8, -64.0) }, // 6: framing House 4 Castle Keep (x = -8.0, z = -64) on the left
+    { p: new THREE.Vector3( 2.5, 3.0, -68.0), t: new THREE.Vector3( 7.0, 3.2, -76.0) }, // 7: framing House 5 Imperial Vault (x = 7.0, z = -76) on the right
+    { p: new THREE.Vector3(-1.0, 4.5, -78.0), t: new THREE.Vector3( 0.0, 4.2, -96.0) }, // 8: mountain summit overlook
+    { p: new THREE.Vector3( 0.0, 3.8, -88.0), t: new THREE.Vector3( 0.0, 4.5,-105.0) }  // 9: afterlight moon pool
+  ];
+
+  const camPosSpline = new THREE.CatmullRomCurve3(
+    CAM_WAYPOINTS.map(w => w.p),
+    false,
+    'catmullrom',
+    0.35
+  );
+  const camTargetSpline = new THREE.CatmullRomCurve3(
+    CAM_WAYPOINTS.map(w => w.t),
+    false,
+    'catmullrom',
+    0.35
+  );
+  window.__camPosSpline = camPosSpline;
+  window.__camTargetSpline = camTargetSpline;
+  window.__CAM_WAYPOINTS = CAM_WAYPOINTS;
+  window.__camera = camera;
+
+  const SCENE_NAMES = [
+    'THE HIDDEN GATE',
+    'THE MAKER',
+    'IGRADEIFY',
+    'MANIM-TS',
+    'DUEL DECK',
+    'DESKTOP BUDDY',
+    'GREATE ENGINE',
+    'PERSONAL CLOUD',
+    'THE RITUAL',
+    'AFTERLIGHT'
+  ];
+
+  const KANJI_WATERMARKS = [
+    '影の道',
+    '門跡',
+    '学宮',
+    '三重塔',
+    '両極殿',
+    '茶室',
+    '天守閣',
+    '宝蔵',
+    '作法',
+    '残光'
+  ];
+
+  // Dynamic Document Tab Titles & Ambient Presence
+  const CHAPTER_TITLES = [
+    'SUBADEEPAN — Chapter 00: The Hidden Gate (影の道)',
+    'SUBADEEPAN — Chapter 01: The Maker (門跡)',
+    'SUBADEEPAN — Chapter 02: iGradeify (学宮)',
+    'SUBADEEPAN — Chapter 03: Manim-TS (三重塔)',
+    'SUBADEEPAN — Chapter 04: Duel Deck (両極殿)',
+    'SUBADEEPAN — Chapter 05: Desktop Buddy (茶室)',
+    'SUBADEEPAN — Chapter 06: Greate Engine (天守閣)',
+    'SUBADEEPAN — Chapter 07: Personal Cloud (宝蔵)',
+    'SUBADEEPAN — Chapter 08: The Ritual (作法)',
+    'SUBADEEPAN — Chapter 09: Afterlight (残光)'
+  ];
+
+  const STILLNESS_TITLE = 'SUBADEEPAN — Stillness in the Void';
+
+  function updateTabTitle() {
+    if (document.hidden) {
+      document.title = STILLNESS_TITLE;
+    } else {
+      document.title = CHAPTER_TITLES[activeStageIdx] || CHAPTER_TITLES[0];
+    }
+  }
+
+  document.addEventListener('visibilitychange', updateTabTitle);
+  window.updateTabTitle = updateTabTitle;
+  window.CHAPTER_TITLES = CHAPTER_TITLES;
+  window.STILLNESS_TITLE = STILLNESS_TITLE;
+
+  // --- 7. VIRTUAL IN-PLACE SCROLL & GESTURE INTERACTION ENGINE ---
+  let targetProgress = 0.0;
+  let currentProgress = 0.0;
+  let activeStageIdx = 0;
+
+  const scenes = document.querySelectorAll('.scene-layer');
+  const railBtns = document.querySelectorAll('.rail-btn');
+  const navLinks = document.querySelectorAll('.nav-link');
+  const hudPhase = document.getElementById('hudPhase');
+  const hudCurSec = document.getElementById('hudCurSec');
+  const hudFill = document.getElementById('hudFill');
+  const kanjiWm = document.getElementById('kanjiWatermark');
+  const workStepper = document.getElementById('workStepper');
+  const stepDots = document.querySelectorAll('.step-dot');
+
+  // --- KAGE MULTI-STAGE FOREGROUND CUTOUT STAGING ENGINE ---
+  const fgSky = document.getElementById('fg-sky');
+  const stageFgs = Array.from(document.querySelectorAll('.scene-layer .fg'));
+  const fgHomes = new Map();
+  const fgTimers = new Map();
+  let activeFgStage = null;
+
+  stageFgs.forEach(stage => {
+    fgHomes.set(stage, stage.parentNode);
+  });
+
+  function liftFg(stage) {
+    if (!fgSky || stage.parentNode === fgSky) return;
+    fgSky.appendChild(stage);
+    void stage.offsetWidth;
+  }
+
+  function parkFg(stage) {
+    const home = fgHomes.get(stage);
+    if (home && stage.parentNode !== home) {
+      home.insertBefore(stage, home.firstChild);
+    }
+  }
+
+  function retireFg(stage) {
+    if (!stage || stage === activeFgStage) return;
+    const pending = fgTimers.get(stage);
+    if (pending) clearTimeout(pending);
+    stage.classList.remove('fg-active');
+    stage.classList.add('fg-retiring');
+    const timer = setTimeout(() => {
+      stage.classList.remove('fg-retiring');
+      fgTimers.delete(stage);
+      parkFg(stage);
+    }, 820);
+    fgTimers.set(stage, timer);
+  }
+
+  function activateStageFg(stageIdx) {
+    const targetStage = document.querySelector('.fg[data-fg="sec' + stageIdx + '"]');
+    if (!targetStage || targetStage === activeFgStage) return;
+    const pending = fgTimers.get(targetStage);
+    if (pending) clearTimeout(pending);
+    targetStage.classList.remove('fg-retiring');
+    liftFg(targetStage);
+    targetStage.classList.add('fg-active');
+    const prior = activeFgStage;
+    activeFgStage = targetStage;
+    if (prior) {
+      retireFg(prior);
+    }
+  }
+
+  window.activateStageFg = activateStageFg;
+  window.getActiveFgStage = () => activeFgStage;
+
+  function jumpTo(idx) {
+  targetFocusAmt = 0.0;
+    const validIdx = Math.max(0.0, Math.min(9.0, Number(idx) || 0));
+    targetProgress = validIdx;
+    if (typeof playTactileClick === 'function') {
+      try { playTactileClick(); } catch (_) {}
+    }
+  }
+  window.jumpTo = jumpTo;
+  Object.defineProperty(window, 'currentProgress', {
+    get: function() { return currentProgress; },
+    configurable: true
+  });
+  Object.defineProperty(window, 'targetProgress', {
+    get: function() { return targetProgress; },
+    set: function(v) { targetProgress = v; },
+    configurable: true
+  });
+  window.getTargetProgress = function() { return targetProgress; };
+
+  // DAMPED DELIBERATE SCROLL WHEEL LISTENER (Fixes "scrolls too fast" completely!)
+  window.addEventListener('wheel', function (e) {
+    if (document.getElementById('modal').classList.contains('open')) return;
+    targetFocusAmt = 0.0;
+    e.preventDefault();
+    // Gentle calibrated pacing across 10 stages
+    const delta = e.deltaY * 0.0009;
+    targetProgress = Math.max(0.0, Math.min(9.0, targetProgress + delta));
+  }, { passive: false });
+
+  // Touch listener & Touch Safety Tracking
+  let touchStartX = 0, touchStartY = 0;
+  let isTouchDragging = false;
+  let touchDragTimeout = null;
+  window.addEventListener('touchstart', function (e) {
+    if (e.touches.length > 0) {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    }
+    isTouchDragging = false;
+  }, { passive: true });
+  window.addEventListener('touchmove', function (e) {
+    if (document.getElementById('modal').classList.contains('open')) return;
+    targetFocusAmt = 0.0;
+    if (e.touches.length > 0) {
+      const dist = Math.hypot(e.touches[0].clientX - touchStartX, e.touches[0].clientY - touchStartY);
+      if (dist > 8) {
+        isTouchDragging = true;
+      }
+      const deltaY = (touchStartY - e.touches[0].clientY) * 0.0018;
+      touchStartY = e.touches[0].clientY;
+      targetProgress = Math.max(0.0, Math.min(9.0, targetProgress + deltaY));
+    }
+  }, { passive: true });
+  window.addEventListener('touchend', function () {
+    if (touchDragTimeout) clearTimeout(touchDragTimeout);
+    if (isTouchDragging) {
+      touchDragTimeout = setTimeout(() => {
+        isTouchDragging = false;
+      }, 350);
+    }
+  }, { passive: true });
+
+  // Mouse Click-to-Open 3D House Landmark Dossier
+  let pointerDownPos = { x: 0, y: 0, time: 0 };
+  window.addEventListener('pointerdown', function (e) {
+    pointerDownPos = { x: e.clientX, y: e.clientY, time: Date.now() };
+  });
+
+  window.addEventListener('click', function (e) {
+    // 1. Touch Safety: Ignore if touch dragging / scrolling occurred
+    if (isTouchDragging) return;
+
+    // 2. Ignore if mouse dragged (> 6px)
+    if (Math.hypot(e.clientX - pointerDownPos.x, e.clientY - pointerDownPos.y) > 6) return;
+
+    // 3. If clicking interactive DOM element, let normal click handler process it
+    if (e.target && e.target.closest('a, button, [onclick], .dossier-btn, .project-showcase-plate, #nav, #modal, #dossierModal, #soundBtn, .rail-btn, .step-dot, .peek, .brand, .brand-hanko')) {
+      return;
+    }
+
+    // 4. Raycast 3D Landmark Houses from click location
+    if (typeof camera !== 'undefined' && camera && PROJECT_HOUSES && PROJECT_HOUSES.length > 0) {
+      const clickNdc = new THREE.Vector2(
+        (e.clientX / window.innerWidth) * 2 - 1,
+        -(e.clientY / window.innerHeight) * 2 + 1
+      );
+      const clickRaycaster = new THREE.Raycaster();
+      clickRaycaster.setFromCamera(clickNdc, camera);
+      const hits = clickRaycaster.intersectObjects(PROJECT_HOUSES, true);
+      if (hits.length > 0) {
+        let curr = hits[0].object;
+        let targetProjIdx = -1;
+        while (curr) {
+          if (curr.userData && typeof curr.userData.projectIndex === 'number') {
+            targetProjIdx = curr.userData.projectIndex;
+            break;
+          }
+          const pIdx = PROJECT_HOUSES.indexOf(curr);
+          if (pIdx !== -1) {
+            targetProjIdx = pIdx;
+            break;
+          }
+          curr = curr.parent;
+        }
+        if (targetProjIdx >= 0 && targetProjIdx <= 5) {
+          if (typeof openModal === 'function') {
+            openModal(targetProjIdx);
+          }
+        }
+      } else if (typeof moonDisc !== 'undefined' && moonDisc) {
+        // Direct click on 3D Blood Moon triggers Totality Blood Moon Surge
+        const moonHits = clickRaycaster.intersectObjects([moonDisc, moonHalo], true);
+        if (moonHits.length > 0) {
+          if (typeof triggerBloodMoonSurge === 'function') {
+            triggerBloodMoonSurge();
+          }
+        }
+      }
+    }
+  });
+
+  // Keyboard navigation & accessibility controls
+  let secretKeyBuffer = '';
+  window.addEventListener('keydown', function (e) {
+    const modal = document.getElementById('modal');
+    if (modal && modal.classList.contains('open')) return;
+
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+
+    // Sacred Easter Egg keystroke sequence 'kage'
+    secretKeyBuffer += (e.key || '').toLowerCase();
+    if (secretKeyBuffer.length > 10) secretKeyBuffer = secretKeyBuffer.slice(-10);
+    if (secretKeyBuffer.endsWith('kage')) {
+      secretKeyBuffer = '';
+      triggerBloodMoonSurge();
+    }
+
+    // Keys '0' to '9': jump directly to chapters (Keys 1-6 map directly to Sacred Artifacts 1-6 / Stages 2-7)
+    if (e.key >= '0' && e.key <= '9') {
+      e.preventDefault();
+      const kNum = Number(e.key);
+      if (kNum === 0) jumpTo(0);
+      else if (kNum >= 1 && kNum <= 6) jumpTo(1 + kNum);
+      else jumpTo(kNum);
+      return;
+    }
+
+    // Key '?' or Shift+'/': toggle hotkey shortcuts modal
+    if (e.key === '?' || (e.key === '/' && e.shiftKey)) {
+      e.preventDefault();
+      toggleHotkeyModal();
+      return;
+    }
+
+    // Key 'm' / 'M': trigger '#soundBtn' to toggle audio mute
+    if (e.key === 'm' || e.key === 'M') {
+      e.preventDefault();
+      const sBtn = document.getElementById('soundBtn');
+      if (sBtn) sBtn.click();
+      return;
+    }
+
+    // Key 'Enter' or 'Space': when in a project stage (stages 2-7), open that project's dossier modal ('openModal(primaryStage - 2)')
+    if (e.key === 'Enter' || e.key === ' ' || e.code === 'Space') {
+      const curStage = typeof activeStageIdx !== 'undefined' ? activeStageIdx : Math.round(currentProgress);
+      if (curStage >= 2 && curStage <= 7) {
+        e.preventDefault();
+        openModal(curStage - 2);
+        return;
+      }
+      // If Space pressed when not in a project stage, scroll forward
+      if (e.key === ' ' || e.code === 'Space') {
+        e.preventDefault();
+        targetProgress = Math.min(9.0, Math.floor(targetProgress + 1.0));
+        return;
+      }
+    }
+
+    if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+      e.preventDefault();
+      targetProgress = Math.min(9.0, Math.floor(targetProgress + 1.0));
+    } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+      e.preventDefault();
+      targetProgress = Math.max(0.0, Math.ceil(targetProgress - 1.0));
+    }
+  });
+
+  // Sacred Ceremony: Triple-click brand hanko seal to trigger Totality Blood Moon
+  const hankoEl = document.querySelector('.brand-hanko');
+  let hankoClicks = [];
+  if (hankoEl) {
+    hankoEl.addEventListener('click', function (e) {
+      e.stopPropagation();
+      const now = Date.now();
+      hankoClicks.push(now);
+      hankoClicks = hankoClicks.filter(t => now - t <= 1200);
+      if (hankoClicks.length >= 3) {
+        hankoClicks = [];
+        triggerBloodMoonSurge();
+      }
+    });
+  }
+
+  // Dynamic Aspect Ratio Normalization (Kage-style)
+  const aspectFix = () => Math.max(0, (1 - camera.aspect) * 0.45);
+  window.aspectFix = aspectFix;
+  window.__camera = camera;
+
+  // Resize handler
+  window.addEventListener('resize', function () {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    if (typeof wispMat !== 'undefined' && wispMat && wispMat.uniforms && wispMat.uniforms.uPx) {
+      wispMat.uniforms.uPx.value = window.innerHeight;
+    }
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    const af = aspectFix();
+    const moonX = 18 * (1 - af);
+    if (moonDisc) moonDisc.position.x = moonX;
+    if (moonHalo) moonHalo.position.x = moonX;
+    if (moonLight) moonLight.position.x = 22 * (1 - af);
+  });
+
+  // --- 7.6 PAGE VISIBILITY API (Frame Pacing & Resource Conservation) ---
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) {
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+    } else {
+      if (!isContextLost && !rafId) {
+        camOffset.x = 0;
+        camOffset.y = 0;
+        rafId = requestAnimationFrame(tick);
+      }
+    }
+  });
+
+  // --- 7.5 SUBTLE MOUSE GYROSCOPE / CURSOR TILT PARALLAX & 3D RAYCASTING ---
+  const mouse = { x: 0, y: 0, active: false };
+  const camOffset = { x: 0, y: 0 };
+
+  window.addEventListener('mousemove', function (e) {
+    if (e.sourceCapabilities && e.sourceCapabilities.firesTouchEvents) return;
+    mouse.active = true;
+    mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = (e.clientY / window.innerHeight) * 2 - 1;
+
+    // Normalized Device Coordinates for Three.js Raycaster (NDC: X [-1, 1], Y [1, -1])
+    houseRayMouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+    houseRayMouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+  });
+
+  window.addEventListener('mouseleave', function () {
+    mouse.x = 0;
+    mouse.y = 0;
+    houseRayMouse.x = -999;
+    houseRayMouse.y = -999;
+    isHouseHovered = false;
+    hoveredHouseIdx = -1;
+  });
+
+  window.addEventListener('touchstart', function () {
+    mouse.active = false;
+    houseRayMouse.x = -999;
+    houseRayMouse.y = -999;
+  }, { passive: true });
+
+  // --- 8B. TOTALITY BLOOD MOON SURGE MICRO-EVENT STATE ---
+  let isSurging = false;
+  let surgeStartTime = 0;
+  let bloodMoonSurge = 0.0;
+  const bloodMoonColor = new THREE.Color(0xe0231c);
+
+  let lastUserActivityTime = Date.now();
+  let lastFluteBreathTime = 0;
+  ['mousemove', 'keydown', 'wheel', 'touchstart'].forEach(evt => {
+    window.addEventListener(evt, () => { lastUserActivityTime = Date.now(); }, { passive: true });
+  });
+
+  function checkIdleFluteBreath() {
+    if (isMuted || !audioCtx || audioCtx.state !== 'running') return;
+    const now = Date.now();
+    if (now - lastUserActivityTime > 6000 && now - lastFluteBreathTime > 16000) {
+      lastFluteBreathTime = now;
+      playShakuhachiBreath();
+    }
+  }
+
+  function playShakuhachiBreath() {
+    if (isMuted || !audioCtx || audioCtx.state !== 'running') return;
+    try {
+      const now = audioCtx.currentTime;
+      const pentatonicFreqs = [576, 648, 864];
+      const targetFreq = pentatonicFreqs[Math.floor(Math.random() * pentatonicFreqs.length)];
+
+      const fOsc = audioCtx.createOscillator();
+      fOsc.type = 'sine';
+      fOsc.frequency.setValueAtTime(targetFreq, now);
+
+      const fVib = audioCtx.createOscillator();
+      fVib.type = 'sine';
+      fVib.frequency.setValueAtTime(4.2, now);
+      const fVibGain = audioCtx.createGain();
+      fVibGain.gain.setValueAtTime(3.8, now);
+      fVib.connect(fVibGain);
+      fVibGain.connect(fOsc.frequency);
+      fVib.start(now);
+      fVib.stop(now + 3.8);
+
+      const fGain = audioCtx.createGain();
+      fGain.gain.setValueAtTime(0.0001, now);
+      fGain.gain.exponentialRampToValueAtTime(0.040, now + 0.85);
+      fGain.gain.exponentialRampToValueAtTime(0.0001, now + 3.6);
+
+      fOsc.connect(fGain);
+      fGain.connect(analyserNode || audioCtx.destination);
+      fOsc.start(now);
+      fOsc.stop(now + 3.8);
+    } catch (_) {}
+  }
+  window.playShakuhachiBreath = playShakuhachiBreath;
+
+  function triggerBloodMoonSurge() {
+    isSurging = true;
+    surgeStartTime = performance.now();
+    document.body.classList.add('blood-moon-active');
+    const hanko = document.querySelector('.brand-hanko');
+    if (hanko) hanko.classList.add('surge');
+    if (typeof playBloodMoonDrone === 'function') {
+      playBloodMoonDrone();
+    }
+  }
+  window.triggerBloodMoonSurge = triggerBloodMoonSurge;
+  window.isBloodMoonSurging = () => isSurging;
+  window.getBloodMoonSurge = () => bloodMoonSurge;
+
+  // Stage 9 Inquiry Copy Toast
+  window.copyInquiryContact = function (text, label) {
+    if (typeof playTactileClick === 'function') playTactileClick();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).catch(() => {});
+    }
+    const toast = document.getElementById('hankoToast');
+    if (toast) {
+      toast.textContent = (label || 'COPIED') + ' // 影';
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2400);
+    }
+  };
+
+  // PWA Service Worker Registration
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    });
+  }
+
+  // --- 8. RENDER LOOP (RAF) & INTERACTIVE CAMERA FOCUS RIG ---
+  const currentCamPos = new THREE.Vector3();
+  const currentCamTarget = new THREE.Vector3();
+  const _focusDir = new THREE.Vector3();
+  let clock = 0;
+  let lastProgress = 0.0;
+  let scrollVelocity = 0.0;
+  let windBreeze = 1.0;
+
+  function triggerFocusIn() {
+    const curStage = Math.round(targetProgress);
+    if (curStage >= 2 && curStage <= 7) {
+      targetFocusAmt = 1.0;
+    }
+  }
+
+  function triggerFocusOut() {
+    targetFocusAmt = 0.0;
+  }
+
+  function setupProjectFocusListeners() {
+    const selectors = [
+      '.stage-work .editorial-block',
+      '.stage-work .project-showcase-plate',
+      '.stage-work .dossier-btn',
+      '.stage-work .work-specs',
+      '.stage-work .monumental-heading',
+      '.stage-work',
+      '.dossier-btn'
+    ];
+    document.querySelectorAll(selectors.join(',')).forEach(el => {
+      el.addEventListener('mouseenter', triggerFocusIn);
+      el.addEventListener('mouseleave', triggerFocusOut);
+    });
+  }
+  setupProjectFocusListeners();
+
+  window.setFocus = (val) => { targetFocusAmt = val ? 1.0 : 0.0; };
+  window.getFocusAmt = () => focusAmt;
+
+  function tick() {
+    if (document.hidden || isContextLost) {
+      rafId = null;
+      return;
+    }
+    clock += 0.016;
+
+    // Fluid Inertia LERP (Guarded against NaN)
+    if (isNaN(currentProgress)) currentProgress = 0;
+    if (isNaN(targetProgress)) targetProgress = 0;
+    const diff = targetProgress - currentProgress;
+    if (Math.abs(diff) < 0.0002) {
+      currentProgress = targetProgress;
+    } else {
+      currentProgress += diff * 0.075;
+    }
+
+    const p = currentProgress;
+    const baseIdx = Math.floor(p);
+    const frac = p - baseIdx;
+    const nextIdx = Math.min(9, baseIdx + 1);
+
+    // Smooth CatmullRom Spline Interpolation across all 10 stages
+    const normU = Math.min(1, Math.max(0, p / 9.0));
+    camPosSpline.getPoint(normU, currentCamPos);
+    camTargetSpline.getPoint(normU, currentCamTarget);
+
+    if (shrineLight) {
+      shrineLight.position.set(currentCamPos.x, currentCamPos.y + 1.2, currentCamPos.z - 4.0);
+    }
+
+    // Subtle Mouse Tilt / Gyroscope Parallax (Kage-style)
+    if (mouse.active) {
+      camOffset.x += (mouse.x * 0.35 - camOffset.x) * 0.05;
+      camOffset.y += (-mouse.y * 0.25 - camOffset.y) * 0.05;
+    } else {
+      camOffset.x += (0 - camOffset.x) * 0.05;
+      camOffset.y += (0 - camOffset.y) * 0.05;
+    }
+
+    // Dynamic Aspect Ratio Normalization (Kage-style)
+    const af = aspectFix();
+    const moonX = 18 * (1 - af);
+    if (moonDisc) moonDisc.position.x = moonX;
+    if (moonHalo) moonHalo.position.x = moonX;
+    if (moonLight) moonLight.position.x = 22 * (1 - af);
+
+    // Kinetic Wind Breeze Velocity derived from scroll motion
+    const scrollDelta = Math.abs(currentProgress - lastProgress);
+    lastProgress = currentProgress;
+    scrollVelocity += (scrollDelta - scrollVelocity) * 0.18;
+    const windBoost = Math.min(2.5, scrollVelocity * 40.0);
+    windBreeze = 1.0 + windBoost;
+    window.__scrollVelocity = scrollVelocity;
+    window.__windBreeze = windBreeze;
+
+    // Interactive Focus Dolly-In easing
+    // When actively moving between stages, un-focus smoothly
+    if (Math.abs(diff) > 0.04) {
+      targetFocusAmt = 0.0;
+    }
+    focusAmt += (targetFocusAmt - focusAmt) * 0.075;
+    if (Math.abs(targetFocusAmt - focusAmt) < 0.0005) {
+      focusAmt = targetFocusAmt;
+    }
+    window.__focusAmt = focusAmt;
+    window.focusAmt = focusAmt;
+
+    camera.position.copy(currentCamPos);
+    camera.position.x += camOffset.x;
+    camera.position.y += camOffset.y;
+    camera.position.z += af * 4.0;
+
+    // Interactive Camera Focus Dolly-In: glides 1.8 units closer along forward view vector
+    if (focusAmt > 0.0001) {
+      _focusDir.subVectors(currentCamTarget, currentCamPos).normalize();
+      camera.position.addScaledVector(_focusDir, focusAmt * 1.8);
+    }
+
+    camera.lookAt(currentCamTarget);
+
+    // Dynamic Foreground Parallax with Cursor Tilt Micro-Parallax
+    const mouseShiftX = camOffset.x * 18;
+    const mouseShiftY = camOffset.y * 14;
+
+    const fgWall = document.getElementById('fgWall');
+    const fgStones = document.getElementById('fgStones');
+    const fgGrass = document.getElementById('fgGrass');
+    const fgMaple = document.getElementById('fgMaple');
+
+    if (fgWall) {
+      const wallX = p * 42 + mouseShiftX * 0.8;
+      const wallY = Math.sin(p * 0.5) * 16 + mouseShiftY * 0.6;
+      fgWall.style.transform = \`translate3d(\${wallX.toFixed(2)}px, \${wallY.toFixed(2)}px, 0)\`;
+      fgWall.style.opacity = p >= 2 && p <= 7 ? 0.35 : 0.88;
+    }
+    if (fgStones) {
+      const stonesX = -p * 36 - mouseShiftX * 1.2;
+      const stonesY = Math.cos(p * 0.45) * 14 + mouseShiftY * 0.8;
+      fgStones.style.transform = \`translate3d(\${stonesX.toFixed(2)}px, \${stonesY.toFixed(2)}px, 0)\`;
+      fgStones.style.opacity = p >= 2 && p <= 7 ? 0.40 : 0.85;
+    }
+    if (fgGrass) {
+      const grassSway = Math.sin(clock * 0.85) * 6;
+      const grassY = p * 18 + mouseShiftY * 1.5;
+      const grassX = grassSway + mouseShiftX * 1.4;
+      fgGrass.style.transform = \`translate3d(\${grassX.toFixed(2)}px, \${grassY.toFixed(2)}px, 0)\`;
+      fgGrass.style.opacity = p >= 2 && p <= 7 ? 0.40 : 0.75;
+    }
+    if (fgMaple) {
+      const mapleX = Math.cos(clock * 0.6) * 7 + mouseShiftX * 2.2;
+      const mapleY = Math.sin(clock * 0.5) * 5 + mouseShiftY * 1.8;
+      fgMaple.style.transform = \`translate3d(\${mapleX.toFixed(2)}px, \${mapleY.toFixed(2)}px, 0)\`;
+    }
+
+    // Subtle Mouse Tilt Micro-Parallax on Active Foreground Sky
+    if (fgSky) {
+      fgSky.style.transform = \`translate3d(\${(camOffset.x * 14).toFixed(2)}px, \${(camOffset.y * 10).toFixed(2)}px, 0)\`;
+    }
+
+    // Active House Gentle 3D Rotation & Focus
+    if (p >= 1.5 && p <= 7.5) {
+      const activeProjIdx = Math.max(0, Math.min(5, Math.round(p - 2)));
+      const curHouse = PROJECT_HOUSES[activeProjIdx];
+      if (curHouse) {
+        const baseRot = (activeProjIdx % 2 === 0 ? 0.20 : -0.20);
+        curHouse.rotation.y = baseRot + Math.sin(clock * 0.45) * 0.04;
+      }
+    }
+
+    // Animate gentle water ripple wave normal oscillations on the obsidian mirror pond
+    if (typeof waterRippleTex !== 'undefined' && waterRippleTex) {
+      waterRippleTex.offset.x = (clock * 0.035) % 1;
+      waterRippleTex.offset.y = (Math.sin(clock * 0.45) * 0.02 + clock * 0.025) % 1;
+    }
+    if (typeof waterReflectMat !== 'undefined' && waterReflectMat) {
+      const rip = 0.18 + Math.sin(clock * 1.5) * 0.05;
+      waterReflectMat.normalScale.set(rip, rip * 0.85);
+    }
+
+    // Moonwater Sanctuary Pool Animated Optics & Flickering Water-Borne Lantern
+    if (typeof moonwaterMat !== 'undefined' && moonwaterMat) {
+      const rip = 0.18 + Math.sin(clock * 1.4) * 0.04;
+      moonwaterMat.normalScale.set(rip, rip * 0.85);
+    }
+    if (window.__moonwaterMist && window.__moonwaterMist.material) {
+      window.__moonwaterMist.material.opacity = 0.16 + Math.sin(clock * 0.65) * 0.05;
+    }
+    if (window.__moonwaterLantern) {
+      const f = 0.88 + Math.sin(clock * 8.4) * 0.12 + Math.cos(clock * 15.3) * 0.06;
+      window.__moonwaterLantern.fire.scale.setScalar(f);
+      window.__moonwaterLantern.light.intensity = 2.4 * f;
+    }
+
+    // Drifting Embers
+    const positions = emberGeo.attributes.position.array;
+    for (let i = 1; i < emberCount * 3; i += 3) {
+      positions[i] += 0.024;
+      if (positions[i] > 24) positions[i] = 0;
+    }
+    emberGeo.attributes.position.needsUpdate = true;
+
+    // Drifting 3D Autumn Maple Leaves with rotational turbulence & kinetic breeze
+    leafData.forEach(d => {
+      const m = d.mesh;
+      m.position.y -= d.speed * 0.030 * windBreeze;
+      m.position.x += (Math.sin(clock * 1.2 + d.seed) * 0.020 + 0.008) * windBreeze;
+      m.position.z += Math.cos(clock * 0.9 + d.seed) * 0.012 * windBreeze;
+
+      m.rotation.z += d.spinZ * windBreeze;
+      m.rotation.x += d.spinX * windBreeze;
+      m.rotation.y += d.spinY * windBreeze;
+
+      // Wrap back to top y=22 when dropping below ground
+      if (m.position.y < 0) {
+        m.position.y = 22;
+        m.position.x = (Math.random() - 0.5) * 50;
+        m.position.z = -35 + Math.random() * 45;
+      }
+    });
+
+    // 3D Sakura Petal Swirl & Wind Vortex
+    if (typeof sakuraData !== 'undefined' && sakuraData.length) {
+      const vortexWeight = Math.min(1.0, scrollVelocity * 38.0);
+      const camP = camera.position;
+
+      sakuraData.forEach(d => {
+        const m = d.mesh;
+
+        // Base drift and fluttering gravity
+        m.position.y -= d.driftSpeed * windBreeze;
+        m.position.x += Math.sin(clock * 1.5 + d.seed) * 0.016 * windBreeze;
+        m.position.z += Math.cos(clock * 1.2 + d.seed) * 0.012 * windBreeze;
+
+        // Multi-axis tumbling rotation
+        const spinBoost = 1.0 + vortexWeight * 2.8;
+        m.rotation.x += d.spinX * windBreeze * spinBoost;
+        m.rotation.y += d.spinY * windBreeze * spinBoost;
+        m.rotation.z += d.spinZ * windBreeze * spinBoost;
+
+        // Dynamic atmospheric wind vortex swirling around camera path during scroll
+        if (vortexWeight > 0.02) {
+          d.angle += (d.vortexSpeed + scrollVelocity * 75.0) * 0.022;
+          const targetX = camP.x + Math.cos(d.angle) * (d.baseRadius + Math.sin(clock * 2.2 + d.seed) * 0.6);
+          const targetY = camP.y + Math.sin(d.angle * 1.4) * 0.9 + Math.sin(clock * 1.8 + d.seed) * 0.35;
+          const targetZ = camP.z - 3.5 + Math.sin(d.angle) * 2.8;
+
+          m.position.x += (targetX - m.position.x) * (0.065 * vortexWeight);
+          m.position.y += (targetY - m.position.y) * (0.065 * vortexWeight);
+          m.position.z += (targetZ - m.position.z) * (0.065 * vortexWeight);
+        }
+
+        // Boundary recycle: wrap when dropped below ground or passed behind camera
+        if (m.position.y < 0.1 || m.position.z > camP.z + 8.0) {
+          m.position.y = camP.y + 2.5 + Math.random() * 5.5;
+          m.position.z = camP.z - 8.0 - Math.random() * 25.0;
+          m.position.x = camP.x + (Math.random() - 0.5) * 16.0;
+        }
+      });
+    }
+
+    // Lantern Flickering & Synchronous Ground Light Pool Decal Modulation
+    lanterns.forEach((l, idx) => {
+      const f = 0.88 + Math.sin(clock * 7.2 + idx * 1.7) * 0.12 + Math.cos(clock * 14.1 + idx * 3.1) * 0.06 + (Math.random() - 0.5) * 0.05;
+      l.fire.scale.setScalar(f);
+      if (l.light) l.light.intensity = 1.2 * f;
+      if (typeof lanternLightDecals !== 'undefined' && lanternLightDecals[idx]) {
+        lanternLightDecals[idx].material.opacity = 0.60 * f;
+      }
+    });
+
+    // Floating Kanji Watermark Planes Drift & Parallax
+    if (typeof kanjiPlanes !== 'undefined' && kanjiPlanes.length) {
+      kanjiPlanes.forEach((k) => {
+        const ud = k.userData;
+        k.position.y = ud.baseY + Math.sin(clock * 0.45 + ud.seed) * 0.35;
+        k.position.x = ud.baseX + Math.cos(clock * 0.35 + ud.seed) * 0.22;
+        k.material.opacity = ud.baseOpacity + Math.sin(clock * 0.5 + ud.seed) * 0.015;
+      });
+    }
+
+    // Helical Fireflies Around 13 Avenue Stone Lanterns (39 particles total)
+    if (typeof fireflyGeo !== 'undefined' && fireflyGeo && fireflyGeo.attributes && fireflyGeo.attributes.position) {
+      const posArr = fireflyGeo.attributes.position.array;
+      for (let i = 0; i < fireflyCount; i++) {
+        const p = fireflyMeta[i];
+        const idx = i * 3;
+        posArr[idx + 0] = p.lanternX + Math.cos(clock * p.speed + p.phase) * p.radius;
+        posArr[idx + 1] = p.lanternY + Math.sin(clock * 1.5 + p.phase) * 0.3 + 0.8;
+        posArr[idx + 2] = p.lanternZ + Math.sin(clock * p.speed + p.phase) * p.radius;
+      }
+      fireflyGeo.attributes.position.needsUpdate = true;
+      if (typeof fireflyMat !== 'undefined' && fireflyMat) {
+        fireflyMat.opacity = 0.72 + Math.sin(clock * 2.2) * 0.20;
+      }
+    }
+
+    // Sanctuary Ground Mist & Light Spill Breathing
+    if (typeof mistPlane !== 'undefined' && mistPlane && mistPlane.material) {
+      mistPlane.material.opacity = 0.18 + Math.sin(clock * 0.4) * 0.04;
+      const s = 1.0 + Math.sin(clock * 0.35 + 1.2) * 0.03;
+      mistPlane.scale.set(s, s, 1.0);
+    }
+
+    // Wet stone normal shimmer & specular ripple
+    if (groundMesh && groundMesh.material && groundMesh.material.normalScale) {
+      groundMesh.material.normalScale.set(
+        0.25 + Math.sin(clock * 0.8) * 0.05,
+        0.25 + Math.cos(clock * 0.7) * 0.05
+      );
+    }
+
+    // Imperial Gold Leaf Specular Glint on Torii Gate Brass Caps & Fittings
+    const glint = Math.max(0, Math.sin(clock * 0.75) - 0.7) * 2.5;
+    goldBrassMat.emissive.setRGB(glint * 0.22, glint * 0.17, glint * 0.06);
+
+    // Sacred Shide paper streamers wind sway on Entrance Torii (amplified by kinetic breeze)
+    shideStreamers.forEach((s, idx) => {
+      const swayZ = (Math.sin(clock * 1.8 + idx * 0.85) * 0.08 + Math.cos(clock * 2.7 + idx * 1.2) * 0.03) * (1.0 + windBoost * 0.75);
+      const swayX = (Math.cos(clock * 1.4 + idx * 0.7) * 0.12 + Math.sin(clock * 3.1 + idx * 1.5) * 0.04) * (1.0 + windBoost * 0.75);
+      s.rotation.z = swayZ;
+      s.rotation.x = swayX;
+    });
+
+    // Breeze dynamics on Sanmon Fūrin (風鈴) Tanzaku paper strips (amplified by kinetic breeze)
+    furinTanzaku.forEach((t, idx) => {
+      const swayZ = (Math.sin(clock * 2.2 + idx * 1.3) * 0.14 + Math.cos(clock * 3.7 + idx * 0.9) * 0.05) * (1.0 + windBoost * 0.75);
+      const swayX = (Math.cos(clock * 1.9 + idx * 1.1) * 0.18 + Math.sin(clock * 4.1 + idx * 1.7) * 0.06) * (1.0 + windBoost * 0.75);
+      t.rotation.z = swayZ;
+      t.rotation.x = swayX;
+    });
+
+    // --- Atmospheric Totality Blood Moon Surge Lifecycle ---
+    if (isSurging) {
+      const elapsed = (performance.now() - surgeStartTime) / 1000;
+      if (elapsed < 0.45) {
+        bloodMoonSurge = elapsed / 0.45;
+      } else if (elapsed < 3.0) {
+        bloodMoonSurge = 1.0;
+      } else if (elapsed < 5.3) {
+        const decayFrac = (elapsed - 3.0) / 2.3;
+        bloodMoonSurge = Math.pow(Math.max(0, 1 - decayFrac), 2);
+        if (bloodMoonSurge < 0.015) {
+          bloodMoonSurge = 0.0;
+          isSurging = false;
+          document.body.classList.remove('blood-moon-active');
+          const hanko = document.querySelector('.brand-hanko');
+          if (hanko) hanko.classList.remove('surge');
+        }
+      } else {
+        bloodMoonSurge = 0.0;
+        isSurging = false;
+        document.body.classList.remove('blood-moon-active');
+        const hanko = document.querySelector('.brand-hanko');
+        if (hanko) hanko.classList.remove('surge');
+      }
+    }
+
+    // Slow respiratory pulse on vermilion moon corona halo + Totality Blood Moon surge modulation
+    if (moonHalo && moonHalo.material) {
+      const baseOpacity = 0.38 + Math.sin(clock * 0.42) * 0.07;
+      const baseScale = 1.0 + Math.sin(clock * 0.42) * 0.025;
+      const curOpacity = baseOpacity + (0.85 - baseOpacity) * bloodMoonSurge;
+      const curScale = baseScale + (1.15 - baseScale) * bloodMoonSurge;
+      moonHalo.material.opacity = curOpacity;
+      moonHalo.scale.set(curScale, curScale, 1.0);
+    }
+
+    // In-Place Stage UI Switching
+    const primaryStage = Math.max(0, Math.min(9, Math.round(p)));
+
+    // Project-Specific Dynamic 3D Lighting Modulation with Blood Moon Surge Bloom
+    if (moonLight) {
+      moonLight.intensity = 2.2 + (4.5 - 2.2) * bloodMoonSurge;
+    }
+    if (shrineLight) {
+      shrineLight.intensity = 3.2 + (4.5 - 3.2) * bloodMoonSurge;
+    }
+    targetLightColor.setHex(STAGE_LIGHT_COLORS[primaryStage] || 0xff5a3c);
+    if (bloodMoonSurge > 0.001) {
+      targetLightColor.lerp(bloodMoonColor, Math.min(1.0, bloodMoonSurge * 0.85));
+    }
+    if (shrineLight) {
+      shrineLight.color.lerp(targetLightColor, 0.06);
+    }
+
+    // Dynamic Atmospheric Fog Density Modulation (Mountain Temple Depth Dynamics)
+    const targetFogDensity = typeof STAGE_FOG_DENSITIES !== 'undefined' && STAGE_FOG_DENSITIES[primaryStage] !== undefined ? STAGE_FOG_DENSITIES[primaryStage] : 0.022;
+    if (scene && scene.fog) {
+      scene.fog.density += (targetFogDensity - scene.fog.density) * 0.05;
+    }
+    if (primaryStage !== activeStageIdx) {
+      if (activeStageIdx !== -1) {
+        playZenChime();
+      }
+      activeStageIdx = primaryStage;
+      updateTabTitle();
+      activateStageFg(primaryStage);
+
+      scenes.forEach((s, idx) => {
+        s.classList.toggle('active', idx === primaryStage);
+      });
+
+      railBtns.forEach((b, idx) => {
+        b.classList.toggle('on', idx === primaryStage);
+      });
+
+      // Update Nav links
+      if (navLinks.length >= 5) {
+        navLinks[0].classList.toggle('on', primaryStage === 0);
+        navLinks[1].classList.toggle('on', primaryStage === 1);
+        navLinks[2].classList.toggle('on', primaryStage >= 2 && primaryStage <= 7);
+        navLinks[3].classList.toggle('on', primaryStage === 8);
+        navLinks[4].classList.toggle('on', primaryStage === 9);
+      }
+
+      // Update HUD with smooth film card fade-and-glide transition
+      if (hudPhase) {
+        const nextTitle = SCENE_NAMES[primaryStage] || '';
+        if (hudPhase.textContent !== nextTitle) {
+          hudPhase.classList.add('gliding');
+          setTimeout(() => {
+            hudPhase.textContent = nextTitle;
+            hudPhase.classList.remove('gliding');
+          }, 140);
+        }
+      }
+      if (hudCurSec) hudCurSec.textContent = String(primaryStage).padStart(2, '0');
+      const metaChap = document.getElementById('metaChapterIdx');
+      if (metaChap) metaChap.textContent = String(primaryStage).padStart(2, '0');
+      if (kanjiWm) {
+        const nextKanji = KANJI_WATERMARKS[primaryStage] || '影の道';
+        kanjiWm.textContent = nextKanji;
+        kanjiWm.classList.remove('ink-breath', 'kanji-breath');
+        void kanjiWm.offsetWidth;
+        kanjiWm.classList.add('ink-breath', 'kanji-breath');
+        if (primaryStage === 2 || primaryStage === 4 || primaryStage === 6) {
+          kanjiWm.classList.add('flank-left');
+          kanjiWm.classList.remove('flank-right');
+        } else {
+          kanjiWm.classList.add('flank-right');
+          kanjiWm.classList.remove('flank-left');
+        }
+      }
+
+      // Stepper for Work Stages
+      if (workStepper) {
+        const inWork = (primaryStage >= 2 && primaryStage <= 7);
+        workStepper.classList.toggle('show', inWork);
+        if (inWork) {
+          stepDots.forEach((d, idx) => {
+            d.classList.toggle('on', idx === (primaryStage - 2));
+          });
+        }
+      }
+
+      // All 6 houses remain visible simultaneously as the camera travels down the avenue
+      PROJECT_HOUSES.forEach(h => {
+        h.visible = true;
+      });
+
+      // Track active landmark with the dynamic chromatic shrine light
+      if (primaryStage >= 2 && primaryStage <= 7) {
+        const hIdx = primaryStage - 2;
+        const targetPos = [
+          [-8.5, 3.5, -14],
+          [8.5, 4.5, -26],
+          [-7.5, 3.0, -38],
+          [7.5, 3.0, -50],
+          [-8.0, 4.0, -64],
+          [7.0, 3.5, -76]
+        ][hIdx];
+        if (targetPos) {
+          shrineLight.position.set(targetPos[0], targetPos[1], targetPos[2]);
+        }
+      } else {
+        shrineLight.position.set(0, 4.5, -6);
+      }
+    }
+
+    // --- 3D LANDMARK RAYCASTING & HOUSE HOVER EMISSIVE FLARE (+25% WARM BLOOM) ---
+    let newlyHoveredHouseIdx = -1;
+    const modalEl = document.getElementById('modal');
+    const dossierModalEl = document.getElementById('dossierModal');
+    const modalIsOpen = (modalEl && modalEl.classList.contains('open')) ||
+                        (dossierModalEl && dossierModalEl.classList.contains('open'));
+
+    if (!modalIsOpen && houseRayMouse.x > -900 && typeof camera !== 'undefined' && camera && PROJECT_HOUSES && PROJECT_HOUSES.length > 0) {
+      houseRaycaster.setFromCamera(houseRayMouse, camera);
+      const intersects = houseRaycaster.intersectObjects(PROJECT_HOUSES, true);
+      if (intersects.length > 0) {
+        let curr = intersects[0].object;
+        while (curr) {
+          if (curr.userData && typeof curr.userData.projectIndex === 'number') {
+            newlyHoveredHouseIdx = curr.userData.projectIndex;
+            break;
+          }
+          const pIdx = PROJECT_HOUSES.indexOf(curr);
+          if (pIdx !== -1) {
+            newlyHoveredHouseIdx = pIdx;
+            break;
+          }
+          curr = curr.parent;
+        }
+      }
+    }
+
+    hoveredHouseIdx = newlyHoveredHouseIdx;
+    isHouseHovered = (hoveredHouseIdx !== -1);
+    let isMoonHovered = false;
+    if (typeof moonDisc !== 'undefined' && moonDisc && typeof houseRaycaster !== 'undefined' && houseRaycaster && houseRayMouse.x > -900) {
+      const mHits = houseRaycaster.intersectObjects([moonDisc, moonHalo], true);
+      isMoonHovered = (mHits.length > 0);
+    }
+    window.__isHouseHovered = isHouseHovered;
+    window.__hoveredHouseIndex = hoveredHouseIdx;
+    window.__isMoonHovered = isMoonHovered;
+
+    if (cursorRing) {
+      if (isHouseHovered || isMoonHovered) {
+        cursorRing.classList.add('hovering');
+        document.body.style.cursor = 'pointer';
+      } else if (!mouseIsOverInteractiveDom) {
+        document.body.style.cursor = '';
+      }
+    }
+
+    PROJECT_HOUSES.forEach((h, idx) => {
+      const isHovered = (idx === hoveredHouseIdx);
+      h.userData.targetHoverFlare = isHovered ? 1.0 : 0.0;
+      h.userData.hoverFlare += (h.userData.targetHoverFlare - h.userData.hoverFlare) * 0.14;
+
+      const flareFactor = 1.0 + h.userData.hoverFlare * 0.25;
+
+      if (h.userData.lanternLights) {
+        h.userData.lanternLights.forEach(l => {
+          l.intensity = l.userData.baseIntensity * flareFactor;
+        });
+      }
+      if (h.userData.shojiMeshes) {
+        h.userData.shojiMeshes.forEach(sm => {
+          if (sm.material && typeof sm.material.emissiveIntensity !== 'undefined') {
+            sm.material.emissiveIntensity = sm.userData.baseEmissive * flareFactor;
+          }
+        });
+      }
+    });
+
+    // Scrubber update
+    if (hudFill) {
+      hudFill.style.transform = \`scaleX(\${(p / 9.0).toFixed(4)})\`;
+    }
+
+    // Smooth cinematic cursor ring lerp
+    if (cursorVisible && cursorRing) {
+      ringX += (mouseX - ringX) * 0.22;
+      ringY += (mouseY - ringY) * 0.22;
+      cursorRing.style.transform = \`translate(\${ringX.toFixed(2)}px, \${ringY.toFixed(2)}px) translate(-50%, -50%)\`;
+    }
+
+    // Update 3D Wisp / Firefly Trail behind cursor
+    if (typeof updateWisps === 'function') {
+      updateWisps(clock);
+    }
+
+    // Idle Shakuhachi flute breath check
+    if (typeof checkIdleFluteBreath === 'function') {
+      checkIdleFluteBreath();
+    }
+
+    renderer.render(scene, camera);
+    rafId = requestAnimationFrame(tick);
+  }
+
+  // --- 9. PROCEDURAL WEB AUDIO AMBIENT SOUNDSCAPE & REACTIVE EQUALIZER ENGINE ---
+  const bgm = document.getElementById('bgm');
+  const soundBtn = document.getElementById('soundBtn');
+  let isMuted = false;
+  const TARGET_VOL = 0.35;
+  const TARGET_AMBIENT_VOL = 0.28;
+  let fadeTimer = null;
+  let audioCtx = null;
+  let analyserNode = null;
+  let ambientGain = null;
+  let droneGain = null;
+  let windGain = null;
+  let visRafId = null;
+  let soundscapeInitialized = false;
+
+  function initAudioEngine() {
+    if (audioCtx) return;
+    try {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return;
+      audioCtx = new AudioContextClass();
+
+      // Master Analyser Node for real-time acoustic visualizer
+      analyserNode = audioCtx.createAnalyser();
+      analyserNode.fftSize = 64;
+      analyserNode.smoothingTimeConstant = 0.82;
+      analyserNode.connect(audioCtx.destination);
+
+      // Ambient master gain (controls continuous subterranean drone + mountain wind bed)
+      ambientGain = audioCtx.createGain();
+      ambientGain.gain.setValueAtTime(isMuted ? 0.0001 : TARGET_AMBIENT_VOL, audioCtx.currentTime);
+      ambientGain.connect(analyserNode);
+
+      // 1. Warm subterranean drone (54Hz fundamental + 108Hz harmonic singing bowl warmth)
+      const droneFilter = audioCtx.createBiquadFilter();
+      droneFilter.type = 'lowpass';
+      droneFilter.frequency.setValueAtTime(220, audioCtx.currentTime);
+      droneFilter.Q.setValueAtTime(1.4, audioCtx.currentTime);
+      droneFilter.connect(ambientGain);
+
+      // 54Hz Fundamental Subterranean Drone
+      const osc54 = audioCtx.createOscillator();
+      osc54.type = 'sine';
+      osc54.frequency.setValueAtTime(54, audioCtx.currentTime);
+      const gain54 = audioCtx.createGain();
+      gain54.gain.setValueAtTime(0.20, audioCtx.currentTime);
+      osc54.connect(gain54);
+      gain54.connect(droneFilter);
+      osc54.start();
+
+      // 108Hz Harmonic Singing Bowl Warmth
+      const osc108 = audioCtx.createOscillator();
+      osc108.type = 'sine';
+      osc108.frequency.setValueAtTime(108, audioCtx.currentTime);
+      const gain108 = audioCtx.createGain();
+      gain108.gain.setValueAtTime(0.08, audioCtx.currentTime);
+
+      // Subtle slow singing bowl breathing LFO (0.08Hz)
+      const lfoBowl = audioCtx.createOscillator();
+      lfoBowl.type = 'sine';
+      lfoBowl.frequency.setValueAtTime(0.08, audioCtx.currentTime);
+      const lfoBowlGain = audioCtx.createGain();
+      lfoBowlGain.gain.setValueAtTime(0.035, audioCtx.currentTime);
+      lfoBowl.connect(lfoBowlGain);
+      lfoBowlGain.connect(gain108.gain);
+      lfoBowl.start();
+
+      osc108.connect(gain108);
+      gain108.connect(droneFilter);
+      osc108.start();
+
+      // 2. Delicate Mountain Wind Whisper (biquad-filtered noise band around 600Hz)
+      const bufSecs = 3;
+      const bufSize = Math.floor(audioCtx.sampleRate * bufSecs);
+      const noiseBuf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+      const data = noiseBuf.getChannelData(0);
+      let lastNoise = 0.0;
+      for (let i = 0; i < bufSize; i++) {
+        const white = Math.random() * 2 - 1;
+        // Warm 1-pole lowpass to remove harsh digital static
+        data[i] = (lastNoise + (0.03 * white)) / 1.03;
+        lastNoise = data[i];
+        data[i] *= 3.2;
+      }
+
+      const noiseSrc = audioCtx.createBufferSource();
+      noiseSrc.buffer = noiseBuf;
+      noiseSrc.loop = true;
+
+      // 600Hz Bandpass filter
+      const windFilter = audioCtx.createBiquadFilter();
+      windFilter.type = 'bandpass';
+      windFilter.frequency.setValueAtTime(600, audioCtx.currentTime);
+      windFilter.Q.setValueAtTime(2.6, audioCtx.currentTime);
+
+      // Wind speed undulation LFO (0.12Hz modulating center frequency ~440Hz - 760Hz)
+      const windLfo = audioCtx.createOscillator();
+      windLfo.type = 'sine';
+      windLfo.frequency.setValueAtTime(0.12, audioCtx.currentTime);
+      const windLfoGain = audioCtx.createGain();
+      windLfoGain.gain.setValueAtTime(160, audioCtx.currentTime);
+      windLfo.connect(windLfoGain);
+      windLfoGain.connect(windFilter.frequency);
+      windLfo.start();
+
+      windGain = audioCtx.createGain();
+      windGain.gain.setValueAtTime(0.055, audioCtx.currentTime);
+
+      // Amplitude breathing LFO (0.07Hz wind gust modulation)
+      const windAmpLfo = audioCtx.createOscillator();
+      windAmpLfo.type = 'sine';
+      windAmpLfo.frequency.setValueAtTime(0.07, audioCtx.currentTime);
+      const windAmpGain = audioCtx.createGain();
+      windAmpGain.gain.setValueAtTime(0.025, audioCtx.currentTime);
+      windAmpLfo.connect(windAmpGain);
+      windAmpGain.connect(windGain.gain);
+      windAmpLfo.start();
+
+      noiseSrc.connect(windFilter);
+      windFilter.connect(windGain);
+      windGain.connect(ambientGain);
+      noiseSrc.start();
+
+      soundscapeInitialized = true;
+    } catch (e) {
+      console.warn('Web Audio Ambient Engine initialization note:', e);
+    }
+  }
+
+  function initAudio() {
+    initAudioEngine();
+  }
+  window.initAudio = initAudio;
+
+  function unlockAudio() {
+    try {
+      if (!audioCtx) initAudioEngine();
+      if (audioCtx && audioCtx.state === 'suspended' && !isMuted) {
+        audioCtx.resume().catch(() => {});
+        startVisualizerLoop();
+      }
+    } catch (e) {}
+  }
+
+  ['pointerdown', 'wheel', 'keydown', 'touchstart'].forEach(evt => {
+    window.addEventListener(evt, unlockAudio, { once: true, passive: true });
+  });
+
+  // Zen bell resonance on chapter transitions (432Hz + 864Hz octave with exponential decay)
+  function playZenChime() {
+    if (isMuted) return;
+    try {
+      if (!audioCtx) initAudioEngine();
+      if (!audioCtx || audioCtx.state !== 'running') return;
+
+      const now = audioCtx.currentTime;
+      const bellGain = audioCtx.createGain();
+      bellGain.gain.setValueAtTime(0.065, now);
+      // Resonant exponential decay over 3.2 seconds
+      bellGain.gain.exponentialRampToValueAtTime(0.0001, now + 3.2);
+      bellGain.connect(analyserNode || audioCtx.destination);
+
+      // Fundamental harmonic (432 Hz - Sacred Tibetan Singing Bowl / Temple Bell)
+      const osc1 = audioCtx.createOscillator();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(432, now);
+
+      // Octave harmonic overtone (864 Hz)
+      const osc2 = audioCtx.createOscillator();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(864, now);
+
+      // Whisper 3rd harmonic overtone (1296 Hz)
+      const osc3 = audioCtx.createOscillator();
+      const gain3 = audioCtx.createGain();
+      osc3.type = 'sine';
+      osc3.frequency.setValueAtTime(1296, now);
+      gain3.gain.setValueAtTime(0.18, now);
+      osc3.connect(gain3);
+      gain3.connect(bellGain);
+
+      osc1.connect(bellGain);
+      osc2.connect(bellGain);
+
+      osc1.start(now);
+      osc2.start(now);
+      osc3.start(now);
+
+      osc1.stop(now + 3.25);
+      osc2.stop(now + 3.25);
+      osc3.stop(now + 3.25);
+    } catch (e) {}
+  }
+  window.playZenChime = playZenChime;
+
+  // Sacred Low-Frequency Tibetan Singing Bowl Drone (~108Hz) decaying over 3s
+  function playBloodMoonDrone() {
+    if (isMuted) return;
+    try {
+      if (!audioCtx) initAudioEngine();
+      if (!audioCtx || audioCtx.state !== 'running') return;
+
+      const now = audioCtx.currentTime;
+      const droneGain = audioCtx.createGain();
+      droneGain.gain.setValueAtTime(0.0001, now);
+      droneGain.gain.exponentialRampToValueAtTime(0.38, now + 0.35);
+      droneGain.gain.exponentialRampToValueAtTime(0.0001, now + 3.0);
+      droneGain.connect(analyserNode || audioCtx.destination);
+
+      const osc1 = audioCtx.createOscillator();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(108, now);
+
+      const osc2 = audioCtx.createOscillator();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(216, now);
+      const gain2 = audioCtx.createGain();
+      gain2.gain.setValueAtTime(0.24, now);
+      osc2.connect(gain2);
+      gain2.connect(droneGain);
+
+      const osc3 = audioCtx.createOscillator();
+      osc3.type = 'sine';
+      osc3.frequency.setValueAtTime(324, now);
+      const gain3 = audioCtx.createGain();
+      gain3.gain.setValueAtTime(0.12, now);
+      osc3.connect(gain3);
+      gain3.connect(droneGain);
+
+      osc1.connect(droneGain);
+
+      osc1.start(now);
+      osc2.start(now);
+      osc3.start(now);
+
+      osc1.stop(now + 3.05);
+      osc2.stop(now + 3.05);
+      osc3.stop(now + 3.05);
+    } catch (e) {}
+  }
+  window.playBloodMoonDrone = playBloodMoonDrone;
+
+  // Soft tactile woodblock micro-clicks on UI clicks (~880Hz to ~360Hz resonant drop in 18ms)
+  function playTactileClick() {
+    if (isMuted) return;
+    try {
+      if (!audioCtx) initAudioEngine();
+      if (!audioCtx || audioCtx.state !== 'running') return;
+
+      const now = audioCtx.currentTime;
+      const clickGain = audioCtx.createGain();
+      clickGain.gain.setValueAtTime(0.08, now);
+      clickGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.022);
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(680, now);
+      filter.Q.setValueAtTime(3.2, now);
+
+      clickGain.connect(filter);
+      filter.connect(analyserNode || audioCtx.destination);
+
+      const osc = audioCtx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, now);
+      osc.frequency.exponentialRampToValueAtTime(360, now + 0.018);
+      osc.connect(clickGain);
+
+      osc.start(now);
+      osc.stop(now + 0.022);
+    } catch (e) {}
+  }
+  window.playTactileClick = playTactileClick;
+
+  // Attach tactile woodblock micro-clicks to all interactive UI components
+  document.addEventListener('click', function(e) {
+    const target = e.target.closest('button, a, .peek, .project-showcase-plate, .process-card, .rail-btn, .step-dot, .mnav, .mclose, .hotkey-btn');
+    if (target && target.id !== 'soundBtn') {
+      playTactileClick();
+    }
+  }, { passive: true });
+
+  // Real-time Reactive Audio Visualizer Engine on #soundBtn
+  const soundWaveBars = soundBtn ? soundBtn.querySelectorAll('.sound-wave-bars .bar') : [];
+  function startVisualizerLoop() {
+    if (visRafId) cancelAnimationFrame(visRafId);
+    if (!analyserNode || !soundWaveBars.length) return;
+
+    const freqData = new Uint8Array(analyserNode.frequencyBinCount);
+
+    function tickVisualizer() {
+      if (isMuted || !audioCtx || audioCtx.state !== 'running') {
+        soundWaveBars.forEach(bar => {
+          bar.style.transform = 'scaleY(0.25)';
+          bar.style.opacity = '0.25';
+        });
+        visRafId = null;
+        return;
+      }
+
+      analyserNode.getByteFrequencyData(freqData);
+
+      // Lows (bin 1-3 ~ 54Hz subterranean drone)
+      const low = (freqData[1] + freqData[2] + freqData[3]) / 3;
+      // Mids (bin 5-10 ~ 600Hz mountain wind whisper)
+      let mid = 0;
+      for (let i = 5; i <= 10; i++) mid += freqData[i];
+      mid /= 6;
+      // Highs (bin 11-20 ~ 864Hz+ bell resonance & transients)
+      let high = 0;
+      for (let i = 11; i <= 20; i++) high += freqData[i];
+      high /= 10;
+
+      const s1 = 0.35 + 0.75 * Math.min(1, Math.max(0, low / 90));
+      const s2 = 0.30 + 0.80 * Math.min(1, Math.max(0, mid / 70));
+      const s3 = 0.25 + 0.85 * Math.min(1, Math.max(0, high / 55));
+
+      if (soundWaveBars[0]) soundWaveBars[0].style.transform = 'scaleY(' + s1.toFixed(3) + ')';
+      if (soundWaveBars[1]) soundWaveBars[1].style.transform = 'scaleY(' + s2.toFixed(3) + ')';
+      if (soundWaveBars[2]) soundWaveBars[2].style.transform = 'scaleY(' + s3.toFixed(3) + ')';
+
+      visRafId = requestAnimationFrame(tickVisualizer);
+    }
+
+    visRafId = requestAnimationFrame(tickVisualizer);
+  }
+
+  function stopVisualizerLoop() {
+    if (visRafId) {
+      cancelAnimationFrame(visRafId);
+      visRafId = null;
+    }
+    soundWaveBars.forEach(bar => {
+      bar.style.transform = 'scaleY(0.25)';
+      bar.style.opacity = '0.25';
+    });
+  }
+
+  // Smooth Volume Ramps (400ms unmute ramp-in, 300ms mute ramp-out, zero clicks/pops)
+  function unmuteSound() {
+    isMuted = false;
+    if (soundBtn) soundBtn.classList.remove('muted');
+    if (!audioCtx) initAudioEngine();
+
+    if (audioCtx) {
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(() => {});
+      }
+      if (ambientGain) {
+        const now = audioCtx.currentTime;
+        ambientGain.gain.cancelScheduledValues(now);
+        ambientGain.gain.setValueAtTime(Math.max(ambientGain.gain.value, 0.0001), now);
+        // 400ms linear ramp-in on unmute
+        ambientGain.gain.linearRampToValueAtTime(TARGET_AMBIENT_VOL, now + 0.400);
+      }
+    }
+
+    if (bgm) {
+      bgm.muted = false;
+      if (bgm.paused) bgm.play().catch(() => {});
+      rampBgmVolume(TARGET_VOL, 400);
+    }
+
+    startVisualizerLoop();
+  }
+
+  function muteSound() {
+    isMuted = true;
+    if (soundBtn) soundBtn.classList.add('muted');
+    stopVisualizerLoop();
+
+    if (audioCtx && audioCtx.state === 'running') {
+      if (ambientGain) {
+        const now = audioCtx.currentTime;
+        ambientGain.gain.cancelScheduledValues(now);
+        ambientGain.gain.setValueAtTime(ambientGain.gain.value, now);
+        // 300ms ramp-out on mute
+        ambientGain.gain.linearRampToValueAtTime(0.0001, now + 0.300);
+      }
+      // Suspend audio context after 300ms ramp-out to conserve CPU and strictly ensure silence
+      setTimeout(() => {
+        if (isMuted && audioCtx && audioCtx.state === 'running') {
+          audioCtx.suspend().catch(() => {});
+        }
+      }, 310);
+    }
+
+    if (bgm) {
+      rampBgmVolume(0.0, 300, () => {
+        if (isMuted) bgm.muted = true;
+      });
+    }
+  }
+
+  function rampBgmVolume(targetVol, durationMs, onDone) {
+    if (!bgm) {
+      if (onDone) onDone();
+      return;
+    }
+    if (fadeTimer) clearInterval(fadeTimer);
+
+    const startVol = bgm.volume;
+    const diff = targetVol - startVol;
+    const steps = 15;
+    const stepTime = durationMs / steps;
+    let step = 0;
+
+    fadeTimer = setInterval(() => {
+      step++;
+      const curVol = startVol + diff * (step / steps);
+      bgm.volume = Math.max(0, Math.min(1, curVol));
+
+      if (step >= steps) {
+        clearInterval(fadeTimer);
+        fadeTimer = null;
+        bgm.volume = Math.max(0, Math.min(1, targetVol));
+        if (onDone) onDone();
+      }
+    }, stepTime);
+  }
+
+  window.unmuteSound = unmuteSound;
+  window.muteSound = muteSound;
+  window.getAudioContextState = function() {
+    return audioCtx ? audioCtx.state : (isMuted ? 'suspended' : 'running');
+  };
+  window.getAudioContext = function() { return audioCtx; };
+  window.isMutedState = function() { return isMuted; };
+
+  if (soundBtn) {
+    soundBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (isMuted) {
+        unmuteSound();
+      } else {
+        muteSound();
+      }
+    });
+  }
+
+  // --- 10. CINEMATIC CURSOR & HANKO SEAL RIPPLE ---
+  const cursorRing = document.getElementById('cursorRing');
+  const cursorDot = document.getElementById('cursorDot');
+  let mouseX = -100, mouseY = -100;
+  let ringX = -100, ringY = -100;
+  let cursorVisible = false;
+
+  window.addEventListener('pointermove', function (e) {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    if (!cursorVisible) {
+      cursorVisible = true;
+      ringX = mouseX;
+      ringY = mouseY;
+      if (cursorRing) cursorRing.style.opacity = '1';
+      if (cursorDot) cursorDot.style.opacity = '1';
+    }
+    if (cursorDot) {
+      cursorDot.style.transform = \`translate(\${mouseX}px, \${mouseY}px) translate(-50%, -50%)\`;
+    }
+  }, { passive: true });
+
+  window.addEventListener('touchstart', function () {
+    cursorVisible = false;
+    if (cursorRing) cursorRing.style.display = 'none';
+    if (cursorDot) cursorDot.style.display = 'none';
+  }, { passive: true });
+
+  const interactiveSelectors = 'a, button, [onclick], .scroll-cue, .rail-btn, .step-dot, .nav-link, .dossier-btn, .brand, .contact-link';
+  document.addEventListener('mouseover', function (e) {
+    if (!cursorRing) return;
+    if (e.target && e.target.closest && e.target.closest(interactiveSelectors)) {
+      mouseIsOverInteractiveDom = true;
+      cursorRing.classList.add('hovering');
+    } else {
+      mouseIsOverInteractiveDom = false;
+      if (typeof isHouseHovered !== 'undefined' && isHouseHovered) {
+        cursorRing.classList.add('hovering');
+      } else {
+        cursorRing.classList.remove('hovering');
+      }
+    }
+  }, { passive: true });
+
+  // Hanko Seal Vermilion Ripple on click
+  window.addEventListener('pointerdown', function (e) {
+    if (window.matchMedia && window.matchMedia('(hover: none)').matches) return;
+    const ripple = document.createElement('div');
+    ripple.className = 'hanko-ripple';
+    ripple.style.left = e.clientX + 'px';
+    ripple.style.top = e.clientY + 'px';
+    document.body.appendChild(ripple);
+    setTimeout(() => {
+      if (ripple.parentNode) ripple.remove();
+    }, 480);
+  }, { passive: true });
+
+  // --- TACTILE 3D CARD TILT MICRO-PARALLAX ENGINE ---
+  function init3DCardTilt() {
+    const tiltCards = document.querySelectorAll('.project-showcase-plate, .peek, .process-card');
+
+    tiltCards.forEach(card => {
+      card.style.transformStyle = 'preserve-3d';
+      card.style.willChange = 'transform';
+
+      card.addEventListener('mousemove', function(e) {
+        const rect = card.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
+        const cardX = e.clientX - rect.left;
+        const cardY = e.clientY - rect.top;
+
+        // Normalized cursor offset from center (-1 to +1)
+        const normX = (cardX / rect.width) * 2 - 1;
+        const normY = (cardY / rect.height) * 2 - 1;
+
+        // Calibrated subtle physical 3D card tilt
+        const tiltY = (-normY * 7.5).toFixed(2);
+        const tiltX = (normX * 9.0).toFixed(2);
+
+        card.style.transition = 'transform 0.08s ease-out';
+        card.style.transform = 'perspective(800px) rotateX(' + tiltY + 'deg) rotateY(' + tiltX + 'deg) scale3d(1.02, 1.02, 1.02)';
+      });
+
+      card.addEventListener('mouseleave', function() {
+        card.style.transition = 'transform 0.55s cubic-bezier(0.16, 1, 0.3, 1)';
+        card.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+      });
+    });
+  }
+
+  window.init3DCardTilt = init3DCardTilt;
+  init3DCardTilt();
+
+  try { initAudioEngine(); } catch (_) {}
+  updateTabTitle();
+  activateStageFg(0);
+  tick();
+
+  // Pre-warm WebGL shaders and pipeline
+  try {
+    renderer.compile(scene, camera);
+  } catch (e) {}
+
+  // Progressive preloader completion
+  setPreProgress(75);
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => {
+      setPreProgress(100);
+    }).catch(() => {
+      setPreProgress(100);
+    });
+  } else {
+    setTimeout(() => setPreProgress(100), 120);
+  }
+
+  window.addEventListener('load', () => finishPreloader(), { once: true });
+  setTimeout(() => finishPreloader(), 600);
+
+})();
+
+/* ============================================================================
+   PROJECT DATA & MULTI-SLIDE MODAL DOSSIER
+   ============================================================================ */
+${projectsJsCode}
+
+let cur = 0, slide = 0;
+
+function openModal(i) {
+  cur = i;
+  slide = 0;
+  paint();
+  modal.classList.add('open');
+  scrim.classList.add('open');
+  const dModal = document.getElementById('dossierModal');
+  if (dModal) dModal.classList.add('open');
+  if (typeof playTactileClick === 'function') playTactileClick();
+}
+
+function closeModal() {
+  modal.classList.remove('open');
+  scrim.classList.remove('open');
+  const dModal = document.getElementById('dossierModal');
+  if (dModal) dModal.classList.remove('open');
+  if (typeof playTactileClick === 'function') playTactileClick();
+}
+
+window.openModal = openModal;
+window.closeModal = closeModal;
+window.getCurSlide = () => slide;
+window.getCurProject = () => cur;
+window.PROJECTS = PROJECTS;
+
+function openHotkeyModal() {
+  const hm = document.getElementById('hotkeyModal');
+  if (hm) {
+    hm.classList.add('open');
+    if (typeof playTactileClick === 'function') playTactileClick();
+  }
+}
+function closeHotkeyModal() {
+  const hm = document.getElementById('hotkeyModal');
+  if (hm) {
+    hm.classList.remove('open');
+    if (typeof playTactileClick === 'function') playTactileClick();
+  }
+}
+function toggleHotkeyModal() {
+  const hm = document.getElementById('hotkeyModal');
+  if (hm && hm.classList.contains('open')) {
+    closeHotkeyModal();
+  } else {
+    openHotkeyModal();
+  }
+}
+window.openHotkeyModal = openHotkeyModal;
+window.closeHotkeyModal = closeHotkeyModal;
+window.toggleHotkeyModal = toggleHotkeyModal;
+
+function paint() {
+  const p = PROJECTS[cur];
+  const s = p.slides[slide];
+  mKick.textContent = p.badge[0] + ' // ' + (cur + 1).toString().padStart(2, '0');
+  mTitle.textContent = p.name;
+  mCount.textContent = String(slide + 1).padStart(2, '0') + ' / ' + String(p.slides.length).padStart(2, '0');
+  mArt.innerHTML = s.art;
+  let specsHtml = '';
+  if (s.specs && s.specs.length) {
+    specsHtml = '<ul class="specs">' + s.specs.map((item) => '<li>' + item + '</li>').join('') + '</ul>';
+  }
+  mText.innerHTML = '<div class="feat">' + s.feature + '</div><div class="desc">' + s.desc + '</div>' + specsHtml + '<span class="tech">' + s.tech + '</span>';
+  mPrev.disabled = slide === 0;
+  mNext.disabled = slide === p.slides.length - 1;
+  mDots.innerHTML = p.slides.map((_, idx) => '<i class="m-dash ' + (idx === slide ? 'on' : '') + '" data-idx="' + idx + '" role="button" tabindex="0" aria-label="Slide ' + (idx + 1) + '"></i>').join('');
+  if (slide === p.slides.length - 1) {
+    if (p.cta) {
+      const ctaLabel = p.cta.label || p.cta.text || 'Explore Project';
+      mCta.textContent = ctaLabel.includes('→') || ctaLabel.includes('↗') ? ctaLabel : (ctaLabel + ' ↗');
+      mCta.classList.add('show');
+      mCta.classList.remove('ghost');
+      const ctaUrl = p.cta.href || p.cta.url;
+      mCta.onclick = () => window.open(ctaUrl, '_blank', 'noopener');
+    } else {
+      mCta.textContent = 'END OF ARTIFACT DOSSIER';
+      mCta.classList.add('show', 'ghost');
+      mCta.onclick = null;
+    }
+  } else {
+    mCta.classList.remove('show');
+  }
+  const slideElem = document.getElementById('mSlide');
+  if (slideElem) {
+    slideElem.classList.remove('slide-glide');
+    void slideElem.offsetWidth; // Force reflow to trigger smooth micro-glide transition
+    slideElem.classList.add('slide-glide');
+    slideElem.scrollTop = 0;
+  }
+}
+
+mPrev.onclick = () => {
+  if (slide > 0) {
+    slide--;
+    paint();
+    if (typeof playTactileClick === 'function') playTactileClick();
+  }
+};
+mNext.onclick = () => {
+  const p = PROJECTS[cur];
+  if (slide < p.slides.length - 1) {
+    slide++;
+    paint();
+    if (typeof playTactileClick === 'function') playTactileClick();
+  }
+};
+
+// Segmented Hairline Stepper Dash Direct Click
+mDots.onclick = (e) => {
+  const dash = e.target.closest('.m-dash') || (e.target.tagName === 'I' ? e.target : null);
+  if (!dash) return;
+  const targetIdx = parseInt(dash.getAttribute('data-idx') || dash.dataset.idx, 10);
+  if (!isNaN(targetIdx) && targetIdx !== slide) {
+    slide = targetIdx;
+    paint();
+    if (typeof playTactileClick === 'function') playTactileClick();
+  }
+};
+
+// Modal Touch Swipe Gesture Navigation (Swipe Left: advance, Swipe Right: return)
+let modalTouchStartX = 0;
+let modalTouchStartY = 0;
+const modalSlideElem = document.getElementById('mSlide') || document.getElementById('mBody') || modal;
+if (modalSlideElem) {
+  modalSlideElem.addEventListener('touchstart', (e) => {
+    if (e.touches && e.touches.length > 0) {
+      modalTouchStartX = e.touches[0].clientX;
+      modalTouchStartY = e.touches[0].clientY;
+    }
+  }, { passive: true });
+
+  modalSlideElem.addEventListener('touchend', (e) => {
+    if (e.changedTouches && e.changedTouches.length > 0) {
+      const deltaX = e.changedTouches[0].clientX - modalTouchStartX;
+      const deltaY = e.changedTouches[0].clientY - modalTouchStartY;
+      if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY) * 0.75) {
+        if (deltaX < 0) {
+          // Swiped left -> advance to next slide
+          const p = PROJECTS[cur];
+          if (slide < p.slides.length - 1) {
+            slide++;
+            paint();
+            if (typeof playTactileClick === 'function') playTactileClick();
+          }
+        } else {
+          // Swiped right -> return to previous slide
+          if (slide > 0) {
+            slide--;
+            paint();
+            if (typeof playTactileClick === 'function') playTactileClick();
+          }
+        }
+      }
+    }
+  }, { passive: true });
+}
+
+document.getElementById('mClose').onclick = closeModal;
+scrim.onclick = closeModal;
+
+// --- DOSSIER SLIDE IMAGE LIGHTBOX ZOOM ENGINE ---
+function openLightbox(src, caption) {
+  const lb = document.getElementById('lightboxModal');
+  const lbImg = document.getElementById('lightboxImg');
+  const lbCap = document.getElementById('lightboxCaption');
+  if (!lb || !lbImg) return;
+  lbImg.src = src;
+  if (lbCap) lbCap.textContent = caption || '';
+  lb.classList.add('open');
+  if (typeof playTactileClick === 'function') playTactileClick();
+}
+
+function closeLightbox() {
+  const lb = document.getElementById('lightboxModal');
+  if (!lb || !lb.classList.contains('open')) return;
+  lb.classList.remove('open');
+  if (typeof playTactileClick === 'function') playTactileClick();
+}
+
+window.openLightbox = openLightbox;
+window.closeLightbox = closeLightbox;
+
+// Attach click listener to active slide art in #mArt
+const mArtContainer = document.getElementById('mArt');
+if (mArtContainer) {
+  mArtContainer.addEventListener('click', function(e) {
+    const shot = e.target.closest('.shot, img, .shotbox');
+    if (shot) {
+      const img = shot.tagName === 'IMG' ? shot : shot.querySelector('img');
+      if (img && img.src) {
+        const p = PROJECTS[cur];
+        const s = p.slides[slide];
+        const cap = (cur + 1).toString().padStart(2, '0') + ' // ' + p.name + ' — ' + s.feature;
+        openLightbox(img.src, cap);
+      }
+    }
+  });
+}
+
+const lbCloseBtn = document.getElementById('lightboxClose');
+if (lbCloseBtn) lbCloseBtn.addEventListener('click', closeLightbox);
+
+const lbScrim = document.getElementById('lightboxScrim');
+if (lbScrim) lbScrim.addEventListener('click', closeLightbox);
+
+document.addEventListener('keydown', (e) => {
+  const lbModal = document.getElementById('lightboxModal');
+  if (lbModal && lbModal.classList.contains('open')) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      closeLightbox();
+      return;
+    }
+  }
+
+  const hotkeyModal = document.getElementById('hotkeyModal');
+  if (hotkeyModal && hotkeyModal.classList.contains('open')) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      closeHotkeyModal();
+      return;
+    }
+  }
+
+  const isOpen = modal.classList.contains('open') || (document.getElementById('dossierModal') && document.getElementById('dossierModal').classList.contains('open'));
+  if (isOpen) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      closeModal();
+    }
+    if (e.key === 'ArrowRight' || e.code === 'ArrowRight') {
+      e.preventDefault();
+      mNext.onclick();
+    }
+    if (e.key === 'ArrowLeft' || e.code === 'ArrowLeft') {
+      e.preventDefault();
+      mPrev.onclick();
+    }
+    return;
+  }
+});
+
+</script>
+</body>
+</html>
+`;
+
+fs.writeFileSync('D:/PROJECTS/portfolio-ink/index.html', masterHtml, 'utf8');
+if (fs.existsSync('D:/portfolio-ink/index.html')) {
+  fs.writeFileSync('D:/portfolio-ink/index.html', masterHtml, 'utf8');
+}
+console.log('Successfully generated master index.html with Kyoto Void editorial typography & paced scroll!');
