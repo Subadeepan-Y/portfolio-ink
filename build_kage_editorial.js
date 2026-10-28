@@ -1849,6 +1849,7 @@ body.blood-moon-active #filmGrain {
    CINEMATIC CURSOR & HANKO SEAL RIPPLE
    ================================================================ */
 #cursorRing, #cursorDot {
+  display: none !important;
   position: fixed;
   top: 0;
   left: 0;
@@ -3391,7 +3392,7 @@ ${modalHtml}
   const wispPoints = new THREE.Points(wispGeo, wispMat);
   wispPoints.frustumCulled = false;
   wispPoints.renderOrder = 999;
-  camera.add(wispPoints);
+  // camera.add(wispPoints); // disabled per user request
   window.wispPoints = wispPoints;
 
   const WISP_STATE = {
