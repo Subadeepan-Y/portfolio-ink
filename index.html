@@ -313,6 +313,23 @@ html, body {
   [data-fg] .fg-sakura { width: clamp(340px, 44vw, 640px); }
   [data-fg] .fg-leaves { width: clamp(280px, 34vw, 480px); }
 }
+
+@media (max-width: 900px) {
+  /* Prevent high bushes and hanging trees from obscuring text and headings on mobile */
+  .fg .fg-grass,
+  .fg .fg-bush,
+  .fg .fg-leaves,
+  .fg .fg-sakura {
+    display: none !important;
+  }
+  #fg-sky {
+    display: none !important;
+  }
+  .scene-layer {
+    padding: 0 clamp(18px, 5vw, 36px) !important;
+  }
+}
+
 @media (max-width: 820px) {
   .fg .fg-pine, .fg .fg-leaves { display: none; }
   .fg .fg-el { max-width: 88vw; }
@@ -3462,7 +3479,7 @@ body.loaded .hero-heading {
     powerPreference: 'high-performance'
   });
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, window.innerWidth < 900 ? 1.25 : 1.5));
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.15;
   window.renderer = renderer;
@@ -7262,48 +7279,8 @@ body.loaded .hero-heading {
 
   // Zen bell resonance on chapter transitions (432Hz + 864Hz octave with exponential decay)
   function playZenChime() {
-    if (isMuted) return;
-    try {
-      if (!audioCtx) initAudioEngine();
-      if (!audioCtx || audioCtx.state !== 'running') return;
-
-      const now = audioCtx.currentTime;
-      const bellGain = audioCtx.createGain();
-      bellGain.gain.setValueAtTime(0.065, now);
-      // Resonant exponential decay over 3.2 seconds
-      bellGain.gain.exponentialRampToValueAtTime(0.0001, now + 3.2);
-      bellGain.connect(analyserNode || audioCtx.destination);
-
-      // Fundamental harmonic (432 Hz - Sacred Tibetan Singing Bowl / Temple Bell)
-      const osc1 = audioCtx.createOscillator();
-      osc1.type = 'sine';
-      osc1.frequency.setValueAtTime(432, now);
-
-      // Octave harmonic overtone (864 Hz)
-      const osc2 = audioCtx.createOscillator();
-      osc2.type = 'sine';
-      osc2.frequency.setValueAtTime(864, now);
-
-      // Whisper 3rd harmonic overtone (1296 Hz)
-      const osc3 = audioCtx.createOscillator();
-      const gain3 = audioCtx.createGain();
-      osc3.type = 'sine';
-      osc3.frequency.setValueAtTime(1296, now);
-      gain3.gain.setValueAtTime(0.18, now);
-      osc3.connect(gain3);
-      gain3.connect(bellGain);
-
-      osc1.connect(bellGain);
-      osc2.connect(bellGain);
-
-      osc1.start(now);
-      osc2.start(now);
-      osc3.start(now);
-
-      osc1.stop(now + 3.25);
-      osc2.stop(now + 3.25);
-      osc3.stop(now + 3.25);
-    } catch (e) {}
+    // Disabled per user request (will replace with custom house arrival sound effect)
+    return;
   }
   window.playZenChime = playZenChime;
 
