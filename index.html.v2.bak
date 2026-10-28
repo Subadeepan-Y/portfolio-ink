@@ -1,0 +1,1894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SUBADEEPAN — From scratch. Every time.</title>
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root {
+    --bg:#080808; --ink:#f0ebe0; --dim:#98907f; --faint:#3a352c;
+    --red:#c0392b; --red-deep:#991b1b; --amber:#b89b4a;
+    --display:"Bebas Neue","Arial Narrow",Impact,sans-serif;
+    --body:"DM Sans","Segoe UI",system-ui,sans-serif;
+  }
+  html {
+    scroll-behavior: smooth;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--body);
+    overflow-x: hidden;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+
+  /* ---------- FILM GRAIN ---------- */
+  #grain { position:fixed; inset:-50%; width:200%; height:200%; pointer-events:none; z-index:9000; opacity:.04;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+    animation:grain 8s steps(10) infinite; }
+  @keyframes grain {
+    0%,100%{transform:translate(0,0)} 10%{transform:translate(-2%,-3%)} 20%{transform:translate(3%,2%)}
+    30%{transform:translate(-3%,1%)} 40%{transform:translate(2%,-2%)} 50%{transform:translate(-1%,3%)}
+    60%{transform:translate(3%,-1%)} 70%{transform:translate(-2%,2%)} 80%{transform:translate(1%,-3%)} 90%{transform:translate(2%,3%)}
+  }
+
+  /* ---------- PETALS ---------- */
+  #leaves { position:fixed; inset:0; pointer-events:none; z-index:8000; overflow:hidden; }
+  .leaf { position:absolute; top:-40px; animation-name:fall; animation-timing-function:linear; animation-iteration-count:infinite; }
+  .leaf > div { animation:sway ease-in-out infinite alternate; }
+  @keyframes fall { to { transform:translateY(112vh); } }
+  @keyframes sway { from { transform:translateX(-30px) rotate(-30deg);} to { transform:translateX(30px) rotate(30deg);} }
+
+  /* ---------- CHROME ---------- */
+  #brand { position:absolute; top:24px; left:32px; z-index:9500; display:flex; align-items:center; gap:12px;
+    text-decoration:none; color:var(--ink); }
+  #brand svg { width:32px; height:32px; }
+  #brand span { font-family:var(--display); font-size:19px; letter-spacing:.28em; }
+  #topnav { position:fixed; top:30px; right:84px; z-index:9500; display:flex; gap:32px; align-items:center; }
+  #topnav a { color:var(--dim); text-decoration:none; font-size:11px; letter-spacing:.2em; transition:color .2s; }
+  #topnav a:hover, #topnav a.on { color:var(--ink); }
+  #topnav a.on { border-bottom:1px solid var(--red); padding-bottom:3px; }
+
+  /* Audio Mute / Unmute Button */
+  #soundBtn { position:fixed; top:23px; right:28px; z-index:9700; width:36px; height:36px; border-radius:50%;
+    background:rgba(18,18,22,0.85); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    border:1px solid rgba(240,235,224,0.18); color:var(--ink); display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition:all .22s ease; padding:0; outline:none; }
+  #soundBtn:hover { border-color:var(--red); color:var(--red); box-shadow:0 0 16px rgba(192,57,43,0.35); transform:scale(1.06); }
+  #soundBtn .icon-muted { display:none; }
+  #soundBtn .icon-playing { display:block; }
+  #soundBtn.muted { color:var(--dim); border-color:rgba(240,235,224,0.1); background:rgba(12,12,15,0.7); }
+  #soundBtn.muted:hover { color:var(--ink); border-color:var(--dim); box-shadow:none; transform:scale(1.04); }
+  #soundBtn.muted .icon-muted { display:block; }
+  #soundBtn.muted .icon-playing { display:none; }
+  #soundBtn:not(.muted) svg.icon-playing path { animation:soundWave 1.4s ease-in-out infinite alternate; }
+  @keyframes soundWave { 0%{opacity:.35} 100%{opacity:1} }
+
+  #chapters { position:fixed; left:32px; bottom:28px; z-index:9500; display:flex; gap:14px; align-items:center; }
+  #chapters a { color:var(--faint); text-decoration:none; font-size:9px; transition:color .25s; }
+  #chapters a.on { color:var(--red); }
+
+  section.chapter { position:relative; min-height:100vh; display:flex; flex-direction:column; justify-content:center;
+    padding:110px 8vw 90px; overflow:hidden; }
+  .kanji { position:absolute; right:2vw; top:50%; transform:translateY(-50%); font-size:26vw; line-height:1;
+    color:var(--ink); opacity:.045; pointer-events:none; user-select:none; }
+  .clabel { font-size:11px; letter-spacing:.2em; color:var(--dim); margin-bottom:34px; }
+  .reveal { opacity:0; transform:translateY(28px); transition:opacity .4s ease, transform .4s ease; will-change:opacity, transform; }
+  .reveal.in { opacity:1; transform:translateY(0); transition:opacity .65s cubic-bezier(0.16, 1, 0.3, 1), transform .65s cubic-bezier(0.16, 1, 0.3, 1); }
+  .proj.reveal.in:hover { transform:translateX(6px); }
+
+  /* ---------- HERO ---------- */
+  #hero { padding:0; justify-content:flex-end; }
+  #sky { position:absolute; inset:0;
+    background:linear-gradient(180deg,#150B14 0%,#2C1526 22%,#4E2337 44%,#7A3B52 62%,#A85C6C 76%,#6B3040 100%); }
+  #stars { position:absolute; inset:0; opacity:.7;
+    background-image:
+      radial-gradient(1px 1px at 12% 8%, #FBE9EC, transparent),
+      radial-gradient(1px 1px at 32% 18%, #FBE9EC, transparent),
+      radial-gradient(1px 1px at 55% 6%, #FBE9EC, transparent),
+      radial-gradient(1.5px 1.5px at 66% 26%, #FBE9EC, transparent),
+      radial-gradient(1px 1px at 44% 32%, #FBE9EC, transparent),
+      radial-gradient(1px 1px at 8% 40%, #FBE9EC, transparent),
+      radial-gradient(1px 1px at 24% 52%, #FBE9EC, transparent); }
+  #moon { position:absolute; top:9%; right:11%; width:19vmin; height:19vmin; border-radius:50%;
+    background:radial-gradient(circle at 42% 38%, #FFF6F6, #FDF0F0 38%, #F3D2D6 62%, #E4AFB8 82%, #C98A98 100%);
+    box-shadow:0 0 24px 6px rgba(246,201,206,.5), 0 0 70px 26px rgba(224,139,155,.28), 0 0 150px 60px rgba(142,58,80,.2);
+    border:1px solid rgba(255,240,240,.65); }
+  #ridges { position:absolute; bottom:9vh; left:0; width:100%; height:34vh; }
+  #mist { position:absolute; bottom:8vh; left:0; width:100%; height:9vh;
+    background:linear-gradient(180deg, transparent, rgba(201,127,146,.28), transparent); filter:blur(6px); }
+  #ground { position:absolute; bottom:0; left:0; width:100%; height:9vh; background:#140A11; }
+  #heroInner { position:relative; z-index:5; padding:0 8vw 21vh; }
+  #hero h1 { font-family:var(--display); font-size:clamp(64px, 11vw, 168px); line-height:.94; letter-spacing:.01em; max-width:70vw; }
+  #hero h1 .dot { color:var(--red); }
+  #hero .sub { margin-top:20px; font-size:15px; letter-spacing:.06em; color:#cbb9bd; }
+  #heroFoot { position:relative; z-index:5; display:flex; justify-content:space-between; align-items:flex-end; padding:0 8vw 34px; }
+  #heroFoot .ch { font-size:11px; letter-spacing:.2em; color:#cbb9bd; }
+  #heroFoot .ch::before { content:"● "; color:var(--red); font-size:9px; }
+  #scrollcue { position:absolute; left:50%; bottom:30px; transform:translateX(-50%); z-index:5;
+    font-size:10px; letter-spacing:.3em; color:#cbb9bd; display:flex; align-items:center; gap:14px; }
+  #scrollcue::after { content:""; width:60px; height:1px; background:#7A3B52; }
+  #scrollcue i { width:5px; height:5px; border-radius:50%; background:var(--red); animation:blink 1.8s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.15} }
+
+  /* ---------- WORK LIST ---------- */
+  #work .list { display:flex; flex-direction:column; gap:6px; max-width:1020px; }
+  .proj { position:relative; display:block; width:100%; text-align:left; font-family:inherit; background:#0e0e0e;
+    border:1px solid #161616; border-left:1px solid #222; padding:28px 26px 28px 30px; color:var(--ink);
+    cursor:pointer; transition:border-color .2s, transform .2s, box-shadow .2s; }
+  .proj:hover { border-left-color:var(--red); transform:translateX(6px); box-shadow:-14px 0 44px -18px rgba(192,57,43,.55); }
+  .proj h3 { font-family:var(--display); font-size:clamp(30px, 3.6vw, 50px); letter-spacing:.02em; transition:transform .2s; }
+  .proj:hover h3 { transform:translateX(6px); }
+  .proj p { margin-top:8px; font-size:14px; color:var(--dim); max-width:660px; line-height:1.6; }
+  .tags { margin-top:14px; display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .pill { font-size:10.5px; letter-spacing:.12em; border:1px solid #2c2c2c; border-radius:20px; padding:4px 12px; color:var(--dim); }
+  .badge { margin-left:auto; font-size:10.5px; letter-spacing:.18em; }
+  .badge.live { color:#e05545; } .badge.dev { color:var(--amber); } .badge.priv { color:var(--dim); }
+  .open-hint { margin-left:14px; font-size:10.5px; letter-spacing:.18em; color:var(--faint); }
+  .proj:hover .open-hint { color:var(--red); }
+
+  /* ---------- ABOUT / PROCESS / CONTACT ---------- */
+  
+  #about { background: linear-gradient(180deg, #140A11 0%, #0d080e 28%, var(--bg) 75%); position: relative; z-index: 2; }
+  #aboutInner { display:flex; gap:6vw; align-items:center; max-width:1100px; position:relative; z-index:2; }
+  #aboutText { flex:1.2; }
+  #aboutText .big { font-size:clamp(20px, 2.6vw, 30px); line-height:1.5; font-weight:600; }
+  #aboutText .big em { color:var(--red); font-style:normal; }
+  .cols2 { display:flex; gap:5vw; margin-top:44px; }
+  .cols2 h4 { font-size:11px; letter-spacing:.2em; color:var(--dim); margin-bottom:14px; }
+  .cols2 li { list-style:none; font-size:14px; padding:5px 0; }
+  .cols2 li::before { content:"— "; color:var(--red); }
+  #portrait { flex:.8; display:flex; justify-content:center; }
+  #portrait .ring { width:min(300px, 34vw); height:min(300px, 34vw); border-radius:50%; display:flex; align-items:center;
+    justify-content:center; font-size:64px; border:3px solid transparent;
+    background:linear-gradient(#0b0b0b,#0b0b0b) padding-box,
+      conic-gradient(from 20deg, var(--red), #3a3a3a 30%, var(--red-deep) 55%, #2a2a2a 80%, var(--red)) border-box; }
+  .step { display:flex; gap:4vw; align-items:baseline; padding:34px 0; border-top:1px solid #1c1c1c; max-width:1000px; }
+  .step:last-child { border-bottom:1px solid #1c1c1c; }
+  .step .n { font-family:var(--display); font-size:clamp(44px, 5vw, 76px); color:transparent;
+    -webkit-text-stroke:1px var(--faint); min-width:2.2em; transition:.25s; }
+  .step:hover .n { -webkit-text-stroke:1px var(--red); }
+  .step h3 { font-family:var(--display); font-size:24px; letter-spacing:.04em; }
+  .step p { margin-top:8px; font-size:14px; color:var(--dim); line-height:1.7; max-width:560px; }
+  #contact { text-align:center; align-items:center; }
+  #contact h2 { font-family:var(--display); font-size:clamp(52px, 9vw, 132px); line-height:.95; letter-spacing:.01em; }
+  #contact h2 .thin { display:block; color:transparent; -webkit-text-stroke:1.5px var(--ink); }
+  .clinks { margin-top:44px; display:flex; gap:44px; justify-content:center; flex-wrap:wrap; }
+  .clinks a { color:var(--dim); text-decoration:none; font-size:12px; letter-spacing:.25em; padding-bottom:5px;
+    border-bottom:1px solid transparent; transition:.2s; }
+  .clinks a:hover { color:var(--ink); border-bottom-color:var(--red); }
+  footer { position:absolute; bottom:0; left:0; right:0; display:flex; justify-content:space-between; align-items:flex-end; padding:24px 8vw; }
+  footer small { font-size:10px; letter-spacing:.25em; color:var(--dim); }
+  footer .fkanji { font-size:64px; color:var(--ink); opacity:.07; line-height:1; }
+
+  /* ---------- MODAL ---------- */
+  #scrim { position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:9600; opacity:0; pointer-events:none; transition:opacity .35s; }
+  #scrim.open { opacity:1; pointer-events:auto; }
+  #modal { position:fixed; inset:0; z-index:9650; background:#0a0a0a; transform:translateY(100%); transition:transform .5s cubic-bezier(.22,.9,.24,1);
+    display:flex; flex-direction:column; }
+  #modal.open { transform:translateY(0); }
+  #mHead { display:flex; align-items:center; gap:18px; padding:22px 4vw; border-bottom:1px solid #1b1b1b; }
+  #mHead .mk { font-size:11px; letter-spacing:.2em; color:var(--red); }
+  #mHead h2 { font-family:var(--display); font-size:34px; letter-spacing:.03em; }
+  #mHead .mcount { margin-left:auto; font-size:12px; letter-spacing:.2em; color:var(--dim); }
+  #mClose { background:rgba(255, 255, 255, 0.12) !important; border:1px solid rgba(251, 250, 246, 0.45) !important; color:#ffffff !important; width:42px !important; height:42px !important; border-radius:50% !important;
+    font-size:18px !important; font-weight:700 !important; cursor:pointer !important; display:flex !important; align-items:center !important; justify-content:center !important; transition:.2s !important; }
+  #mClose:hover { border-color:var(--red) !important; color:#ffffff !important; background:rgba(224, 35, 28, 0.35) !important; box-shadow:0 0 18px var(--red-glow) !important; }
+  #mClose:hover { border-color:var(--red); color:var(--red); }
+  #mBody { flex:1; overflow:hidden; position:relative; }
+  #mSlide { height:100%; overflow-y:auto; padding:34px 4vw 30px; display:flex; gap:5vw; align-items:flex-start; }
+  #mArt { flex:1.25; min-width:0; }
+  #mText { flex:1; min-width:260px; padding-top:6px; }
+  #mText .feat { font-family:var(--display); font-size:clamp(34px, 4.4vw, 62px); line-height:.95; letter-spacing:.01em; }
+  #mText .desc { margin-top:16px; font-size:14.5px; line-height:1.75; color:var(--dim); }
+  #mText .specs { margin-top:14px; list-style:none; display:flex; flex-direction:column; gap:7px; padding:12px 14px;
+    background:#101014; border:1px solid #22222a; border-left:2px solid var(--red); border-radius:0 8px 8px 0; }
+  #mText .specs li { font-size:12.5px; line-height:1.55; color:#d4cfc4; }
+  #mText .specs li::before { content:"▸ "; color:var(--red); font-weight:700; }
+  #mText .specs b { color:var(--ink); }
+  #mText .specs code { font-family:Consolas,"Courier New",monospace; font-size:11.5px; color:#e0b45c; background:#181820; padding:1px 5px; border-radius:4px; }
+  #mText .tech { margin-top:18px; display:inline-block; font-size:10.5px; letter-spacing:.14em; color:#e05545;
+    border:1px solid rgba(192,57,43,.5); border-radius:20px; padding:5px 14px; }
+  #mFoot { display:flex; align-items:center; gap:16px; padding:18px 4vw 24px; border-top:1px solid #1b1b1b; }
+  .mnav { background:#181818 !important; border:1px solid rgba(251, 250, 246, 0.45) !important; color:#ffffff !important; border-radius:8px !important; padding:11px 22px !important;
+    font-size:13px !important; font-weight:700 !important; letter-spacing:.12em !important; cursor:pointer !important; transition:.2s !important; font-family:inherit !important; }
+  .mnav:hover:not(:disabled) { border-color:var(--red) !important; color:#ffffff !important; background:rgba(224, 35, 28, 0.25) !important; box-shadow:0 0 16px var(--red-glow) !important; }
+  .mnav:disabled { opacity:.25 !important; cursor:default !important; border-color:rgba(255,255,255,0.15) !important; color:rgba(255,255,255,0.3) !important; }
+  .mnav:hover:not(:disabled) { border-color:var(--red); }
+  .mnav:disabled { opacity:.3; cursor:default; }
+  #mDots { display:flex; gap:8px; }
+  #mDots i { width:8px; height:8px; border-radius:50%; background:#2c2c2c; }
+  #mDots i.on { background:var(--red); }
+  #mCta { margin-left:auto; display:none; background:var(--red); border:0; color:#fff; font-family:inherit;
+    font-size:14px; font-weight:700; letter-spacing:.06em; border-radius:8px; padding:13px 30px; cursor:pointer; width:100%; max-width:340px; }
+  #mCta:hover { background:#a93226; }
+  #mCta.show { display:block; }
+  #mCta.ghost { background:transparent; border:1px solid #333; color:var(--dim); cursor:default; }
+  #mCta.ghost:hover { background:transparent; }
+
+  /* ---------- MOCKUP PRIMITIVES ---------- */
+  .shot { background:#101014; border:1px solid #23232b; border-radius:12px; padding:18px; font-size:12px; }
+  .shot .bar { display:flex; gap:6px; margin-bottom:14px; }
+  .shot .bar i { width:9px; height:9px; border-radius:50%; background:#33333d; }
+  .shot .bar i:first-child { background:var(--red); }
+  .mono { font-family:Consolas,"Courier New",monospace; }
+  .glowbtn { display:inline-block; background:rgba(192,57,43,.16); border:1px solid var(--red); color:#f0938a;
+    border-radius:8px; padding:7px 16px; font-size:12px; box-shadow:0 0 18px rgba(192,57,43,.45); }
+  .kw { color:#e05545; } .cm { color:#5c5c6a; } .st { color:#c9a86a; } .fn { color:#9db4e0; }
+  .filetree { display:flex; flex-direction:column; gap:7px; font-size:12px; color:#b9b4ac; }
+  .filetree .on { color:var(--ink); background:rgba(192,57,43,.14); border-radius:6px; padding:3px 8px; margin:-3px -8px; }
+  .pdflines i { display:block; height:7px; border-radius:3px; background:#26262e; margin:7px 0; }
+  .tagrow { display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
+  .stag { font-size:10px; letter-spacing:.08em; background:#1c1c22; border:1px solid #2d2d36; border-radius:12px; padding:3px 10px; color:#b9b4ac; }
+  .statbadge { display:inline-block; background:rgba(192,57,43,.16); border:1px solid var(--red); color:#f0938a;
+    border-radius:8px; padding:5px 12px; font-size:12px; font-weight:700; }
+  .qrow { border:1px solid #23232b; border-radius:8px; padding:9px 12px; margin-top:8px; font-size:12px; color:#b9b4ac; }
+  .qrow b { color:var(--ink); }
+  .mmwrap { position:relative; height:280px; }
+  .mmnode { position:absolute; transform:translate(-50%,-50%); background:#16161c; border:1px solid #3a3a46; border-radius:20px;
+    padding:6px 14px; font-size:11.5px; white-space:nowrap; }
+  .mmnode.center { background:rgba(192,57,43,.2); border-color:var(--red); color:#fff; font-weight:700; }
+  .avatars { display:flex; }
+  .avatars i { width:22px; height:22px; border-radius:50%; border:2px solid #101014; margin-left:-7px; }
+  .chatb { max-width:85%; border-radius:12px; padding:9px 13px; font-size:12.5px; line-height:1.6; margin:8px 0; }
+  .chatb.them { background:#1a1a20; color:#d8d3c8; border:1px solid #26262e; }
+  .chatb.me { background:rgba(192,57,43,.18); border:1px solid rgba(192,57,43,.5); margin-left:auto; }
+  .quizblock { border:1px dashed #4a4a56; border-radius:8px; padding:10px 12px; margin-top:8px; font-size:12px; }
+  .quizblock .opt { display:block; border:1px solid #33333d; border-radius:6px; padding:5px 10px; margin:5px 0; font-size:12px; }
+  .quizblock .opt.right { border-color:#3f7d4e; color:#8fd0a0; }
+  .mgrid { display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin-top:12px; }
+  .mcell { border-radius:8px; padding:9px 6px; font-size:10.5px; text-align:center; border:1px solid; }
+  .st-grey { background:#1a1a1e; border-color:#33333a; color:#8a8a94; }
+  .st-slate { background:#1c222c; border-color:#3d4c63; color:#9db4e0; }
+  .st-amber { background:#2b2113; border-color:#8a6a2a; color:#e0b45c; }
+  .st-blue { background:#12222e; border-color:#2a6a8a; color:#6fc3e8; }
+  .st-green { background:#12271a; border-color:#3f7d4e; color:#8fd0a0; }
+  .stackcard { border:1px solid #2b2b33; background:#141419; border-radius:10px; padding:11px 14px; margin-top:-6px;
+    box-shadow:0 -6px 0 -3px #1d1d24, 0 -12px 0 -6px #24242c; font-size:12px; }
+  .stackcard:first-child { margin-top:14px; }
+  .codepanel { background:#0c0c10; border:1px solid #23232b; border-radius:10px; padding:14px 16px; font-size:12px; line-height:1.7; overflow-x:auto; }
+  .drawcircle { animation:draw 3.2s ease-in-out infinite; }
+  @keyframes draw { 0%{stroke-dashoffset:630} 55%{stroke-dashoffset:0} 80%{stroke-dashoffset:0} 100%{stroke-dashoffset:-630} }
+  .scrub { height:5px; border-radius:3px; background:#26262e; margin:12px 0 8px; position:relative; }
+  .scrub i { position:absolute; left:0; top:0; bottom:0; width:38%; border-radius:3px; background:var(--red); }
+  .scrub b { position:absolute; left:38%; top:50%; width:13px; height:13px; border-radius:50%; background:#f0ebe0; transform:translate(-50%,-50%); }
+  .tbtn { display:inline-block; background:#1c1c22; border:1px solid #33333d; border-radius:6px; padding:5px 13px; font-size:11.5px; margin-right:6px; }
+  .filmstrip { display:flex; gap:10px; }
+  .frame { flex:1; background:#0c0c10; border:1px solid #2a2a33; border-radius:8px; padding:10px; min-height:120px; }
+  .frame .cap { font-size:10px; letter-spacing:.12em; color:var(--dim); margin-bottom:8px; }
+  .sheetgrid { display:grid; grid-template-columns:repeat(6, 1fr); gap:6px; }
+  .cell { aspect-ratio:.5; border-radius:6px; background:#1a1a20; border:1px solid #2c2c34; position:relative; }
+  .cell.hot { border-color:var(--red); box-shadow:0 0 14px rgba(192,57,43,.6); }
+  .cell.hot::after { content:"▶"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:var(--red); font-size:12px; }
+  .statepanels { display:flex; gap:10px; }
+  .statecard { flex:1; background:#101014; border:1px solid #23232b; border-radius:10px; padding:14px 10px; text-align:center; }
+  .face { width:52px; height:52px; border-radius:50%; margin:0 auto 10px; position:relative;
+    background:radial-gradient(circle at 35% 30%, #7cc4ff, #0f6cbd); }
+  .face .e { position:absolute; top:20px; width:7px; height:9px; background:#fff; border-radius:50%; }
+  .face .e::after { content:""; position:absolute; top:3px; left:2px; width:3px; height:4px; background:#062b4d; border-radius:50%; }
+  .face .e.l { left:13px; } .face .e.r { right:13px; }
+  .face .m { position:absolute; bottom:11px; left:50%; transform:translateX(-50%); width:14px; height:7px;
+    border:2px solid #062b4d; border-top:0; border-radius:0 0 14px 14px; }
+  .face.sleepy { background:radial-gradient(circle at 35% 30%, #b8c6d9, #5a6b85); }
+  .face.sleepy .e { transform:scaleY(.15); }
+  .face.sleepy .m { border:0; border-top:2px solid #062b4d; border-radius:0; height:2px; bottom:14px; }
+  .face.excited { background:radial-gradient(circle at 35% 30%, #ffd56b, #f59e0b); }
+  .statecard small { font-size:10px; letter-spacing:.18em; color:var(--dim); }
+  .minidesk { position:relative; background:linear-gradient(160deg,#1b2a4a,#0b1026); border-radius:10px; height:190px; overflow:hidden; border:1px solid #23232b; }
+  .minidesk .pet { position:absolute; right:26px; bottom:12px; width:40px; height:40px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #7cc4ff, #0f6cbd); box-shadow:0 4px 10px rgba(0,0,0,.5); }
+  .minidesk .pet .e { position:absolute; top:15px; width:5px; height:7px; background:#fff; border-radius:50%; }
+  .minidesk .pet .e.l { left:10px; } .minidesk .pet .e.r { right:10px; }
+  .speech { position:absolute; right:74px; bottom:44px; background:#fff; color:#111; font-size:11px; border-radius:10px; padding:7px 11px; max-width:200px; }
+  .speech::after { content:""; position:absolute; bottom:-5px; right:30px; border:5px solid transparent; border-top-color:#fff; border-bottom:0; }
+  .ed3 { display:grid; grid-template-columns:1fr 1.4fr 1fr; gap:8px; }
+  .edcol { background:#0c0c10; border:1px solid #23232b; border-radius:8px; padding:10px; font-size:11px; }
+  .edcol h5 { font-size:9.5px; letter-spacing:.16em; color:var(--dim); margin-bottom:8px; }
+  .edcol .row { padding:4px 7px; border-radius:5px; margin:3px 0; background:#16161c; color:#c9c4b8; }
+  .edcol .row.hl { background:rgba(192,57,43,.2); border:1px solid rgba(192,57,43,.5); color:#fff; }
+  .edbox { width:100%; height:64px; border:2px dashed #3a3a46; border-radius:8px; margin-top:8px; position:relative; overflow:hidden; }
+  .whenrow { background:#16161c; border-left:2px solid var(--red); border-radius:0 6px 6px 0; padding:6px 9px; margin-top:8px; font-size:11px; }
+  .assetiles { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-top:10px; }
+  .atile { background:#141419; border:1px dashed #3a3a46; border-radius:8px; padding:12px 8px; text-align:center; font-size:10px; color:#b9b4ac; }
+  .atile b { display:block; color:var(--ink); font-size:11px; margin-bottom:3px; }
+  .flow { display:flex; align-items:stretch; gap:0; margin-top:6px; }
+  .fnode { flex:1; background:#101014; border:1px solid #2c2c34; border-radius:10px; padding:12px 10px; font-size:11px; text-align:center; }
+  .fnode b { display:block; font-size:12px; margin-bottom:4px; }
+  .fnode small { color:var(--dim); }
+  .farr { align-self:center; color:var(--red); padding:0 8px; font-size:16px; }
+  .kv { display:flex; justify-content:space-between; font-size:11.5px; padding:5px 0; color:#b9b4ac; border-bottom:1px solid #1c1c22; }
+  .kv b { color:var(--ink); }
+  .duelwrap { display:flex; align-items:center; justify-content:center; gap:14px; padding:14px 0 6px; }
+  .dcard { width:92px; height:132px; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    font-family:Consolas,monospace; font-weight:700; border:2px solid; }
+  .dcard.light { background:#f5efe2; border-color:#c0392b; color:#c0392b; }
+  .dcard.dark { background:#17131f; border-color:#9b5de5; color:#c4a5f5; }
+  .dcard .v { font-size:34px; } .dcard small { font-size:9px; letter-spacing:.2em; margin-top:6px; opacity:.75; }
+  .fliparr { color:var(--red); font-size:22px; }
+  .planpara { font-size:14px; line-height:1.9; color:#c9c4b8; }
+  .planpara b { color:var(--ink); }
+  .planpara .mono { font-size:12.5px; color:#e0b45c; }
+  .realshot img { display:block; width:100%; border-radius:10px; border:1px solid #2a2a33; }
+  .realshot img + img { margin-top:10px; }
+  .shotcap { margin-top:10px; font-size:11px; letter-spacing:.14em; color:#e05545; }
+  .shotcap.mock { color:var(--dim); }
+
+  @media (max-width:900px) {
+    #mSlide { flex-direction:column; }
+    #mText { min-width:0; }
+    #topnav { display:none; }
+    #chapters { left:16px; bottom:16px; gap:10px; }
+    #hero h1 { max-width:92vw; }
+    #aboutInner { flex-direction:column; }
+    .badge { margin-left:0; }
+    .kanji { font-size:44vw; }
+    #mCta { max-width:none; }
+    .ed3 { grid-template-columns:1fr; }
+    #soundBtn { top:18px; right:18px; width:34px; height:34px; }
+    #brand { top:20px; left:20px; }
+  }
+
+  section#work, #work.chapter {
+    display: block !important;
+    position: relative !important;
+    height: 600vh !important;
+    min-height: 600vh !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+  }
+
+</style>
+  <link rel="stylesheet" href="kage-scroll-engine.css">
+  <link rel="stylesheet" href="stage-cards-styles.css">
+</head>
+<body>
+
+<div id="grain"></div>
+<div id="leaves"></div>
+
+<a id="brand" href="#hero" aria-label="home">
+  <svg viewBox="0 0 40 40" fill="none" stroke="#f0ebe0" stroke-width="3" stroke-linecap="round">
+    <path d="M33 12 C 30 6, 18 4, 12 10 C 6 16, 7 26, 14 31 C 21 36, 32 33, 35 25"/>
+    <path d="M33 12 l -4 -1 M33 12 l 0.5 4" stroke-width="2.5"/>
+  </svg>
+  <span>SUBADEEPAN</span>
+</a>
+
+<nav id="topnav">
+  <a href="#about" data-ch="about">ABOUT</a>
+  <a href="#work" data-ch="work">WORK</a>
+  <a href="#process" data-ch="process">PROCESS</a>
+  <a href="#contact" data-ch="contact">CONTACT</a>
+</nav>
+
+<button id="soundBtn" aria-label="Mute background music" title="Mute background music">
+  <svg class="icon-playing" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+    <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+  </svg>
+  <svg class="icon-muted" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+    <line x1="23" y1="9" x2="17" y2="15"></line>
+    <line x1="17" y1="9" x2="23" y2="15"></line>
+  </svg>
+</button>
+
+<audio id="bgm" src="bgm.mp3" loop preload="auto"></audio>
+
+<nav id="chapters">
+  <a href="#hero" data-ch="hero" aria-label="Hero">●</a>
+  <a href="#about" data-ch="about" aria-label="About">●</a>
+  <a href="#work" data-ch="work" aria-label="Work">●</a>
+  <a href="#process" data-ch="process" aria-label="Process">●</a>
+  <a href="#contact" data-ch="contact" aria-label="Contact">●</a>
+</nav>
+
+<!-- ============ 00 HERO ============ -->
+<section class="chapter" id="hero">
+  <div id="sky"></div>
+  <div id="stars"></div>
+  <div id="moon"></div>
+  <svg id="ridges" viewBox="0 0 1200 300" preserveAspectRatio="none">
+    <path d="M0,220 L140,120 L260,190 L400,90 L540,200 L700,110 L840,200 L980,130 L1120,210 L1200,170 L1200,300 L0,300 Z" fill="#4A2A3C" opacity=".85"/>
+    <path d="M0,300 L0,250 L180,170 L340,240 L520,150 L700,250 L880,180 L1040,250 L1200,210 L1200,300 Z" fill="#2C1526"/>
+    <path d="M0,300 L0,280 L240,230 L480,285 L760,235 L1000,285 L1200,260 L1200,300 Z" fill="#1B0C17"/>
+  </svg>
+  <div id="mist"></div>
+  <div id="ground"></div>
+
+  <div id="heroInner">
+    <h1 class="reveal">BUILT TO SOLVE<span class="dot">.</span><br>SHIPPED TO WORK<span class="dot">.</span></h1>
+    <p class="sub reveal">AI tutors. Animation engines. Game compilers. Leveraging modern stacks to build what’s missing.</p>
+  </div>
+  <div id="heroFoot"><span class="ch">THE ENTRY POINT</span></div>
+  <div id="scrollcue"><i></i>SCROLL TO ENTER</div>
+</section>
+
+<!-- ============ 01 ABOUT ============ -->
+<section class="chapter" id="about">
+  <div class="kanji">道</div>
+  <div id="aboutInner">
+    <div id="aboutText">
+      <div class="clabel reveal">THE MAKER</div>
+      <p class="big reveal">“I build tools other people wish existed. From AI tutors to animation engines to game compilers — <em>everything ships from scratch.</em>”</p>
+      <div class="cols2 reveal">
+        <div>
+          <h4>SHIPPED &amp; BUILDING</h4>
+          <ul><li>iGradeify</li><li>manim-ts</li><li>Duel Deck</li><li>Desktop Buddy &amp; Greate</li></ul>
+        </div>
+        <div>
+          <h4>STACK</h4>
+          <ul><li>TypeScript</li><li>React</li><li>Node</li><li>Supabase</li><li>Canvas API</li></ul>
+        </div>
+      </div>
+    </div>
+    <div id="portrait" class="reveal"><div class="ring">影</div></div>
+  </div>
+</section>
+
+<!-- ============ 02 WORK ============ -->
+<section id="work" class="chapter kage-work-track">
+<!-- =========================================================================
+     KAGE-INSPIRED CINEMATIC PROJECT STAGE CARDS (6 PROJECTS)
+     Designed for d:/PROJECTS/portfolio-ink/index.html
+     Two-Column Balanced Layout:
+       • Left/Center: High-Impact Visual Feature Stage (Framed screens, assets, interactive previews)
+       • Right: Project Identity, Kanji Watermark, Plain-English Specs, Action CTAs
+     ========================================================================= -->
+
+<div class="stage-track" id="stageTrack">
+
+  <!-- ==================== 01: iGradeify ==================== -->
+  <article class="stage-card" id="stage-card-0" data-project="0" data-theme="igradeify">
+    <!-- Visual Stage (Left / Center) -->
+    <div class="stage-visual">
+      <div class="stage-window">
+        <div class="stage-window-bar">
+          <div class="stage-dots"><i></i><i></i><i></i></div>
+          <div class="stage-addr">igradeify.vercel.app · cbse-ai-study-workspace</div>
+          <span class="stage-tag-badge">● LIVE 60FPS</span>
+        </div>
+        <div class="stage-window-body">
+          <div class="stage-shot-composite igradeify-grid">
+            <div class="shot-layer primary-shot">
+              <img src="shots/landing.png" alt="iGradeify Study Hub and Landing" loading="lazy">
+            </div>
+            <div class="shot-layer float-shot float-left">
+              <img src="shots/testgen.png" alt="CBSE 80-Mark Test Generator Configuration" loading="lazy">
+              <span class="shot-mini-badge">80-Mark Blueprint</span>
+            </div>
+            <div class="shot-layer float-shot float-right">
+              <img src="shots/paper.png" alt="Generated CBSE Practice Paper with Geometry Diagrams" loading="lazy">
+              <span class="shot-mini-badge">Board Paper Generator</span>
+            </div>
+          </div>
+          <div class="stage-feature-chips">
+            <span class="chip">PDF Hub &amp; Multi-Chapter ZIPs</span>
+            <span class="chip">Sections A–E Blueprint</span>
+            <span class="chip">Animated Visual Explainer</span>
+            <span class="chip">Voice Study Rooms</span>
+          </div>
+          <div class="stage-shot-caption">
+            ● ACTUAL SCREENSHOTS — FULL CBSE STUDY WORKSPACE &amp; TEST ENGINE
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info / Specs Stack (Right) -->
+    <div class="stage-info">
+      <div class="stage-header">
+        <div class="stage-meta">
+          <span class="stage-num">01 / 06</span>
+          <span class="stage-kicker">EDTECH &amp; AI STUDY ECOSYSTEM</span>
+        </div>
+        <span class="stage-kanji">創</span>
+      </div>
+
+      <div class="stage-title-wrap">
+        <h2 class="stage-title">iGradeify</h2>
+        <span class="stage-status-badge live">● LIVE WEB APP</span>
+      </div>
+
+      <p class="stage-sub">
+        An all-in-one CBSE study workspace that turns textbook PDFs and class notes into animated lessons, interactive concept mind maps, authentic 80-mark board papers, and collaborative live study rooms.
+      </p>
+
+      <div class="stage-specs">
+        <div class="spec-item">
+          <div class="spec-bullet"></div>
+          <div class="spec-content">
+            <h4>Full 80-Mark Board Paper Generator</h4>
+            <p>Generates realistic CBSE 38-question practice papers across Sections A–E with authentic geometry diagrams, timed exam mode, and step-by-step marking rubrics.</p>
+          </div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-bullet"></div>
+          <div class="spec-content">
+            <h4>Animated Visual Explainer &amp; Interactive Sims</h4>
+            <p>Converts complex math, physics, and chemistry concepts into smooth, step-by-step vector animations and interactive simulations right inside the browser.</p>
+          </div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-bullet"></div>
+          <div class="spec-content">
+            <h4>Live Study Rooms &amp; Infinite Whiteboard</h4>
+            <p>Multiplayer study tables with 6-letter room codes, auto-snapping geometric shapes, one-tap color fills, PDF sharing, and built-in voice chat.</p>
+          </div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-bullet"></div>
+          <div class="spec-content">
+            <h4>Interactive Concept Mind Map Studio</h4>
+            <p>Auto-organizes long chapters into color-coded concept branches with connection-testing practice and high-resolution PDF export.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="stage-tags">
+        <span class="stag">AI STUDY WORKSPACE</span>
+        <span class="stag">ANIMATED LESSONS</span>
+        <span class="stag">BOARD EXAM PREP</span>
+        <span class="stag">WEBRTC STUDY ROOMS</span>
+      </div>
+
+      <div class="stage-actions">
+        <a href="https://igradeify.vercel.app" target="_blank" rel="noopener" class="stage-btn primary">
+          <span>Experience iGradeify</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
+        </a>
+        <button class="stage-btn secondary" onclick="openModal(0)" aria-label="Inspect iGradeify details">
+          <span>Explore 7 Slides</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </article>
+
+
+  <!-- ==================== 02: manim-ts ==================== -->
+  <article class="stage-card" id="stage-card-1" data-project="1" data-theme="manim">
+    <!-- Visual Stage (Left / Center) -->
+    <div class="stage-visual">
+      <div class="stage-window">
+        <div class="stage-window-bar">
+          <div class="stage-dots"><i></i><i></i><i></i></div>
+          <div class="stage-addr">manim-ts.canvas // 60fps vector morphing</div>
+          <span class="stage-tag-badge">● VECTOR RUNNER</span>
+        </div>
+        <div class="stage-window-body">
+          <div class="stage-shot-composite manim-dual-grid">
+            <div class="shot-layer frame-card">
+              <div class="frame-label">HERO VECTOR COMPOSITION</div>
+              <img src="shots/manim_hero.png" alt="manim-ts rendered hero vector frame" loading="lazy">
+            </div>
+            <div class="shot-layer frame-card">
+              <div class="frame-label">SMOOTH SHAPE MORPHING</div>
+              <img src="shots/manim_shapes.png" alt="manim-ts rendered geometric shapes morph frame" loading="lazy">
+            </div>
+          </div>
+          <!-- Interactive Scrub Bar Simulation -->
+          <div class="manim-timeline-widget">
+            <div class="timeline-ctrls">
+              <span class="t-badge">▶ PLAY</span>
+              <span class="t-badge">⏸ PAUSE</span>
+              <span class="t-badge">1.0×</span>
+              <div class="timeline-track"><div class="timeline-fill" style="width:42%"></div><div class="timeline-head" style="left:42%"></div></div>
+              <span class="mono timeline-time">02.41 / 06.20s</span>
+            </div>
+            <div class="manim-curve-preview">
+              <svg width="100%" height="48" viewBox="0 0 380 48" preserveAspectRatio="none">
+                <path d="M0,38 C80,38 120,4 190,4 C260,4 300,44 380,12" fill="none" stroke="#e05545" stroke-width="2.5"/>
+                <line x1="0" y1="44" x2="380" y2="44" stroke="#2a2520" stroke-width="1"/>
+                <circle cx="190" cy="4" r="4.5" fill="#e05545" stroke="#f0ebe0" stroke-width="1.5"/>
+              </svg>
+            </div>
+          </div>
+          <div class="stage-shot-caption">
+            ● ACTUAL FRAMES RENDERED CLIENT-SIDE BY MANIM-TS IN THE BROWSER
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info / Specs Stack (Right) -->
+    <div class="stage-info">
+      <div class="stage-header">
+        <div class="stage-meta">
+          <span class="stage-num">02 / 06</span>
+          <span class="stage-kicker">BROWSER GRAPHICS &amp; CREATIVE ENGINE</span>
+        </div>
+        <span class="stage-kanji">数</span>
+      </div>
+
+      <div class="stage-title-wrap">
+        <h2 class="stage-title">manim-ts</h2>
+        <span class="stage-status-badge live">● OPEN SOURCE LIBRARY</span>
+      </div>
+
+      <p class="stage-sub">
+        A browser-native math and science animation engine bringing 3Blue1Brown-style visual explainers directly to the web — with interactive timelines, draggable objects, spring physics, and plain-English scene generation.
+      </p>
+
+      <div class="stage-specs">
+        <div class="spec-item">
+          <div class="spec-bullet"></div>
+          <div class="spec-content">
+            <h4>Browser-Native Vector Engine</h4>
+            <p>Zero heavy video rendering software or Python dependencies needed — runs 100% client-side with 25+ shapes, coordinate axes, matrices, and 3D wireframe cubes at 60fps.</p>
+          </div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-bullet"></div>
+          <div class="spec-content">
+            <h4>Glitch-Free Shape Morphing &amp; Cutouts</h4>
+            <p>Smoothly transforms one geometry into another without twisted edges or jumping corners, plus vector cutouts and animated flowing vector fields.</p>
+          </div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-bullet"></div>
+          <div class="spec-content">
+            <h4>Scrubbable Timelines &amp; Interactive Canvas</h4>
+            <p>Learners can scrub to any millisecond, grab shapes with their mouse, or tweak variables with live on-screen sliders while the animation runs.</p>
+          </div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-bullet"></div>
+          <div class="spec-content">
+            <h4>Spring Physics &amp; Live Playground</h4>
+            <p>Natural spring bounce presets, stroke-by-stroke math equations, dynamic charts, and plain-English type-to-animate scene creation.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="stage-tags">
+        <span class="stag">MATH ANIMATION</span>
+        <span class="stag">60FPS VECTOR RUNNER</span>
+        <span class="stag">INTERACTIVE TIMELINE</span>
+        <span class="stag">TYPESCRIPT</span>
+      </div>
+
+      <div class="stage-actions">
+        <a href="https://github.com/Subadeepan-Y/manim-ts" target="_blank" rel="noopener" class="stage-btn primary">
+          <span>View on GitHub</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
+        </a>
+        <button class="stage-btn secondary" onclick="openModal(1)" aria-label="Try manim-ts playground">
+          <span>Try Live Playground (6 Slides)</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </article>
+
+
+  <!-- ==================== 03: Duel Deck ==================== -->
+  <article class="stage-card" id="stage-card-2" data-project="2" data-theme="duel">
+    <!-- Visual Stage (Left / Center) -->
+    <div class="stage-visual">
+      <div class="stage-window">
+        <div class="stage-window-bar">
+          <div class="stage-dots"><i></i><i></i><i></i></div>
+          <div class="stage-addr">dueldeck.vercel.app · live-squadron-arena</div>
+          <span class="stage-tag-badge">● 2–5 PLAYERS</span>
+        </div>
+        <div class="stage-window-body">
+          <div class="stage-shot-composite duel-layout">
+            <div class="shot-layer duel-main-shot">
+              <img src="shots/duel_home.png" alt="Duel Deck two-sided multiplayer arena home" loading="lazy">
+            </div>
+            <!-- Two-Sided Mid-Match Card Flip Showcase -->
+            <div class="duel-flip-stage">
+              <div class="dcard-display light-side">
+                <span class="card-halo">☀</span>
+                <span class="card-value">7</span>
+                <span class="card-color-lbl">LIGHT · RED</span>
+              </div>
+              <div class="flip-spark">
+                <span class="flip-icon">⇄</span>
+                <span class="flip-caption">MID-MATCH FLIP</span>
+              </div>
+              <div class="dcard-display dark-side">
+                <span class="card-halo">🌙</span>
+                <span class="card-value">+5</span>
+                <span class="card-color-lbl">DARK · PURPLE</span>
+              </div>
+            </div>
+          </div>
+          <div class="stage-feature-chips">
+            <span class="chip">112 Two-Sided Cards</span>
+            <span class="chip">15s Turn Clock</span>
+            <span class="chip">Catch UNO! (+2 Penalty)</span>
+            <span class="chip">15 Arcade SFX</span>
+          </div>
+          <div class="stage-shot-caption">
+            ● ACTUAL SCREENSHOT &amp; TWO-SIDED CARDS — LIVE AT DUELDECK.VERCEL.APP
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info / Specs Stack (Right) -->
+    <div class="stage-info">
+      <div class="stage-header">
+        <div class="stage-meta">
+          <span class="stage-num">03 / 06</span>
+          <span class="stage-kicker">REAL-TIME MULTIPLAYER GAMING</span>
+        </div>
+        <span class="stage-kanji">闘</span>
+      </div>
+
+      <div class="stage-title-wrap">
+        <h2 class="stage-title">Duel Deck</h2>
+        <span class="stage-status-badge live">● LIVE GAME</span>
+      </div>
+
+      <p class="stage-sub">
+        A fast-paced 2-to-5 player online strategy card arena where every card has a Light Side and a Dark Side — flip the deck mid-match to invert everyone's hand and escalate the stakes.
+      </p>
+
+      <div class="stage-specs">
+        <div class="spec-item">
+          <div class="spec-bullet"></div>
+          <div class="spec-content">
+            <h4>Two-Sided Deck Inversion</h4>
+            <p>Every card in the 112-card deck has two faces. Playing a Flip card turns the discard pile, draw deck, and every player's hand completely inside out.</p>
+          </div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-bullet"></div>
+          <div class="spec-content">
+            <h4>Light vs. Dark Rulesets</h4>
+            <p>Light side features classic tactical play; Dark side brings high-stakes chaos with brutal Draw +5, Skip Everyone (immediate extra turn), and Wild Draw Until Color.</p>
+          </div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-bullet"></div>
+          <div class="spec-content">
+            <h4>Live Squadron Lobbies &amp; Auto-Cleanup</h4>
+            <p>Host public tables or lock private rooms with 6-char shareable codes, fair opening deals, guest callsigns, and automatic 10-minute cleanup for abandoned rooms.</p>
+          </div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-bullet"></div>
+          <div class="spec-content">
+            <h4>15s Turn Clock, UNO Calls &amp; Synth Audio</h4>
+            <p>Brisk pacing with audio countdown ticks, catch-and-report banners for forgotten UNO shouts, 5 smart AI bots, and 15 custom arcade audio effects.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="stage-tags">
+        <span class="stag">MULTIPLAYER CARD GAME</span>
+        <span class="stag">TWO-SIDED DECK</span>
+        <span class="stag">SUPABASE REALTIME</span>
+        <span class="stag">SYNTH AUDIO</span>
+      </div>
+
+      <div class="stage-actions">
+        <a href="https://dueldeck.vercel.app" target="_blank" rel="noopener" class="stage-btn primary">
+          <span>Play Duel Deck</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
+        </a>
+        <button class="stage-btn secondary" onclick="openModal(2)" aria-label="View Duel Deck match HUD">
+          <span>View Match Rules (5 Slides)</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </article>
+
+
+  <!-- ==================== 04: Desktop Buddy ==================== -->
+  <article class="stage-card" id="stage-card-3" data-project="3" data-theme="buddy">
+    <!-- Visual Stage (Left / Center) -->
+    <div class="stage-visual">
+      <div class="stage-window">
+        <div class="stage-window-bar">
+          <div class="stage-dots"><i></i><i></i><i></i></div>
+          <div class="stage-addr">bones.exe // local screen companion</div>
+          <span class="stage-tag-badge">● 100% OFFLINE</span>
+        </div>
+        <div class="stage-window-body">
+          <div class="stage-shot-composite buddy-stage-layout">
+            <div class="shot-layer desktop-underlay">
+              <img src="shots/buddy_desktop.png" alt="Desktop Buddy live on Windows desktop corner" loading="lazy">
+            </div>
+            <!-- Floating Bones Rig & Dialogue Balloon -->
+            <div class="buddy-hero-overlay">
+              <div class="bones-avatar-box">
+                <img src="shots/buddy_logo.png" alt="Bones Desktop Buddy with sunglasses and lollipop" loading="lazy">
+              </div>
+              <div class="buddy-dialogue-bubble">
+                <span class="dialogue-kicker">🗣 TANGLISH BANTER</span>
+                <p>“Dei, 2 AM aachu! Still fixing that CSS bug-ah? Go to sleep da, tomorrow we conquer!”</p>
+                <div class="dialogue-tail"></div>
+              </div>
+            </div>
+          </div>
+          <div class="stage-feature-chips">
+            <span class="chip">Zero Cloud Telemetry</span>
+            <span class="chip">&lt;100MB RAM Footprint</span>
+            <span class="chip">100+ App Reactions</span>
+            <span class="chip">Cinema Auto-Hide</span>
+          </div>
+          <div class="stage-shot-caption">
+            ● ACTUAL ASSET &amp; SCREENSHOT — BONES DESKTOP COMPANION RIG
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info / Specs Stack (Right) -->
+    <div class="stage-info">
+      <div class="stage-header">
+        <div class="stage-meta">
+          <span class="stage-num">04 / 06</span>
+          <span class="stage-kicker">DESKTOP SYSTEMS &amp; LOCAL AI</span>
+        </div>
+        <span class="stage-kanji">友</span>
+      </div>
+
+      <div class="stage-title-wrap">
+        <h2 class="stage-title">Desktop Buddy</h2>
+        <span class="stage-status-badge dev">◐ IN DEVELOPMENT</span>
+      </div>
+
+      <p class="stage-sub">
+        A lightweight, privacy-first animated companion that lives on the corner of your screen — reacting to your apps, music, and late-night coding sessions in 5 Indian languages.
+      </p>
+
+      <div class="stage-specs">
+        <div class="spec-item">
+          <div class="spec-bullet"></div>
+          <div class="spec-content">
+            <h4>100% Local &amp; Privacy-First</h4>
+            <p>Senses your active window title, system idle time, and battery level purely on-device with zero telemetry, zero analytics, and zero cloud tracking.</p>
+          </div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-bullet"></div>
+          <div class="spec-content">
+            <h4>Featherweight Footprint Under 100MB</h4>
+            <p>Runs smoothly without stealing keyboard focus or blocking mouse clicks, sitting comfortably on single or multi-monitor setups.</p>
+          </div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-bullet"></div>
+          <div class="spec-content">
+            <h4>5-Language Banter Across 100+ Apps</h4>
+            <p>Recognizes editors, terminals, Spotify, video calls, and games — bantering naturally in Tanglish, Kannada, Telugu, Malayalam, and Hindi.</p>
+          </div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-bullet"></div>
+          <div class="spec-content">
+            <h4>Cinema Mode &amp; Focus Guard</h4>
+            <p>Automatically steps out of the way during fullscreen Netflix, YouTube, or gaming, and gently interrupts doomscrolling on social media.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="stage-tags">
+        <span class="stag">DESKTOP COMPANION</span>
+        <span class="stag">5 REGIONAL LANGUAGES</span>
+        <span class="stag">LOCAL TELEMETRY</span>
+        <span class="stag">FOCUS GUARD</span>
+      </div>
+
+      <div class="stage-actions">
+        <a href="https://github.com/Subadeepan-Y" target="_blank" rel="noopener" class="stage-btn primary">
+          <span>Star on GitHub</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
+        </a>
+        <button class="stage-btn secondary" onclick="openModal(3)" aria-label="Explore Desktop Buddy companion">
+          <span>Explore Companion (4 Slides)</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </article>
+
+
+  <!-- ==================== 05: Greate — Game Engine ==================== -->
+  <article class="stage-card" id="stage-card-4" data-project="4" data-theme="greate">
+    <!-- Visual Stage (Left / Center) -->
+    <div class="stage-visual">
+      <div class="stage-window">
+        <div class="stage-window-bar">
+          <div class="stage-dots"><i></i><i></i><i></i></div>
+          <div class="stage-addr">greate-engine.workspace // 2d physics studio</div>
+          <span class="stage-tag-badge">● 2D PHYSICS</span>
+        </div>
+        <div class="stage-window-body">
+          <div class="greate-editor-mock">
+            <!-- 5-Panel Workspace Wireframe -->
+            <div class="editor-topbar">
+              <span class="editor-brand">GREATE STUDIO</span>
+              <div class="editor-modes">
+                <span class="mode-tag active">EDIT MODE</span>
+                <span class="mode-tag play-btn">▶ LIVE PLAY</span>
+              </div>
+              <span class="editor-snap">GRID: 10PX</span>
+            </div>
+            <div class="editor-main-area">
+              <!-- Scene Tree (Left) -->
+              <div class="editor-sidebar scene-tree">
+                <span class="panel-head">SCENE TREE</span>
+                <div class="tree-node active">▾ Level_01</div>
+                <div class="tree-node child">▸ Hero (Bunny)</div>
+                <div class="tree-node child">▸ PatrolEnemy</div>
+                <div class="tree-node child">▸ Ground_Solid</div>
+                <div class="tree-node child">▸ FloatingLedge</div>
+                <div class="tree-node child">▸ Coin_01</div>
+                <div class="tree-node child">▸ SpikeHazard</div>
+              </div>
+              <!-- Level Viewport (Center) -->
+              <div class="editor-viewport">
+                <div class="viewport-grid">
+                  <div class="sim-ground"></div>
+                  <div class="sim-platform" style="top:70px;left:40px;width:110px"></div>
+                  <div class="sim-platform" style="top:40px;left:180px;width:90px"></div>
+                  <!-- Hero Sprite Entity -->
+                  <div class="sim-entity hero" style="top:32px;left:65px">
+                    <span class="entity-lbl">HERO</span>
+                  </div>
+                  <!-- Coin Pickup -->
+                  <div class="sim-entity coin" style="top:16px;left:215px">★</div>
+                  <!-- Enemy Patrol Entity -->
+                  <div class="sim-entity enemy" style="top:82px;left:240px">
+                    <span class="entity-lbl">PATROL</span>
+                  </div>
+                  <div class="physics-vector" style="top:32px;left:75px"></div>
+                </div>
+                <div class="viewport-hud">
+                  <span>VEL: 0.0, 0.0</span>
+                  <span>GRAV: 9.8 m/s²</span>
+                  <span>FPS: 60</span>
+                </div>
+              </div>
+              <!-- Property Inspector (Right) -->
+              <div class="editor-sidebar inspector">
+                <span class="panel-head">INSPECTOR</span>
+                <div class="prop-row"><span>MASS</span><b>1.2 kg</b></div>
+                <div class="prop-row"><span>FRICTION</span><b>0.85</b></div>
+                <div class="prop-row"><span>BOUNCE</span><b>0.15</b></div>
+                <div class="prop-row"><span>HEALTH</span><b style="color:#e05545">100 HP</b></div>
+                <div class="prop-row"><span>KNOCKBACK</span><b>14.0 N</b></div>
+              </div>
+            </div>
+            <!-- Natural Language Behavior Tray -->
+            <div class="editor-nl-tray">
+              <span class="nl-label">NATURAL LANGUAGE BEHAVIOR:</span>
+              <p class="nl-code">“When player touches coin: +10 pts, spawn sparkle, destroy coin. On collision with enemy: -20 HP, shake camera, apply 14N knockback.”</p>
+            </div>
+          </div>
+          <div class="stage-shot-caption">
+            ○ ARCHITECTURE PREVIEW — 2D PHYSICS ENGINE &amp; PLAIN-ENGLISH GAME MAKER
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info / Specs Stack (Right) -->
+    <div class="stage-info">
+      <div class="stage-header">
+        <div class="stage-meta">
+          <span class="stage-num">05 / 06</span>
+          <span class="stage-kicker">GAME ARCHITECTURE &amp; TOOLING</span>
+        </div>
+        <span class="stage-kanji">遊</span>
+      </div>
+
+      <div class="stage-title-wrap">
+        <h2 class="stage-title">Greate — Game Engine</h2>
+        <span class="stage-status-badge dev">◐ EARLY STAGE ENGINE</span>
+      </div>
+
+      <p class="stage-sub">
+        A beginner-friendly 2D desktop game maker where you place characters onto a visual grid, describe how they should behave in plain English, and hit Play to test with live physics.
+      </p>
+
+      <div class="stage-specs">
+        <div class="spec-item">
+          <div class="spec-bullet"></div>
+          <div class="spec-content">
+            <h4>Visual 2D Editor &amp; Instant Play</h4>
+            <p>Clean 5-panel desktop interface with 10px snap grid, camera zoom, live inspector, and instant in-viewport playtesting to test jump arcs and combat feel.</p>
+          </div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-bullet"></div>
+          <div class="spec-content">
+            <h4>Built-In Platformer Kinematics</h4>
+            <p>Pre-wired physics ready to go — gravity, running friction, jump velocity, stomp attacks, health gauges, and variable knockback forces.</p>
+          </div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-bullet"></div>
+          <div class="spec-content">
+            <h4>Plain-English Rules &amp; Ledge-Smart AI</h4>
+            <p>Describe triggers in natural language (collisions, timers, proximity) to automatically generate enemy patrol brains that sense platform edges without falling off.</p>
+          </div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-bullet"></div>
+          <div class="spec-content">
+            <h4>Ready Sprite Packs &amp; Standalone Export</h4>
+            <p>Bundled platformer sprites, two one-click starter game templates, and one-click packaging into standalone playable game projects.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="stage-tags">
+        <span class="stag">2D GAME MAKER</span>
+        <span class="stag">PHYSICS KINEMATICS</span>
+        <span class="stag">PLAIN-ENGLISH RULES</span>
+        <span class="stag">STANDALONE EXPORT</span>
+      </div>
+
+      <div class="stage-actions">
+        <a href="https://github.com/Subadeepan-Y" target="_blank" rel="noopener" class="stage-btn primary">
+          <span>Star on GitHub</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
+        </a>
+        <button class="stage-btn secondary" onclick="openModal(4)" aria-label="View Greate engine architecture">
+          <span>View Engine Specs (3 Slides)</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </article>
+
+
+  <!-- ==================== 06: Personal Cloud ==================== -->
+  <article class="stage-card" id="stage-card-5" data-project="5" data-theme="cloud">
+    <!-- Visual Stage (Left / Center) -->
+    <div class="stage-visual">
+      <div class="stage-window">
+        <div class="stage-window-bar">
+          <div class="stage-dots"><i></i><i></i><i></i></div>
+          <div class="stage-addr">subscloud.vault // private 26gb pool</div>
+          <span class="stage-tag-badge">● PRIVATE VAULT</span>
+        </div>
+        <div class="stage-window-body">
+          <div class="cloud-vault-ui">
+            <!-- Sidebar & Storage Meter -->
+            <div class="vault-sidebar">
+              <div class="vault-brand">
+                <span class="vault-logo">雲</span>
+                <span class="vault-name">subscloud</span>
+              </div>
+              <div class="vault-nav">
+                <div class="vault-item">📁 My Files</div>
+                <div class="vault-item active">📂 All Files / masters</div>
+                <div class="vault-item">🗑 Trash</div>
+                <div class="vault-item">⚙ Settings</div>
+              </div>
+              <div class="vault-storage-meter">
+                <div class="meter-labels">
+                  <span>STORAGE</span>
+                  <b>18.2 GB free</b>
+                </div>
+                <div class="meter-bar"><div class="meter-fill" style="width:30%"></div></div>
+                <span class="mono meter-sub">7.8 GB of 26 GB used</span>
+              </div>
+            </div>
+            <!-- File Grid & Chunked Upload Status -->
+            <div class="vault-content">
+              <div class="vault-file-row">
+                <span class="f-icon">🎞</span>
+                <span class="f-name">4k-project-master.mov</span>
+                <span class="f-size">640 MB</span>
+                <span class="f-status verified">✓ SHA-256 VERIFIED</span>
+              </div>
+              <div class="vault-file-row">
+                <span class="f-icon">📦</span>
+                <span class="f-name">semester-archive.zip</span>
+                <span class="f-size">185 MB</span>
+                <span class="f-status verified">✓ SHA-256 VERIFIED</span>
+              </div>
+              <div class="vault-file-row">
+                <span class="f-icon">📷</span>
+                <span class="f-name">dusk-hike-raws.tar</span>
+                <span class="f-size">48 MB</span>
+                <span class="f-status verified">✓ SHA-256 VERIFIED</span>
+              </div>
+              <!-- 9MB Resumable Chunked Pipeline Indicator -->
+              <div class="chunk-pipeline-box">
+                <div class="pipeline-header">
+                  <span class="pipe-title">⚡ 9MB RESUMABLE CHUNKED UPLOAD PIPELINE</span>
+                  <span class="pipe-state">ACTIVE</span>
+                </div>
+                <div class="pipe-chunks">
+                  <span class="chunk done">1</span><span class="chunk done">2</span>
+                  <span class="chunk done">3</span><span class="chunk done">4</span>
+                  <span class="chunk done">5</span><span class="chunk active">6</span>
+                  <span class="chunk pending">7</span><span class="chunk pending">8</span>
+                </div>
+                <div class="pipe-meta">
+                  <span>Slice 6 of 8 (54 MB / 72 MB)</span>
+                  <span>Auto-Retry on Disconnect · Drop Cleanup</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="stage-shot-caption">
+            ○ PRIVATE SELF-HOSTED VAULT — JAPANESE INK SERENITY &amp; PACKET INTEGRITY
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info / Specs Stack (Right) -->
+    <div class="stage-info">
+      <div class="stage-header">
+        <div class="stage-meta">
+          <span class="stage-num">06 / 06</span>
+          <span class="stage-kicker">CLOUD INFRASTRUCTURE &amp; STORAGE</span>
+        </div>
+        <span class="stage-kanji">雲</span>
+      </div>
+
+      <div class="stage-title-wrap">
+        <h2 class="stage-title">Personal Cloud</h2>
+        <span class="stage-status-badge priv">● PRIVATE VAULT</span>
+      </div>
+
+      <p class="stage-sub">
+        A private, self-hosted 26GB personal cloud drive for storing heavy raw camera files, demo reels, and study archives — featuring Japanese ink aesthetics, chunked resumable uploads, and owner-only lock.
+      </p>
+
+      <div class="stage-specs">
+        <div class="spec-item">
+          <div class="spec-bullet"></div>
+          <div class="spec-content">
+            <h4>Unified 26GB Storage Pool</h4>
+            <p>Combines high-bandwidth CDN asset storage with fast relational metadata tracking into one calm, Japanese ink-styled dashboard with nested folders and instant search.</p>
+          </div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-bullet"></div>
+          <div class="spec-content">
+            <h4>9MB Resumable Chunked Uploads</h4>
+            <p>Upload multi-hundred-megabyte raw files and 4K masters reliably with 9MB chunking, automatic retry, progress tracking, and dropped connection cleanup.</p>
+          </div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-bullet"></div>
+          <div class="spec-content">
+            <h4>Checksum Verification on Every File</h4>
+            <p>Computes hash integrity automatically during upload slices so archived files are guaranteed bit-for-bit identical to the master original.</p>
+          </div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-bullet"></div>
+          <div class="spec-content">
+            <h4>Owner-Only Security &amp; Emergency Keys</h4>
+            <p>Protected by private authenticated sessions, one-time emergency backup codes, and automatic lockout defense against brute-force intrusion.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="stage-tags">
+        <span class="stag">PRIVATE CLOUD DRIVE</span>
+        <span class="stag">26GB STORAGE</span>
+        <span class="stag">9MB CHUNKED UPLOADS</span>
+        <span class="stag">SELF-HOSTED</span>
+      </div>
+
+      <div class="stage-actions">
+        <div class="stage-btn locked">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          <span>Self-Hosted · Owner Only</span>
+        </div>
+        <button class="stage-btn secondary" onclick="openModal(5)" aria-label="Inspect Personal Cloud vault specs">
+          <span>Inspect Vault Specs (2 Slides)</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </article>
+
+</div>
+
+</section>
+
+<!-- ============ 03 PROCESS ============ -->
+<section class="chapter" id="process">
+  <div class="kanji">道</div>
+  <div class="clabel reveal">THE METHOD</div>
+  <div class="step reveal"><div class="n">01</div>
+    <div><h3>IDENTIFY THE GAP</h3><p>Build what's missing. If I have to use 3 tools to do one thing, I build the one tool.</p></div></div>
+  <div class="step reveal"><div class="n">02</div>
+    <div><h3>SHIP RAW, REFINE LIVE</h3><p>Everything starts as a working prototype. Polish follows function.</p></div></div>
+  <div class="step reveal"><div class="n">03</div>
+    <div><h3>MAKE IT FEEL ALIVE</h3><p>UI should have weight. Animations should have intention. Details matter.</p></div></div>
+</section>
+
+<!-- ============ 04 CONTACT ============ -->
+<section class="chapter" id="contact">
+  <div class="kanji">影</div>
+  <div class="clabel reveal">THE EXIT</div>
+  <h2 class="reveal">LET'S BUILD<br><span class="thin">SOMETHING.</span></h2>
+  <div class="clinks reveal">
+    <a href="https://github.com/Subadeepan-Y" target="_blank" rel="noopener">GITHUB</a>
+    <a href="mailto:subadeepankgm@gmail.com">SUBADEEPANKGM@GMAIL.COM</a>
+    <a href="https://www.instagram.com/theepanxub/" target="_blank" rel="noopener">INSTAGRAM</a>
+    <a href="https://igradeify.vercel.app" target="_blank" rel="noopener">IGRADEIFY</a>
+    <a href="https://dueldeck.vercel.app" target="_blank" rel="noopener">DUEL DECK</a>
+    <a href="https://github.com/Subadeepan-Y/manim-ts" target="_blank" rel="noopener">MANIM-TS</a>
+  </div>
+  <footer class="reveal"><small>SUBADEEPAN © 2026</small><span class="fkanji">影</span></footer>
+</section>
+
+<!-- ============ MODAL ============ -->
+<div id="scrim"></div>
+<div id="modal" role="dialog" aria-modal="true">
+  <div id="mHead">
+    <div><div class="mk" id="mKick"></div><h2 id="mTitle"></h2></div>
+    <div class="mcount" id="mCount"></div>
+    <button id="mClose" aria-label="Close">✕</button>
+  </div>
+  <div id="mBody"><div id="mSlide"><div id="mArt"></div><div id="mText"></div></div></div>
+  <div id="mFoot">
+    <button class="mnav" id="mPrev">← PREV</button>
+    <button class="mnav" id="mNext">NEXT →</button>
+    <div id="mDots"></div>
+    <button id="mCta"></button>
+  </div>
+</div>
+
+<script>
+/* ================= PROJECT DATA ================= */
+const PROJECTS = [
+{
+  id:"igradeify", name:"iGradeify",
+  sub:"An all-in-one CBSE study workspace that turns your textbook PDFs and class notes into animated lessons, interactive mind maps, full 80-mark board practice papers, live group study rooms, and a personalized daily study plan.",
+  tags:["AI STUDY WORKSPACE","ANIMATED LESSONS","BOARD EXAM PREP","STUDY ROOMS"], badge:["● LIVE","live"],
+  cta:{ label:"Experience iGradeify →", href:"https://igradeify.vercel.app" },
+  slides:[
+    { feature:"PDF Study Hub & Multi-Chapter Library", tech:"Single PDFs · Multi-Chapter ZIPs · Subject Library · Private Study Workspace",
+      desc:"Drop in a single chapter PDF or an entire subject ZIP archive to start studying immediately. Your files stay organized by subject and chapter inside your personal workspace, ready to power any study tool in one click.",
+      specs:[
+        "<b>Instant Chapter Setup:</b> Upload textbook chapters, handwritten scan PDFs, or multi-chapter ZIP bundles without waiting on slow uploads.",
+        "<b>Smart Scan Check:</b> Automatically warns you if a scanned page is too blurry or faint to read clearly before you generate notes or tests.",
+        "<b>Balanced Multi-Chapter Study:</b> Combine several chapters at once and get even coverage across every topic instead of only the first few pages.",
+        "<b>Personal Subject Library:</b> Save generated notes, summaries, formula sheets, and flashcards neatly organized by subject."
+      ],
+      art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
+        <img src="shots/landing.png" alt="iGradeify landing and PDF Study Hub" loading="lazy">
+        <div class="shotcap">● ACTUAL SCREENSHOT — MORE AT THE WEBSITE!</div></div>` },
+    { feature:"The Desk — 7 Study Tools in One Place", tech:"Daily Study Plan · Spaced Revision Queue · Exam Readiness Tracker · Smart Timetable",
+      desc:"One clean dashboard connecting all seven study tools around your progress: PDF Study Hub, Animated Visual Explainer, Mind Map Studio, Board Paper Generator, Group Study Rooms, Smart Timetable, and Subject Library.",
+      specs:[
+        "<b>Personalized Daily Plan:</b> Recommends exactly what to study today based on your weak topics, recent test scores, and upcoming exam dates.",
+        "<b>Smart Revision Queue:</b> Brings back older topics right before you start forgetting them so you don't have to cram before boards.",
+        "<b>Live Readiness & Streaks:</b> Tracks your daily study streak and shows a clear readiness level for every chapter from beginner to exam-ready.",
+        "<b>Timetable & Exam Reminders:</b> Build a weekly study schedule and receive email reminders before your scheduled revision sessions."
+      ],
+      art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
+        <img src="shots/desk.png" alt="iGradeify tools dashboard" loading="lazy">
+        <div class="shotcap">● ACTUAL SCREENSHOT — MORE AT THE WEBSITE!</div></div>` },
+    { feature:"Animated Visual Explainer & Interactive Sims", tech:"Step-by-Step Math & Science Animations · Interactive Graphs · Physics Simulations · Speed Controls",
+      desc:"Turns tough math, physics, and chemistry concepts into smooth, step-by-step visual animations, clean scientific graphs, and interactive simulations you can play with right on the page.",
+      specs:[
+        "<b>Watch Concepts Come Alive:</b> Type any topic or equation and watch geometric proofs, graphs, and derivations animate step by step.",
+        "<b>Interactive Sliders & Calculators:</b> Adjust values like angle, velocity, or frequency and see graphs and physics simulations respond live.",
+        "<b>Scientific Charts & Plots:</b> Generates clear, textbook-style plots, bar charts, and shaded area graphs for math and science chapters.",
+        "<b>Full Playback Controls:</b> Pause on any step, scrub back and forth through the timeline, replay tricky parts, or change playback speed from 0.5× to 2×."
+      ],
+      art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
+        <img src="shots/explainer.png" alt="Animated explainer" loading="lazy">
+        <div class="shotcap">● ACTUAL SCREENSHOT — MORE AT THE WEBSITE!</div></div>` },
+    { feature:"Interactive Mind Map Studio", tech:"Auto-Organized Concept Maps · Practice Link Mode · Instant Feedback · PDF & Image Export",
+      desc:"Breaks down long chapters into color-coded concept maps where you can zoom, pan, rearrange ideas, and test your understanding by connecting related concepts yourself.",
+      specs:[
+        "<b>Color-Coded Concept Grouping:</b> Automatically organizes chapters into core ideas, key definitions, formulas, cause-and-effect chains, and real-world examples.",
+        "<b>Hands-On Connection Practice:</b> Drag and connect concept blocks yourself and get instant feedback explaining why a connection is right or what you missed.",
+        "<b>Flexible Canvas Editing:</b> Add new notes, rearrange branches from four sides of any card, and undo or redo changes anytime.",
+        "<b>One-Click Print & Export:</b> Download crisp high-resolution images or multi-page PDFs of your mind map for quick offline revision."
+      ],
+      art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
+        <img src="shots/mindmap.png" alt="Mind Map editor" loading="lazy">
+        <div class="shotcap">● ACTUAL SCREENSHOT — MORE AT THE WEBSITE!</div></div>` },
+    { feature:"Full 80-Mark CBSE Board Paper Generator", tech:"Sections A–E Blueprint · Past-Paper Style Questions · Custom Geometry Diagrams · Instant Grading",
+      desc:"Creates realistic CBSE board-style practice papers from your uploaded chapters — complete with accurate math and science diagrams, timed exam mode, and step-by-step answer checking.",
+      specs:[
+        "<b>Authentic CBSE Exam Format:</b> Generates full 80-mark, 38-question papers across Sections A to E — including MCQs, Assertion-Reasoning, short and long answers, and Case-Study questions with internal choices.",
+        "<b>Built-In Geometry & Science Figures:</b> Automatically draws labeled triangles, circles, ray diagrams, and graphs right inside the question paper.",
+        "<b>Custom Practice Modes:</b> Choose between a full 3-hour board paper, a quick chapter quiz, or a targeted test focused only on your weak areas.",
+        "<b>Step-by-Step Answer Marking:</b> Submit your answers to get a detailed mark breakdown, model solutions, and tips on where you lost marks."
+      ],
+      art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
+        <img src="shots/testgen.png" alt="Test Generator configuration" loading="lazy">
+        <img src="shots/paper.png" alt="Generated board-pattern paper" loading="lazy">
+        <div class="shotcap">● ACTUAL SCREENSHOTS — MORE AT THE WEBSITE!</div></div>` },
+    { feature:"Live Group Study Rooms & Infinite Whiteboard", tech:"6-Letter Room Codes · Live Voice Chat · Smart Shape Drawing · Shared Files",
+      desc:"Study with friends in real time using a 6-letter room code. Share an infinite drawing board, talk over built-in voice chat, and work through tough problems together.",
+      specs:[
+        "<b>Smooth Drawing & Highlighting:</b> Sketch equations and diagrams with pen, brush, highlighter, laser pointer, text boxes, and image stickers.",
+        "<b>Auto-Snap Neat Shapes:</b> Draw a rough circle, rectangle, triangle, line, or arrow by hand and watch it snap into a clean geometric shape.",
+        "<b>One-Tap Color Fill:</b> Fill closed shapes and diagram regions with color in a single click without messy edges.",
+        "<b>Built-In Voice Desk:</b> Talk hands-free with your study group using built-in mic controls and live speaking indicators."
+      ],
+      art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
+        <img src="shots/studyroom.png" alt="Study Room whiteboard" loading="lazy">
+        <div class="shotcap">● ACTUAL SCREENSHOT — MORE AT THE WEBSITE!</div></div>` },
+    { feature:"24/7 AI Tutor, In-Chat Quizzes & Mastery Tracker", tech:"Inline Diagrams · Interactive Chat Quizzes · Mistake Insights · Spaced Revision",
+      desc:"A personal tutor that explains concepts in plain language, sketches geometry figures directly inside the chat, quizzes you on the spot, and keeps track of what you have mastered.",
+      specs:[
+        "<b>Visual Explanations in Chat:</b> Ask a geometry or physics question and get a clear explanation paired with a custom labeled diagram right in the conversation.",
+        "<b>Interactive Mini-Quizzes:</b> Practice with clickable multiple-choice cards inside the chat with hints and instant explanations.",
+        "<b>Workspace Shortcuts:</b> Ask the tutor to turn your chat into a mind map, a saved library note, a whiteboard sketch, or a timetable slot.",
+        "<b>Smart Mistake Tracking:</b> Spots patterns in your errors — like sign mistakes, formula mix-ups, or rushing — and schedules automatic review sessions after 1, 3, 7, 14, and 30 days."
+      ],
+      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
+        <div class="chatb me">why is angle B 90°?</div>
+        <div class="chatb them">Because a tangent to a circle is always perpendicular to the radius at the point of contact:
+        <svg width="150" height="105" viewBox="0 0 200 160" style="display:block;margin:8px 0;background:#0c0c10;border-radius:6px">
+        <polygon points="40,130 40,40 150,40" fill="none" stroke="#f0ebe0" stroke-width="2"/>
+        <path d="M40,58 L58,58 L58,40" fill="none" stroke="#c0392b" stroke-width="2"/></svg>
+        <div class="quizblock"><b>Quick Check:</b> A tangent at point P meets the radius at…<span class="opt">A · 45°</span><span class="opt right">B · 90° ✓</span></div></div>
+        <div class="shotcap mock">○ PREVIEW — THE REAL TUTOR LIVES AT THE WEBSITE!</div></div>` },
+  ]
+},
+{
+  id:"manim", name:"manim-ts",
+  sub:"A browser-native math and science animation library that brings 3Blue1Brown-style visual explainers directly to the web — with interactive timelines, draggable objects, spring physics, and plain-English scene generation.",
+  tags:["MATH ANIMATION","INTERACTIVE SCENES","BROWSER NATIVE","OPEN SOURCE"], badge:["● OPEN SOURCE","live"],
+  cta:{ label:"View on GitHub →", href:"https://github.com/Subadeepan-Y/manim-ts" },
+  slides:[
+    { feature:"Math & Science Animations Right in the Browser", tech:"25+ Shapes & Graphs · 50+ Animation Effects · 3D Objects · Zero Setup Required",
+      desc:"Create crisp 3Blue1Brown-style mathematical animations that play directly inside any webpage — no heavy video rendering software or desktop installs required.",
+      specs:[
+        "<b>Rich Shape & Graph Library:</b> Includes circles, arcs, polygons, stars, coordinate axes, number planes, matrices, tables, network graphs, and 3D cubes and spheres.",
+        "<b>50+ Built-In Animation Styles:</b> Draw outlines smoothly, fade and morph shapes, trace moving points, ripple waves through groups, or zoom and pan the camera.",
+        "<b>Familiar & Easy to Write:</b> Designed so anyone familiar with classic math animation tools can pick it up immediately and run animations live on the web.",
+        "<b>Crisp 60fps Playback:</b> Renders sharp vector curves and smooth motion at 60 frames per second on any screen size."
+      ],
+      art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
+        <img src="shots/manim_hero.png" alt="manim-ts rendered hero frame" loading="lazy">
+        <div class="shotcap">● ACTUAL FRAME RENDERED BY MANIM-TS</div></div>` },
+    { feature:"Smooth Shape Morphing & Vector Cutouts", tech:"Any-to-Any Shape Morphing · Shape Cutouts & Combinations · Flowing Vector Fields",
+      desc:"Morph any shape smoothly into another — even a star into a circle or text into a graph — and combine overlapping shapes to create custom geometric figures.",
+      specs:[
+        "<b>Glitch-Free Shape Morphing:</b> Smoothly transforms one shape into a completely different shape without twisted edges or jumping corners.",
+        "<b>Combine & Cut Out Shapes:</b> Merge overlapping shapes together, keep only their intersection, or punch cutouts through figures for Venn diagrams and geometry proofs.",
+        "<b>Flowing Vector Fields:</b> Visualize magnetic fields, fluid flow, and differential equations with color-coded arrows and animated stream lines.",
+        "<b>Glowing Motion Trails:</b> Attach fading trails to moving dots and pendulums to trace out orbits, waves, and cycloids."
+      ],
+      art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
+        <img src="shots/manim_shapes.png" alt="manim-ts rendered shapes frame" loading="lazy">
+        <div class="shotcap">● ACTUAL FRAME RENDERED BY MANIM-TS</div></div>` },
+    { feature:"Scrubbable Timelines & Interactive Scenes", tech:"Instant Timeline Scrubbing · Click & Drag Shapes · Live On-Screen Sliders",
+      desc:"Unlike pre-rendered video files, animations stay completely interactive — viewers can scrub to any second on the timeline or grab shapes and sliders right on the canvas.",
+      specs:[
+        "<b>Jump to Any Moment:</b> Drag the timeline bar forward or backward to inspect any step of a proof with zero lag.",
+        "<b>Click & Drag Geometry:</b> Let viewers grab points, shapes, or vectors with their mouse or finger and move them around the scene.",
+        "<b>Live Parameter Sliders:</b> Add on-screen sliders so learners can change variables like slope, amplitude, or radius and watch the animation update live.",
+        "<b>Playback Speed Control:</b> Slow down complex derivations to 0.5× or speed through to 4×."
+      ],
+      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
+        <svg width="100%" height="150" viewBox="0 0 400 150" style="background:#0c0c10;border-radius:8px">
+        <circle class="drawcircle" cx="200" cy="75" r="52" fill="none" stroke="#e05545" stroke-width="3" stroke-dasharray="630" stroke-dashoffset="630"/></svg>
+        <div class="scrub"><i></i><b></b></div>
+        <div><span class="tbtn">▶ Play</span><span class="tbtn">⏸ Pause</span><span class="tbtn">1× ▾</span><span class="mono" style="font-size:11px;color:#8a8a94">02.41 / 06.20s</span></div></div>` },
+    { feature:"Spring Physics, Math Equations & Animated Charts", tech:"Natural Spring Motion · Crisp Math Formulas · Animated Bar & Line Charts · Video & Web Export",
+      desc:"Bring animations to life with natural spring bounce, handwritten-style math equations, animated data charts, and one-click export.",
+      specs:[
+        "<b>Natural Spring & Bounce Motion:</b> Choose gentle, snappy, or bouncy spring motion so objects settle into place with realistic weight.",
+        "<b>Hand-Drawn Math Equations:</b> Render clean mathematical symbols, fractions, sums, and integrals that animate stroke by stroke on screen.",
+        "<b>Live Animated Charts:</b> Transition smoothly between datasets on bar charts and line graphs as new numbers arrive.",
+        "<b>Flexible Export Options:</b> Save your animation as a video file, a sharp vector graphic, or a standalone interactive webpage."
+      ],
+      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
+        <div class="mono" style="font-size:12px;margin-bottom:8px"><span class="fn">Gentle Spring</span> · <span class="fn">Snappy Spring</span> · <span class="fn">Bouncy</span> · <span class="fn">Elastic</span></div>
+        <svg width="100%" height="110" viewBox="0 0 400 110" style="background:#0c0c10;border-radius:8px">
+        <path d="M10,95 C120,95 130,95 170,60 C200,35 190,70 230,70 S300,70 390,20" fill="none" stroke="#e05545" stroke-width="2.5"/>
+        <line x1="10" y1="95" x2="390" y2="95" stroke="#33333d"/></svg>
+        <div style="margin-top:10px"><span class="statbadge">✓ Ready for Web &amp; Video</span></div></div>` },
+    { feature:"Rendered Gallery — Formulas, Graphs & Calculus", tech:"Function Plotting · Shaded Area Under Curves · Moving Tangent Lines · Staggered Group Effects",
+      desc:"Real frames rendered by the library — showing mathematical summation formulas, plotted curves with travelling points, shaded integrals, and multi-shape compositions.",
+      specs:[
+        "<b>Smooth Curve Plotting:</b> Plot any mathematical function on labeled coordinate axes with shaded regions underneath the curve.",
+        "<b>Dynamic Labels & Counters:</b> Attach live-updating numbers, tangent lines, and coordinates that follow a point as it travels along a graph.",
+        "<b>Choreographed Group Animations:</b> Sequence multiple steps one after another or trigger smooth wave animations across a group of shapes."
+      ],
+      art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
+        <img src="shots/manim_text.png" alt="manim-ts rendered text and summation formula" loading="lazy">
+        <img src="shots/manim_axes.png" alt="manim-ts rendered axes parabola plot" loading="lazy">
+        <div class="shotcap">● ACTUAL FRAMES RENDERED BY MANIM-TS</div></div>` },
+    { feature:"LIVE PLAYGROUND & PLAIN-ENGLISH ANIMATOR", tech:"Interactive Live Canvas · 6 Built-In Demos · Type-to-Animate Generator · Timeline Scrubber",
+      desc:"Try the animation engine right inside this window. Pick one of the preset demos on the right, or describe any animation in plain English — like a spinning solar system or a bouncing wave — and watch it play live.",
+      specs:[
+        "<b>Describe Any Scene in Plain English:</b> Type what you want to see and watch a custom animation get created and played on the canvas in seconds.",
+        "<b>Full Interactive Controls:</b> Play, pause, restart, switch playback speeds from 0.5× to 4×, or drag the timeline slider across any animation."
+      ],
+      art:`<div class="shot" style="padding:8px"><div class="bar" style="padding:0 10px"><i></i><i></i><i></i></div>
+        <iframe src="playground/index.html" style="width:100%;height:560px;border:0;border-radius:8px;background:#0a0a0a;display:block" title="manim-ts playground"></iframe>
+        <div class="shotcap">● LIVE — TRY THE PRESETS OR TYPE ANY ANIMATION PROMPT!</div></div>` },
+  ]
+},
+{
+  id:"duel", name:"Duel Deck",
+  sub:"A fast-paced 2-to-5 player online strategy card game where every card has a Light Side and a Dark Side — flip the deck mid-match to invert everyone's hand and escalate the stakes.",
+  tags:["MULTIPLAYER CARD GAME","TWO-SIDED DECK","2–5 PLAYERS LIVE","SOLO & SQUAD MODES"], badge:["● LIVE","live"],
+  cta:{ label:"Experience Duel Deck →", href:"https://dueldeck.vercel.app" },
+  slides:[
+    { feature:"Two-Sided Cards & Mid-Match Deck Flip", tech:"112 Two-Sided Cards · Light & Dark Rulesets · Instant Table Flip · Two-Side Hand Peek",
+      desc:"Every card in the 112-card deck has two completely different faces — a classic Light Side and a high-stakes Dark Side. Whenever someone plays a Flip card, the entire table, the discard pile, and every player's hand flip over at once.",
+      specs:[
+        "<b>Light Side (Classic Tactical Play):</b> Play Red, Yellow, Green, and Blue number cards along with Draw +1, Reverse, Skip, Flip, Wild, and Wild Draw +2.",
+        "<b>Dark Side (High-Stakes Chaos):</b> Flips the table to Pink, Teal, Orange, and Purple cards featuring brutal Draw +5, Skip Everyone (giving you an immediate extra turn), and Wild Draw Until Color.",
+        "<b>Whole-Table Inversion:</b> Landing a Flip card instantly turns every player's hand inside out, changing safe hands into risky ones in a split second.",
+        "<b>Peek at Your Other Side:</b> Peek at the back side of your own cards anytime during a match so you can plan the perfect moment to trigger a flip."
+      ],
+      art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
+        <img src="shots/duel_home.png" alt="Duel Deck landing page" loading="lazy">
+        <div class="duelwrap" style="padding:10px 0 4px"><div class="dcard light"><span class="v">7</span><small>☀ LIGHT · RED</small></div>
+        <div class="fliparr">⇄</div>
+        <div class="dcard dark"><span class="v">+5</span><small>🌙 DARK · PURPLE</small></div></div>
+        <div class="shotcap">● ACTUAL SCREENSHOT — LIVE AT DUELDECK.VERCEL.APP!</div></div>` },
+    { feature:"Balanced Opening Deals & High-Stakes Wilds", tech:"Fair-Deal Hand Balancing · Guaranteed Clean Kickoff · Endless Deck Recycling",
+      desc:"Built to keep every match competitive from the first turn — preventing lopsided starting hands while keeping Dark Side power cards thrilling.",
+      specs:[
+        "<b>Balanced 7-Card Opening Hands:</b> Every player's starting hand is automatically checked so nobody gets stuck with five or more cards of the exact same color on deal.",
+        "<b>Clean Match Kickoff:</b> Every game is guaranteed to open on a standard number card so the first player isn't hit with an unfair penalty before taking a turn.",
+        "<b>Draw Until Color Showdowns:</b> On the Dark Side, playing Wild Draw Color forces the next player to keep drawing cards one by one until they finally pull the chosen color.",
+        "<b>Seamless Deck Reshuffling:</b> Long matches never stall — whenever the draw pile runs low, played cards are automatically reshuffled back into play."
+      ],
+      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
+        <div class="duelwrap" style="padding:14px 0"><div class="dcard light"><span class="v">+2</span><small>☀ WILD DRAW 2</small></div>
+        <div class="fliparr">⚡</div>
+        <div class="dcard dark"><span class="v">+5</span><small>🌙 DRAW FIVE</small></div>
+        <div class="fliparr">⚡</div>
+        <div class="dcard dark"><span class="v">⏭</span><small>🌙 SKIP ALL</small></div></div>
+        <div class="tagrow" style="justify-content:center"><span class="stag">7-Card Balanced Deal</span><span class="stag">Draw Until Color</span><span class="stag">Extra-Turn Skip All</span></div>
+        <div class="shotcap mock">○ CARD POWERS — LIGHT &amp; DARK ACTION ROSTER</div></div>` },
+    { feature:"Live Squadron Lobbies & Private Room Codes", tech:"2–5 Player Rooms · Public & Private Tables · 6-Character Invite Codes · 10-Min Auto-Cleanup",
+      desc:"Jump into public tables in seconds or host a private room for your squad using a 6-character invite code, with live seat updates and automatic cleanup for inactive rooms.",
+      specs:[
+        "<b>Public & Private Squadrons:</b> Host open tables that anyone can join from the Live Squadrons list, or lock your room behind a private 6-character code.",
+        "<b>Easy-to-Share Invite Codes:</b> Room codes avoid confusing look-alike characters (like 0/O and 1/I) so friends can type and join effortlessly.",
+        "<b>Instant Guest or Account Play:</b> Sign in with your account or jump straight into a match in one click as a guest with a custom callsign.",
+        "<b>10-Minute Idle Room Timer:</b> Unstarted rooms display a live 10-minute countdown with a 2-minute audio warning so abandoned lobbies never clutter the server."
+      ],
+      art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
+        <img src="shots/duel_lobby.png" alt="Duel Deck live squadrons lobby" loading="lazy">
+        <img src="shots/duel_room.png" alt="Duel Deck active squadron room with 10-minute auto-delete timer" loading="lazy">
+        <div class="shotcap">● ACTUAL SCREENSHOTS — LIVE SQUADRON LOBBY &amp; ROOM COUNTDOWN!</div></div>` },
+    { feature:"15-Second Turn Clock, UNO Calls & Player Reports", tech:"15s Turn Timer · Audio Countdown Ticks · UNO Alert Button · +2 Catch-a-Player Penalty",
+      desc:"Every turn moves fast. A 15-second turn clock prevents stalling, and forgetting to shout UNO opens a live window where anyone at the table can report you for a 2-card penalty.",
+      specs:[
+        "<b>15-Second Turn Timer:</b> Keeps matches brisk with a visual countdown ring and ticking audio cues during the final 5 seconds before auto-drawing.",
+        "<b>High-Tension UNO Calls:</b> When you drop to 1 or 2 cards, the glowing UNO button activates alongside a tense musical cue.",
+        "<b>Catch & Report Opponents:</b> If an opponent reaches their last card without calling UNO, a Report banner pops up for the rest of the table — click it first to hand them 2 penalty cards.",
+        "<b>Live Table Chat:</b> Send quick messages and reactions to the table during the match without leaving the board."
+      ],
+      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+        <span class="statbadge">YOUR TURN</span><span class="tbtn">☀ LIGHT SIDE</span><span class="tbtn">PEEK DARK</span>
+        <span class="mono" style="font-size:11px;color:#e0b45c">⏱ 0:12</span></div>
+        <div style="text-align:center;padding:8px 0"><span class="glowbtn" style="font-size:15px;font-weight:700">CALL UNO!</span></div>
+        <div class="chatb them" style="font-size:11.5px">⚠ NOVA FORGOT TO CALL UNO! — <b>CLICK TO REPORT (+2 CARDS)</b></div>
+        <div class="shotcap mock">○ MATCH HUD PREVIEW — PLAY LIVE AT DUELDECK.VERCEL.APP!</div></div>` },
+    { feature:"Smart AI Bots, Cheat-Proof Play & Synth Audio", tech:"5 AI Opponents · Cheat-Proof Private Hands · Custom Sound Effects · 3 Ambient Soundtracks",
+      desc:"Play solo against five distinct AI personalities or with a full human squad — backed by fair-play protection so opponents can never peek at your cards, plus custom arcade sound effects and music.",
+      specs:[
+        "<b>5 Smart AI Challengers:</b> Fill empty seats with bots (Nova, Blitz, Echo, Apex, and Vortex) that strategize around their strongest colors, save action cards, and occasionally forget UNO so you can catch them.",
+        "<b>Cheat-Proof Multiplayer:</b> Each player's cards remain completely private until played — other players only see how many cards you are holding.",
+        "<b>15 Custom Arcade Sound Effects:</b> Every card slap, deck flip, skip, reverse, penalty draw, and victory fanfare triggers crisp custom audio.",
+        "<b>3 Switchable Music Themes:</b> Choose between three atmospheric background tracks (Midnight Signal, Velvet Static, and Neon Drift) with instant mute controls."
+      ],
+      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div><div class="flow">
+        <div class="fnode"><b>Nova · Blitz · Echo</b><small>Smart AI Challengers</small></div><div class="farr">·</div>
+        <div class="fnode"><b>Private Hands</b><small>Fair-Play Protected</small></div><div class="farr">·</div>
+        <div class="fnode"><b>15 Custom SFX</b><small>Flip · Skip · UNO · Win</small></div><div class="farr">·</div>
+        <div class="fnode"><b>3 Music Tracks</b><small>Switchable Themes</small></div>
+      </div><div class="tagrow" style="justify-content:center;margin-top:12px"><span class="stag">Midnight Signal</span><span class="stag">Velvet Static</span><span class="stag">Neon Drift</span></div>
+        <div class="shotcap mock">○ SOLO AI, FAIR PLAY &amp; SOUND DESIGN — LIVE AT DUELDECK.VERCEL.APP!</div></div>` },
+  ]
+},
+{
+  id:"buddy", name:"Desktop Buddy",
+  sub:"A lightweight, privacy-first animated companion that lives on the corner of your screen — reacting to your apps, music, and late-night coding sessions in 5 Indian languages.",
+  tags:["DESKTOP COMPANION","5 LANGUAGES","FOCUS TIMER","MINI-GAME"], badge:["◐ IN DEV","dev"],
+  cta:{ label:"Star on GitHub →", href:"https://github.com/Subadeepan-Y" },
+  slides:[
+    { feature:"Meet Bones — Your Corner Screen Companion", tech:"100% Offline & Private · Ultra-Light Memory · 30-Day Activity Streaks · Windows Installer",
+      desc:"Bones sits quietly on the corner of your desktop, keeping you company while you code, study, or browse — running completely offline on your PC so none of your screen activity ever leaves your device.",
+      specs:[
+        "<b>100% Local & Private:</b> Senses your active app title, battery level, and idle time locally on your computer with zero cloud tracking.",
+        "<b>Featherlight on Battery & RAM:</b> Uses less than 100MB of memory so it never slows down your games, browser, or coding tools.",
+        "<b>30-Day Streak Tracker:</b> Remembers your daily streaks and companion history even across app updates and restarts."
+      ],
+      art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
+        <img src="shots/buddy_logo.png" alt="Desktop Buddy avatar with sunglasses, lollipop and heart" loading="lazy" style="max-height:400px;width:auto;max-width:100%;margin:0 auto">
+        <div class="shotcap">● ACTUAL ASSET — BONES DESKTOP COMPANION</div></div>` },
+    { feature:"Corner Overlay, Cinema Mode & Focus Guard", tech:"Click-Through Overlay · Multi-Monitor Support · Auto-Hide in Fullscreen · Doomscroll Limiter",
+      desc:"Stays visible above your windows without ever stealing your keyboard focus or blocking your clicks — and automatically steps out of the way whenever you watch a movie or launch a game.",
+      specs:[
+        "<b>Never Blocks Your Work:</b> Sits gently in the corner across single or multi-monitor setups without interrupting typing or mouse clicks.",
+        "<b>Automatic Cinema Mode:</b> Detects fullscreen YouTube, Netflix, VLC, or gaming sessions and hides itself automatically until you finish.",
+        "<b>Focus & Doomscroll Limiter:</b> Set a 1-to-60 minute timer that nudges you back to work when you spend too long scrolling social media."
+      ],
+      art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
+        <img src="shots/buddy_desktop.png" alt="Desktop Buddy live on desktop corner" loading="lazy">
+        <div class="shotcap">● ACTUAL SCREENSHOT — LIVE DESKTOP OVERLAY</div></div>` },
+    { feature:"5-Language Banter Across 100+ Apps", tech:"Tanglish · Kannada · Telugu · Malayalam · Hindi · 3 Speech Bubble Styles · Top-Bar Reminders",
+      desc:"Recognizes over 100 popular apps — from VS Code, terminals, and Zoom meetings to Spotify and Valorant — cheering your wins and roasting your late-night bug streaks in five regional languages.",
+      specs:[
+        "<b>100+ App Reactions:</b> Notices when you switch between coding editors, browser tabs, video calls, music players, and games.",
+        "<b>5 Regional Languages:</b> Banters naturally in Tanglish, Kannada, Telugu, Malayalam, and Hindi.",
+        "<b>3 Speech Bubble Styles & Reminders:</b> Choose between a side chat box, a floating pill above Bones, or a bottom caption bar — plus sleek top-of-screen task reminders."
+      ],
+      art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
+        <img src="shots/buddy_chat.png" alt="Desktop Buddy Tanglish dialogue popup" loading="lazy">
+        <div class="shotcap">● ACTUAL SCREENSHOT — LIVE TANGLISH BANTER</div></div>` },
+    { feature:"Expressive Poses, Mini-Game & Control Hub", tech:"6 Animated Moods · Drag & Poke Reactions · Built-In Catch Mini-Game · Custom Size & Frequency",
+      desc:"Toss Bones across the screen, poke him until he gets grumpy, watch him doze off when you step away, or open the Control Hub to customize his size, mood, and chatter.",
+      specs:[
+        "<b>Interactive Poses & Moods:</b> Switches between victory, facepalm, shock, cool sunglasses, heart-eyes, and a sleepy nap mode after 90 seconds of inactivity.",
+        "<b>Playable Desktop Mini-Game:</b> Launch a quick built-in Catch & Catch game or preview all animations anytime you need a 2-minute break.",
+        "<b>Full Control Hub:</b> Scale Bones anywhere from 1% to 100% size, adjust how often he talks, switch languages, and install one-click updates."
+      ],
+      art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
+        <img src="shots/buddy_pose.png" alt="Desktop Buddy floating reactive pose" loading="lazy" style="max-height:400px;width:auto;max-width:100%;margin:0 auto">
+        <div class="shotcap">● ACTUAL SCREENSHOT — REACTIVE POSE RIG</div></div>` },
+  ]
+},
+{
+  id:"greate", name:"Greate — Game Engine",
+  sub:"A beginner-friendly 2D desktop game maker where you drag characters onto a level, describe how they should behave in plain English, and hit Play to test with live physics.",
+  tags:["2D GAME MAKER","PLAIN-ENGLISH BEHAVIORS","LIVE PHYSICS","STARTER KITS"], badge:["◐ IN EARLY STAGE OF DEVELOPMENT","dev"],
+  cta:{ label:"Star on GitHub →", href:"https://github.com/Subadeepan-Y" },
+  slides:[
+    { feature:"Visual 2D Level Editor & Instant Play Mode", tech:"Scene Tree · Drag-and-Drop Canvas · Property Inspector · Snap Grid · Live Physics Preview",
+      desc:"A clean 5-panel desktop workspace where you can arrange platforms, characters, and crates on a visual grid, tweak their speed, health, and gravity, and hit Play to jump right into your level.",
+      specs:[
+        "<b>Drag-and-Drop Level Building:</b> Place solid platforms, playable heroes, AI enemies, and pushable crates with smooth camera zoom and 10px grid snapping.",
+        "<b>Built-In Platformer Physics:</b> Test gravity, running, jumping, stomp attacks, health bars, and knockback right inside the editor viewport.",
+        "<b>Live Property Inspector:</b> Adjust position, size, rotation, color, mass, friction, and health points, then save your project in one shortcut."
+      ],
+      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
+        <p class="planpara">A clean <b>Scene List</b> on the left, a live <b>2D Level Canvas</b> in the center, and an <b>Inspector</b> on the right for tweaking position, size, gravity, friction, and <b>Health</b>. At the bottom sits an <b>Asset Tray</b> and console log, while the top bar lets you <b>Save</b> or hit <b>Live Play</b> to immediately run and jump through the level you just built.</p>
+        <div class="shotcap mock">○ PLANNED FEATURES — NO SCREENSHOTS YET!</div></div>` },
+    { feature:"Plain-English Game Rules & Smart Enemy AI", tech:"Describe Rules in English · Collision & Timer Triggers · Visual Effects · Ledge-Aware Enemies",
+      desc:"Instead of writing complex game code from scratch, simply type what should happen — like 'when the player touches a coin, flash and add points' or 'patrol the ledge and chase the player when close'.",
+      specs:[
+        "<b>Type Rules in Plain English:</b> Describe triggers like collisions, low health, timers, or nearby players and turn them into working game rules automatically.",
+        "<b>Built-In Visual Polish:</b> Trigger screen shake, hit flashes, smoke puffs, falling animations, and health changes without touching an animation timeline.",
+        "<b>Ledge-Smart Patrol & Chase AI:</b> Enemies can patrol platforms and chase the hero when nearby while automatically stopping at cliff edges so they don't walk off."
+      ],
+      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
+        <p class="planpara">Describe behaviors in everyday language: <b>when a projectile hits · on collision · when health reaches zero · every 3 seconds · when the player gets close</b>. Choose instant reactions like <b>reduce health · shake or flash · spawn smoke · follow the player</b>, or let the assistant generate custom patrol and chase brains that sense platform edges automatically.</p>
+        <div class="shotcap mock">○ PLANNED FEATURES — NO SCREENSHOTS YET!</div></div>` },
+    { feature:"Ready-Made Sprite Packs, Starter Kits & Game Export", tech:"Built-In Platformer Sprites · 2 One-Click Starter Games · Standalone Game Export",
+      desc:"Comes loaded with a colorful platformer art pack, two complete starter games you can remix in one click, and a one-button exporter to package your finished game.",
+      specs:[
+        "<b>Included Sprite Art Pack:</b> Drag ready-to-use bunny heroes, spike hazards, patrolling enemies, spinning coins, and layered skies straight onto your scene.",
+        "<b>2 One-Click Starter Templates:</b> Spawn a complete side-scrolling <b>Platformer</b> (ground, ledges, coins, chasing enemy) or a <b>Top-Down Arena</b> (walls, interactive props, patrolling guard) to start remixing immediately.",
+        "<b>One-Click Standalone Export:</b> Package your finished scenes, sprites, and behaviors into a standalone playable game project."
+      ],
+      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
+        <p class="planpara">Open the <b>Assets</b> drawer to drag in ready-made heroes, spikes, enemies, coins, and backgrounds. Load either of the two <b>one-click starter games</b> — a side-scrolling platformer or a top-down adventure arena — customize the level, and export a standalone game bundle to share and play.</p>
+        <div class="shotcap mock">○ PLANNED FEATURES — NO SCREENSHOTS YET!</div></div>` },
+  ]
+},
+{
+  id:"cloud", name:"Personal Cloud",
+  sub:"A private, self-hosted 26GB cloud drive for storing large photos, videos, and study archives — with nested folders, instant search, trash recovery, and locked-down personal access.",
+  tags:["PRIVATE CLOUD DRIVE","26GB STORAGE","LARGE FILE UPLOADS","SELF-HOSTED"], badge:["● PRIVATE","priv"],
+  cta:null, note:"Self-hosted. Not public.",
+  slides:[
+    { feature:"Clean Vault Dashboard & 26GB Storage Pool", tech:"26GB Unified Drive · Nested Folder Tree · Grid & List Views · Trash Recovery",
+      desc:"A calm, Japanese-ink inspired personal cloud drive that combines 26GB of cloud storage into one seamless dashboard for organizing raw photos, demo videos, and documents.",
+      specs:[
+        "<b>Full Folder Organization:</b> Create nested folders, move or rename files with breadcrumb navigation, switch between grid and list views, and restore accidentally deleted items from the Trash.",
+        "<b>Instant Search & Media Filters:</b> Filter your drive by photos, videos, audio, documents, or archives with a live visual breakdown of used and free space.",
+        "<b>Fast Browsing & Previews:</b> Browse large folders and inspect file details instantaneously without waiting for pages to reload."
+      ],
+      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
+        <div style="display:flex;gap:12px"><div style="flex:.8;font-size:11.5px;color:#b9b4ac">
+        <div style="color:#fff;font-weight:700;margin-bottom:8px">subscloud</div>
+        <div style="padding:4px 0">My Files</div><div style="padding:4px 0;color:#fff;background:rgba(192,57,43,.15);border-radius:5px">All Files</div>
+        <div style="padding:4px 0">Trash</div><div style="padding:4px 0">Storage</div>
+        <div class="mono" style="font-size:10px;color:#e0b45c;margin-top:8px">18.2 GB free of 26 GB</div></div>
+        <div style="flex:1.6"><div class="mono" style="font-size:10.5px;color:#8a8a94;margin-bottom:8px">All Files / photos</div>
+        <div class="kv"><span>📷 dusk-hike.raw</span><b>48 MB</b></div><div class="kv"><span>📄 thesis-notes.pdf</span><b>2 MB</b></div>
+        <div class="kv"><span>🎞 demo-reel.mp4</span><b>310 MB</b></div>
+        <div class="tagrow"><span class="stag">Files stored</span><span class="stag">Storage used</span><span class="stag">Remaining</span><span class="stag">Downloads</span></div></div></div></div>` },
+    { feature:"Heavy-File Uploads & Locked-Down Private Access", tech:"Multi-Hundred-MB File Support · Integrity Verification · Emergency Backup Codes · Brute-Force Protection",
+      desc:"Built to handle huge raw camera files and multi-hundred-megabyte videos reliably without upload timeouts, while keeping the entire drive locked to a single owner.",
+      specs:[
+        "<b>Reliable Large-File Uploads:</b> Smoothly uploads heavy video reels and raw archives with live progress tracking and automatic cleanup if your connection drops.",
+        "<b>Verified File Integrity:</b> Checks every uploaded file automatically so downloads are always bit-for-bit identical to the original.",
+        "<b>Owner-Only Security & Backup Codes:</b> Protected by private session sign-in, one-time emergency backup codes, and automatic lockouts against repeated password guessing."
+      ],
+      art:`<div class="shot"><div class="bar"><i></i><i></i><i></i></div>
+        <div class="kv"><span>🎞 4k-project-master.mov</span><b>640 MB · ✓ Verified</b></div>
+        <div class="kv"><span>📦 semester-archive.zip</span><b>185 MB · ✓ Verified</b></div>
+        <div class="kv"><span>🔒 Vault Access</span><b>Owner Only · Protected</b></div>
+        <div class="tagrow" style="justify-content:center;margin-top:10px"><span class="stag">Large Video &amp; RAW Support</span><span class="stag">Auto-Cleanup on Drop</span><span class="stag">Emergency Backup Codes</span></div>
+        <div class="shotcap mock">○ PRIVATE SELF-HOSTED VAULT</div></div>` },
+  ]
+},
+
+];
+
+/* ================= RENDER LIST ================= */
+const list = document.getElementById('projList');
+if (list) {
+  PROJECTS.forEach((p, i) => {
+  const b = document.createElement('button');
+  b.className = 'proj reveal';
+  b.innerHTML = `<h3>${p.name}</h3><p>${p.sub}</p>
+    <div class="tags">${p.tags.map(t => `<span class="pill">${t}</span>`).join('')}
+    <span class="badge ${p.badge[1]}">${p.badge[0]}</span><span class="open-hint">OPEN →</span></div>`;
+  b.onclick = () => openModal(i);
+  list.appendChild(b);
+  });
+}
+
+/* ================= MODAL ================= */
+const scrim = document.getElementById('scrim'), modal = document.getElementById('modal');
+const mKick = document.getElementById('mKick'), mTitle = document.getElementById('mTitle'),
+      mCount = document.getElementById('mCount'), mArt = document.getElementById('mArt'),
+      mText = document.getElementById('mText'), mDots = document.getElementById('mDots'),
+      mCta = document.getElementById('mCta'),
+      mPrev = document.getElementById('mPrev'), mNext = document.getElementById('mNext');
+let cur = 0, slide = 0;
+
+function openModal(i) {
+  cur = i; slide = 0;
+  const p = PROJECTS[cur];
+  mKick.textContent = 'THE WORK — ' + p.name.toUpperCase();
+  mTitle.textContent = p.name;
+  scrim.classList.add('open'); modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  paint();
+}
+function closeModal() {
+  scrim.classList.remove('open'); modal.classList.remove('open');
+  document.body.style.overflow = '';
+}
+function paint() {
+  const p = PROJECTS[cur], s = p.slides[slide], last = slide === p.slides.length - 1;
+  mArt.innerHTML = s.art;
+  const specsHtml = Array.isArray(s.specs) && s.specs.length
+    ? `<ul class="specs">${s.specs.map((item) => `<li>${item}</li>`).join('')}</ul>`
+    : '';
+  mText.innerHTML = `<div class="feat">${s.feature}</div><div class="desc">${s.desc}</div>${specsHtml}<span class="tech">${s.tech}</span>`;
+  mCount.textContent = String(slide + 1).padStart(2, '0') + ' / ' + String(p.slides.length).padStart(2, '0');
+  mDots.innerHTML = p.slides.map((_, j) => `<i class="${j === slide ? 'on' : ''}"></i>`).join('');
+  mPrev.disabled = slide === 0;
+  mNext.disabled = last;
+  mCta.className = '';
+  if (last) {
+    if (p.cta) {
+      mCta.textContent = p.cta.label;
+      mCta.classList.add('show');
+      mCta.onclick = () => window.open(p.cta.href, '_blank', 'noopener');
+    } else {
+      mCta.textContent = '🔒 ' + (p.note || 'Private project');
+      mCta.classList.add('show', 'ghost');
+      mCta.onclick = null;
+    }
+  }
+  document.getElementById('mSlide').scrollTop = 0;
+}
+mPrev.onclick = () => { if (slide > 0) { slide--; paint(); } };
+mNext.onclick = () => { const p = PROJECTS[cur]; if (slide < p.slides.length - 1) { slide++; paint(); } };
+document.getElementById('mClose').onclick = closeModal;
+scrim.onclick = closeModal;
+document.addEventListener('keydown', (e) => {
+  if (!modal.classList.contains('open')) return;
+  if (e.key === 'Escape') closeModal();
+  if (e.key === 'ArrowRight') mNext.onclick();
+  if (e.key === 'ArrowLeft') mPrev.onclick();
+});
+
+/* ================= LEAVES ================= */
+(function () {
+  const box = document.getElementById('leaves');
+  const reds = ['#c0392b', '#991b1b', '#e05545', '#8f2b1f', '#D9A2B0'];
+  for (let i = 0; i < 18; i++) {
+    const d = document.createElement('div');
+    d.className = 'leaf';
+    const size = 9 + Math.random() * 13;
+    d.innerHTML = `<div><svg width="${size.toFixed(0)}" height="${size.toFixed(0)}" viewBox="0 0 24 24">
+      <path d="M12 1 L14 8 L21 7 L16 12 L21 17 L14 16 L12 23 L10 16 L3 17 L8 12 L3 7 L10 8 Z"
+      fill="${reds[i % reds.length]}" opacity="${(0.35 + Math.random() * 0.45).toFixed(2)}"/></svg></div>`;
+    d.style.left = (Math.random() * 100) + 'vw';
+    const fall = 8 + Math.random() * 10;
+    d.style.animationDuration = fall.toFixed(1) + 's';
+    d.style.animationDelay = (-Math.random() * fall).toFixed(1) + 's';
+    d.firstChild.style.animationDuration = (2 + Math.random() * 3).toFixed(1) + 's';
+    box.appendChild(d);
+  }
+})();
+
+/* ================= CHAPTER TRACKING ================= */
+(function () {
+  const links = document.querySelectorAll('#chapters a, #topnav a');
+  const secs = ['hero', 'about', 'work', 'process', 'contact'];
+  const byId = {};
+  secs.forEach((s) => { byId[s] = document.getElementById(s); });
+  function paint() {
+    const y = window.innerHeight * 0.45;
+    let c = 'hero';
+    secs.forEach((s) => { if (byId[s].getBoundingClientRect().top <= y) c = s; });
+    links.forEach((a) => a.classList.toggle('on', a.dataset.ch === c));
+  }
+  window.addEventListener('scroll', paint, { passive: true });
+  paint();
+})();
+
+/* ================= REVEAL ================= */
+(function () {
+  const reveals = document.querySelectorAll('.reveal');
+  let lastScrollY = window.scrollY;
+  let lastRevealTime = 0;
+  let ticking = false;
+
+  function update() {
+    const currentY = window.scrollY;
+    const isScrollingUp = currentY < lastScrollY;
+    const vh = window.innerHeight;
+    const now = performance.now();
+
+    if (isScrollingUp) {
+      lastRevealTime = 0;
+    }
+
+    reveals.forEach((el) => {
+      const rect = el.getBoundingClientRect();
+
+      if (isScrollingUp) {
+        // Disappear when scrolling up past element
+        if (rect.top >= vh * 0.88) {
+          if (el.classList.contains('in')) {
+            el.style.transitionDelay = '0s';
+            el.classList.remove('in');
+          }
+        } else if (rect.bottom >= 0) {
+          if (!el.classList.contains('in')) {
+            el.style.transitionDelay = '0s';
+            el.classList.add('in');
+          }
+        }
+      } else {
+        // Reveal one by one when scrolling down
+        if (rect.top <= vh * 0.86 && rect.bottom >= 0) {
+          if (!el.classList.contains('in')) {
+            if (lastRevealTime < now) lastRevealTime = now;
+            const delay = Math.min(Math.round(lastRevealTime - now), 800);
+            el.style.transitionDelay = delay + 'ms';
+            el.classList.add('in');
+            lastRevealTime += 130;
+          }
+        } else if (rect.top > vh) {
+          if (el.classList.contains('in')) {
+            el.style.transitionDelay = '0s';
+            el.classList.remove('in');
+          }
+        }
+      }
+    });
+
+    lastScrollY = currentY;
+    ticking = false;
+  }
+
+  function onScroll() {
+    if (!ticking) {
+      requestAnimationFrame(update);
+      ticking = true;
+    }
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
+  update();
+})();
+
+/* ================= MOON DRIFT ================= */
+(function () {
+  const moon = document.getElementById('moon');
+  window.addEventListener('scroll', () => {
+    moon.style.transform = 'translateY(' + Math.min(window.scrollY * 0.12, 220).toFixed(0) + 'px)';
+  }, { passive: true });
+})();
+
+/* ================= BACKGROUND AUDIO ================= */
+(function () {
+  const bgm = document.getElementById('bgm');
+  const btn = document.getElementById('soundBtn');
+  if (!bgm || !btn) return;
+
+  const MILD_VOL = 0.33;
+  bgm.volume = MILD_VOL;
+  bgm.muted = false;
+
+  // Clear any stale muted flag so fresh visits always play by default
+  try { localStorage.removeItem('suba_bgm_muted'); } catch (e) {}
+
+  let userMuted = false;
+
+  function syncUI() {
+    btn.classList.toggle('muted', userMuted);
+    const label = userMuted ? 'Play background music' : 'Mute background music';
+    btn.setAttribute('aria-label', label);
+    btn.title = label;
+  }
+
+  function startPlayback() {
+    if (userMuted) return;
+    bgm.muted = false;
+    bgm.volume = MILD_VOL;
+    const playPromise = bgm.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {});
+    }
+  }
+
+  // Attempt immediate playback on entry
+  startPlayback();
+
+  // Also bind to any early user gesture so playback begins the moment the user touches, scrolls, or clicks
+  const unlockEvents = ['pointerdown', 'touchstart', 'click', 'scroll', 'wheel', 'keydown'];
+  function onFirstGesture() {
+    startPlayback();
+    unlockEvents.forEach((evt) => {
+      window.removeEventListener(evt, onFirstGesture, { capture: true });
+      document.removeEventListener(evt, onFirstGesture, { capture: true });
+    });
+  }
+  unlockEvents.forEach((evt) => {
+    window.addEventListener(evt, onFirstGesture, { capture: true, passive: true });
+    document.addEventListener(evt, onFirstGesture, { capture: true, passive: true });
+  });
+
+  // Top-right mute/unmute button
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!userMuted) {
+      userMuted = true;
+      bgm.muted = true;
+      bgm.pause();
+    } else {
+      userMuted = false;
+      bgm.muted = false;
+      bgm.volume = MILD_VOL;
+      bgm.play().catch(() => {});
+    }
+    syncUI();
+  });
+
+  syncUI();
+})();
+</script>
+<script src="kage-scroll-engine.js"></script>
+</body>
+</html>

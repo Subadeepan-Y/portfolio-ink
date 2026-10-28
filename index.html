@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<link rel="preload" href="secret-pathways-assets/fonts/IntegralCF-Regular.ttf" as="font" type="font/ttf" crossorigin>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>SUBADEEPAN — Chapter 00: The Hidden Gate (影の道)</title>
 <meta name="theme-color" content="#040507">
@@ -30,7 +31,7 @@
   src: url('secret-pathways-assets/fonts/IntegralCF-Regular.ttf') format('truetype');
   font-weight: 400 900;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
 }
 
 :root {
@@ -190,7 +191,7 @@ html, body {
   top: 0;
   width: 0;
   height: 0;
-  z-index: 52;
+  z-index: 20;
   pointer-events: none;
   transition: transform 0.2s ease-out;
 }
@@ -255,20 +256,20 @@ html, body {
 
 /* Specific Stage Placement Rules */
 /* Stage 0 (Hero) */
-[data-fg="sec0"] .fg-grass  { left: 3%;   bottom: -130px; width: clamp(420px, 60vw, 1050px); }
+[data-fg="sec0"] .fg-grass  { left: 3%;   bottom: -220px; width: clamp(420px, 60vw, 1050px); }
 [data-fg="sec0"] .fg-sakura { left: -6%;  bottom: -80px;  width: clamp(430px, 50vw, 880px); }
 [data-fg="sec0"] .fg-leaves { right: -6%; bottom: -60px;  width: clamp(330px, 38vw, 670px); }
 
 /* Stage 1 (Maker) */
 [data-fg="sec1"] .fg-wall   { left: 0;    bottom: -30px;  width: clamp(430px, 47vw, 780px); }
 [data-fg="sec1"] .fg-pine   { right: -4%; bottom: -46px;  width: clamp(190px, 21vw, 370px); }
-[data-fg="sec1"] .fg-grass  { left: 3%;   bottom: -140px; width: clamp(420px, 60vw, 1050px); }
+[data-fg="sec1"] .fg-grass  { left: 3%;   bottom: -230px; width: clamp(420px, 60vw, 1050px); }
 
 /* Stage 2 (iGradeify) */
 [data-fg="sec2"] .fg-stones { left: -4%;  bottom: -48px;  width: clamp(250px, 30vw, 530px); }
 [data-fg="sec2"] .fg-lantern{ left: 10%;  bottom: -60px;  width: clamp(120px, 13vw, 215px); }
 [data-fg="sec2"] .fg-lantern > img { filter: saturate(1.1) brightness(1.05) drop-shadow(0 0 24px rgba(255, 142, 60, 0.5)); }
-[data-fg="sec2"] .fg-grass  { right: -4%; bottom: -120px; width: clamp(360px, 50vw, 850px); }
+[data-fg="sec2"] .fg-grass  { right: -4%; bottom: -210px; width: clamp(360px, 50vw, 850px); }
 
 /* Stage 3 (Manim-TS) */
 [data-fg="sec3"] .fg-pine   { left: -4%;  bottom: -40px;  width: clamp(190px, 21vw, 370px); }
@@ -328,7 +329,7 @@ html, body {
   left: 0;
   width: 100vw;
   height: 88px;
-  z-index: 50;
+  z-index: 90;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1969,8 +1970,9 @@ body.blood-moon-active #filmGrain {
   #mHead .mk { font-size:11px; letter-spacing:.2em; color:var(--red); }
   #mHead h2 { font-family:var(--display); font-size:34px; letter-spacing:.03em; }
   #mHead .mcount { margin-left:auto; font-size:12px; letter-spacing:.2em; color:var(--dim); }
-  #mClose { background:none; border:1px solid #333; color:var(--ink); width:38px; height:38px; border-radius:50%;
-    font-size:16px; cursor:pointer; transition:.2s; }
+  #mClose { background:rgba(255, 255, 255, 0.12) !important; border:1px solid rgba(251, 250, 246, 0.45) !important; color:#ffffff !important; width:42px !important; height:42px !important; border-radius:50% !important;
+    font-size:18px !important; font-weight:700 !important; cursor:pointer !important; display:flex !important; align-items:center !important; justify-content:center !important; transition:.2s !important; }
+  #mClose:hover { border-color:var(--red) !important; color:#ffffff !important; background:rgba(224, 35, 28, 0.35) !important; box-shadow:0 0 18px var(--red-glow) !important; }
   #mClose:hover { border-color:var(--red); color:var(--red); }
   #mBody { flex:1; overflow:hidden; position:relative; }
   #mSlide { height:100%; overflow-y:auto; padding:34px 4vw 30px; display:flex; gap:5vw; align-items:flex-start; }
@@ -1987,8 +1989,10 @@ body.blood-moon-active #filmGrain {
   #mText .tech { margin-top:18px; display:inline-block; font-size:10.5px; letter-spacing:.14em; color:#e05545;
     border:1px solid rgba(192,57,43,.5); border-radius:20px; padding:5px 14px; }
   #mFoot { display:flex; align-items:center; gap:16px; padding:18px 4vw 24px; border-top:1px solid #1b1b1b; }
-  .mnav { background:#161616; border:1px solid #2a2a2a; color:var(--ink); border-radius:8px; padding:10px 20px;
-    font-size:13px; letter-spacing:.1em; cursor:pointer; transition:.2s; font-family:inherit; }
+  .mnav { background:#181818 !important; border:1px solid rgba(251, 250, 246, 0.45) !important; color:#ffffff !important; border-radius:8px !important; padding:11px 22px !important;
+    font-size:13px !important; font-weight:700 !important; letter-spacing:.12em !important; cursor:pointer !important; transition:.2s !important; font-family:inherit !important; }
+  .mnav:hover:not(:disabled) { border-color:var(--red) !important; color:#ffffff !important; background:rgba(224, 35, 28, 0.25) !important; box-shadow:0 0 16px var(--red-glow) !important; }
+  .mnav:disabled { opacity:.25 !important; cursor:default !important; border-color:rgba(255,255,255,0.15) !important; color:rgba(255,255,255,0.3) !important; }
   .mnav:hover:not(:disabled) { border-color:var(--red); }
   .mnav:disabled { opacity:.3; cursor:default; }
   #mDots { display:flex; gap:8px; }
@@ -7203,13 +7207,45 @@ body.loaded .hero-heading {
       if (!audioCtx) initAudioEngine();
       if (audioCtx && audioCtx.state === 'suspended' && !isMuted) {
         audioCtx.resume().catch(() => {});
+        if (ambientGain) {
+          const now = audioCtx.currentTime;
+          ambientGain.gain.cancelScheduledValues(now);
+          ambientGain.gain.setValueAtTime(0.0001, now);
+          ambientGain.gain.linearRampToValueAtTime(TARGET_AMBIENT_VOL, now + 0.4);
+        }
         startVisualizerLoop();
+      }
+      if (bgm && !isMuted) {
+        bgm.muted = false;
+        if (bgm.paused) {
+          bgm.play().then(() => {
+            rampBgmVolume(TARGET_VOL, 500);
+          }).catch(() => {});
+        }
       }
     } catch (e) {}
   }
 
-  ['pointerdown', 'wheel', 'keydown', 'touchstart'].forEach(evt => {
-    window.addEventListener(evt, unlockAudio, { once: true, passive: true });
+  // Attempt immediate playback on page load
+  try {
+    initAudioEngine();
+    if (bgm) {
+      bgm.muted = false;
+      bgm.volume = TARGET_VOL;
+      bgm.play().catch(() => {
+        // Autoplay blocked by browser policy until first gesture
+      });
+    }
+  } catch (_) {}
+
+  // Unlock on ANY first user gesture
+  const unlockEvents = ['pointerdown', 'pointermove', 'wheel', 'keydown', 'touchstart', 'scroll', 'click'];
+  function onGestureUnlock() {
+    unlockAudio();
+    unlockEvents.forEach(evt => window.removeEventListener(evt, onGestureUnlock, { capture: true }));
+  }
+  unlockEvents.forEach(evt => {
+    window.addEventListener(evt, onGestureUnlock, { capture: true, passive: true });
   });
 
   // Zen bell resonance on chapter transitions (432Hz + 864Hz octave with exponential decay)

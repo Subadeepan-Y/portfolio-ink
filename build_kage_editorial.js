@@ -162,6 +162,7 @@ const masterHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<link rel="preload" href="secret-pathways-assets/fonts/IntegralCF-Regular.ttf" as="font" type="font/ttf" crossorigin>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>SUBADEEPAN — Chapter 00: The Hidden Gate (影の道)</title>
 <meta name="theme-color" content="#040507">
@@ -190,7 +191,7 @@ const masterHtml = `<!DOCTYPE html>
   src: url('secret-pathways-assets/fonts/IntegralCF-Regular.ttf') format('truetype');
   font-weight: 400 900;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
 }
 
 :root {
@@ -350,7 +351,7 @@ html, body {
   top: 0;
   width: 0;
   height: 0;
-  z-index: 52;
+  z-index: 20;
   pointer-events: none;
   transition: transform 0.2s ease-out;
 }
@@ -415,20 +416,20 @@ html, body {
 
 /* Specific Stage Placement Rules */
 /* Stage 0 (Hero) */
-[data-fg="sec0"] .fg-grass  { left: 3%;   bottom: -130px; width: clamp(420px, 60vw, 1050px); }
+[data-fg="sec0"] .fg-grass  { left: 3%;   bottom: -220px; width: clamp(420px, 60vw, 1050px); }
 [data-fg="sec0"] .fg-sakura { left: -6%;  bottom: -80px;  width: clamp(430px, 50vw, 880px); }
 [data-fg="sec0"] .fg-leaves { right: -6%; bottom: -60px;  width: clamp(330px, 38vw, 670px); }
 
 /* Stage 1 (Maker) */
 [data-fg="sec1"] .fg-wall   { left: 0;    bottom: -30px;  width: clamp(430px, 47vw, 780px); }
 [data-fg="sec1"] .fg-pine   { right: -4%; bottom: -46px;  width: clamp(190px, 21vw, 370px); }
-[data-fg="sec1"] .fg-grass  { left: 3%;   bottom: -140px; width: clamp(420px, 60vw, 1050px); }
+[data-fg="sec1"] .fg-grass  { left: 3%;   bottom: -230px; width: clamp(420px, 60vw, 1050px); }
 
 /* Stage 2 (iGradeify) */
 [data-fg="sec2"] .fg-stones { left: -4%;  bottom: -48px;  width: clamp(250px, 30vw, 530px); }
 [data-fg="sec2"] .fg-lantern{ left: 10%;  bottom: -60px;  width: clamp(120px, 13vw, 215px); }
 [data-fg="sec2"] .fg-lantern > img { filter: saturate(1.1) brightness(1.05) drop-shadow(0 0 24px rgba(255, 142, 60, 0.5)); }
-[data-fg="sec2"] .fg-grass  { right: -4%; bottom: -120px; width: clamp(360px, 50vw, 850px); }
+[data-fg="sec2"] .fg-grass  { right: -4%; bottom: -210px; width: clamp(360px, 50vw, 850px); }
 
 /* Stage 3 (Manim-TS) */
 [data-fg="sec3"] .fg-pine   { left: -4%;  bottom: -40px;  width: clamp(190px, 21vw, 370px); }
@@ -488,7 +489,7 @@ html, body {
   left: 0;
   width: 100vw;
   height: 88px;
-  z-index: 50;
+  z-index: 90;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -7049,13 +7050,45 @@ ${modalHtml}
       if (!audioCtx) initAudioEngine();
       if (audioCtx && audioCtx.state === 'suspended' && !isMuted) {
         audioCtx.resume().catch(() => {});
+        if (ambientGain) {
+          const now = audioCtx.currentTime;
+          ambientGain.gain.cancelScheduledValues(now);
+          ambientGain.gain.setValueAtTime(0.0001, now);
+          ambientGain.gain.linearRampToValueAtTime(TARGET_AMBIENT_VOL, now + 0.4);
+        }
         startVisualizerLoop();
+      }
+      if (bgm && !isMuted) {
+        bgm.muted = false;
+        if (bgm.paused) {
+          bgm.play().then(() => {
+            rampBgmVolume(TARGET_VOL, 500);
+          }).catch(() => {});
+        }
       }
     } catch (e) {}
   }
 
-  ['pointerdown', 'wheel', 'keydown', 'touchstart'].forEach(evt => {
-    window.addEventListener(evt, unlockAudio, { once: true, passive: true });
+  // Attempt immediate playback on page load
+  try {
+    initAudioEngine();
+    if (bgm) {
+      bgm.muted = false;
+      bgm.volume = TARGET_VOL;
+      bgm.play().catch(() => {
+        // Autoplay blocked by browser policy until first gesture
+      });
+    }
+  } catch (_) {}
+
+  // Unlock on ANY first user gesture
+  const unlockEvents = ['pointerdown', 'pointermove', 'wheel', 'keydown', 'touchstart', 'scroll', 'click'];
+  function onGestureUnlock() {
+    unlockAudio();
+    unlockEvents.forEach(evt => window.removeEventListener(evt, onGestureUnlock, { capture: true }));
+  }
+  unlockEvents.forEach(evt => {
+    window.addEventListener(evt, onGestureUnlock, { capture: true, passive: true });
   });
 
   // Zen bell resonance on chapter transitions (432Hz + 864Hz octave with exponential decay)
