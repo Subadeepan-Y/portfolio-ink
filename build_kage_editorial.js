@@ -185,6 +185,14 @@ const masterHtml = `<!DOCTYPE html>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@400;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
+@font-face {
+  font-family: 'Integral CF';
+  src: url('secret-pathways-assets/fonts/IntegralCF-Regular.ttf') format('truetype');
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --ink: #040507;
   --ink-void: #020305;
@@ -200,7 +208,7 @@ const masterHtml = `<!DOCTYPE html>
   --red: #e0231c;
   --red-glow: rgba(224, 35, 28, 0.40);
   --amber: #ff6a3c;
-  --font-display: 'Bebas Neue', 'Arial Narrow', Impact, sans-serif;
+  --font-display: 'Integral CF', 'Bebas Neue', Impact, sans-serif;
   --font-body: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
   --font-jp: 'NotoJP', serif;
   --font-mono: 'Space Mono', Consolas, monospace;
@@ -268,7 +276,7 @@ html, body {
   left: 0;
   width: 100vw;
   text-align: center;
-  font-family: var(--font-display);
+  font-family: 'Integral CF', var(--font-display); font-weight: 700;
   font-size: clamp(64px, 13vw, 210px);
   font-weight: 700;
   letter-spacing: clamp(0.18em, 2.5vw, 0.35em);
@@ -2322,13 +2330,14 @@ ${modalCss}
 /* Wordmark reveal */
 
 .bebas-display {
-  font-family: var(--font-bebas);
+  font-family: 'Integral CF', var(--font-bebas);
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.02em;
-  line-height: 0.88;
+  letter-spacing: 0.01em;
+  line-height: 0.94;
 }
 .hero-heading.bebas-display {
-  font-size: clamp(54px, 10.5vw, 148px);
+  font-size: clamp(42px, 8.5vw, 118px);
   font-weight: 400;
   line-height: 0.90;
   letter-spacing: 0.015em;
@@ -2340,7 +2349,7 @@ ${modalCss}
   display: inline-block;
 }
 .exit-heading.bebas-display {
-  font-size: clamp(52px, 10vw, 140px);
+  font-size: clamp(40px, 8vw, 110px);
   font-weight: 400;
   line-height: 0.90;
   letter-spacing: 0.015em;
