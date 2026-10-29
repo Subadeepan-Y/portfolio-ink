@@ -349,6 +349,14 @@ body.cinematic-flight #gl {
   overflow: visible;
   pointer-events: none;
 }
+/* The interior sanctum has no outdoor silhouettes in front of it */
+#fg {
+  transition: opacity 0.7s ease;
+}
+#fg.sanctum-hidden {
+  opacity: 0 !important;
+  pointer-events: none;
+}
 #fg-sky {
   position: fixed;
   left: 0;
@@ -1464,7 +1472,46 @@ body.blood-moon-active #filmGrain {
   }
 }
 
-/* Scene 9: AFTERLIGHT (CONTACT) - Void Gallery Style */
+/* Scene 9: THE INNER SANCTUM (interior wall display) */
+.sanctum-layer {
+  justify-content: flex-end;
+  align-items: center;
+  padding-bottom: clamp(52px, 9vh, 104px) !important;
+  text-align: center;
+}
+.sanctum-flank {
+  max-width: 880px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.sanctum-flank .chapter-eyebrow {
+  margin-bottom: 14px;
+  justify-content: center;
+}
+.sanctum-heading {
+  font-size: clamp(28px, 4.4vw, 66px) !important;
+  margin-bottom: 12px !important;
+  letter-spacing: 0.02em;
+  text-shadow: 0 2px 34px rgba(0, 0, 0, 0.92), 0 1px 6px rgba(0, 0, 0, 0.9);
+}
+.sanctum-flank .editorial-sub {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+  color: var(--bone-body);
+  text-shadow: 0 1px 18px rgba(0, 0, 0, 0.95);
+}
+.sanctum-flank .contact-links {
+  justify-content: center;
+  margin-top: 24px;
+}
+@media (max-width: 700px) {
+  .sanctum-flank .contact-links {
+    align-items: center;
+  }
+}
+
 .contact-flank {
   max-width: 720px;
 }
@@ -2452,7 +2499,7 @@ body.loaded .hero-heading {
     <button type="button" class="nav-link" onclick="jumpTo(1)" aria-label="About The Maker">ABOUT</button>
     <button type="button" class="nav-link" onclick="jumpTo(2)" aria-label="Work Sacred Artifacts">WORK</button>
     <button type="button" class="nav-link" onclick="jumpTo(8)" aria-label="Ritual Process">PROCESS</button>
-    <button type="button" class="nav-link" onclick="jumpTo(9)" aria-label="Afterlight Contact">CONTACT</button>
+    <button type="button" class="nav-link" onclick="jumpTo(9)" aria-label="Contact — The Inner Sanctum">CONTACT</button>
   </nav>
   <button type="button" id="soundBtn" title="Toggle Sound" aria-label="Toggle Sound">
     <div class="sound-icon">
@@ -2481,7 +2528,7 @@ body.loaded .hero-heading {
   <button type="button" class="rail-btn" onclick="jumpTo(6)" aria-label="Chapter 06: Greate Engine"><span class="rail-label"><span class="rail-num">06</span> GREATE ENGINE <span class="rail-kanji">天守閣</span></span><span class="rail-dot"></span></button>
   <button type="button" class="rail-btn" onclick="jumpTo(7)" aria-label="Chapter 07: Personal Cloud"><span class="rail-label"><span class="rail-num">07</span> PERSONAL CLOUD <span class="rail-kanji">宝蔵</span></span><span class="rail-dot"></span></button>
   <button type="button" class="rail-btn" onclick="jumpTo(8)" aria-label="Chapter 08: The Ritual"><span class="rail-label"><span class="rail-num">08</span> THE RITUAL <span class="rail-kanji">作法</span></span><span class="rail-dot"></span></button>
-  <button type="button" class="rail-btn" onclick="jumpTo(9)" aria-label="Chapter 09: Afterlight"><span class="rail-label"><span class="rail-num">09</span> AFTERLIGHT <span class="rail-kanji">残光</span></span><span class="rail-dot"></span></button>
+  <button type="button" class="rail-btn" onclick="jumpTo(9)" aria-label="Chapter 09: The Inner Sanctum"><span class="rail-label"><span class="rail-num">09</span> SANCTUM <span class="rail-kanji">内殿</span></span><span class="rail-dot"></span></button>
 </div>
 
 <!-- ==================== CENTRAL ATMOSPHERIC STAGE ==================== -->
@@ -2890,23 +2937,18 @@ body.loaded .hero-heading {
     </div>
   </section>
 
-  <!-- Stage 9: AFTERLIGHT // CONTACT -->
-  <section class="scene-layer" id="sec9">
-    <div class="fg" data-fg="sec9" aria-hidden="true">
-      <span class="fg-el fg-lantern" data-fg-in="left">
-        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/stone-lantern.webp" alt="" width="1024" height="1499" loading="lazy" decoding="async">
-      </span>
-      <span class="fg-el fg-sakura fg-el--flip fg-el--sway" data-fg-in="right">
-        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/sakura-branch.webp" alt="" width="1536" height="1024" loading="lazy" decoding="async">
-      </span>
-    </div>
-    <div class="contact-flank">
+  <!-- Stage 9: THE INNER SANCTUM // INTERIOR WALL + CERTIFICATE -->
+  <section class="scene-layer sanctum-layer" id="sec9">
+    <div class="fg" data-fg="sec9" aria-hidden="true"></div>
+    <div class="sanctum-flank">
       <div class="chapter-eyebrow">
         <span class="dot"></span>
-        <span>THE EXIT // CONTACT</span>
+        <span>CHAPTER 09 — THE INNER SANCTUM</span>
+        <span class="rule"></span>
+        <span class="kanji-marker">内殿</span>
       </div>
-      <h2 class="monumental-heading exit-heading bebas-display"><span>LET'S BUILD</span><br><span class="exit-outline">SOMETHING<span class="dot-red">.</span></span></h2>
-      <p class="editorial-sub">AI tutors. Animation engines. Game compilers. Available for high-impact software architectures and technical tooling.</p>
+      <h2 class="monumental-heading sanctum-heading bebas-display"><span>LET'S BUILD</span><br><span>SOMETHING<span class="dot-red">.</span></span></h2>
+      <p class="editorial-sub">Framed, hung, and finished. AI tutors, animation engines, game compilers — open for the next commission.</p>
       <div class="contact-links">
         <a href="https://mail.google.com/mail/?view=cm&fs=1&to=subadeepankgm@gmail.com&su=Hello%20Subadeepan&body=I%20visited%20your%20website%20and..." target="_blank" rel="noopener" onclick="if (typeof copyInquiryContact === 'function') copyInquiryContact('subadeepankgm@gmail.com', 'EMAIL COPIED // OPENING GMAIL')" class="contact-link" data-cursor aria-label="01 // Mail">
           <span class="link-num">01 //</span>
@@ -3037,6 +3079,8 @@ ${modalHtml}
   let mouseIsOverInteractiveDom = false;
   let isHouseHovered = false;
   let hoveredHouseIdx = -1;
+  let isMoonHovered = false;
+  let hoverFrameCount = 0;
   const houseRaycaster = new THREE.Raycaster();
   const houseRayMouse = new THREE.Vector2(-999, -999);
   window.__houseRaycaster = houseRaycaster;
@@ -3498,7 +3542,7 @@ ${modalHtml}
     0xef4444, // Stage 6 (Greate Engine): Forge kiln molten flame
     0x10b981, // Stage 7 (Personal Cloud): Sacred vault emerald
     0xff5a3c, // Stage 8 (Process): Quiet twilight embers
-    0xff5a3c  // Stage 9 (Afterlight): Quiet twilight embers
+    0xffb174  // Stage 9 (Inner Sanctum): lamp-lit warm interior
   ];
   window.STAGE_LIGHT_COLORS = STAGE_LIGHT_COLORS;
 
@@ -3513,7 +3557,7 @@ ${modalHtml}
     0.016, // Stage 6 (Greate Engine): cleared mist for razor-sharp artifact details
     0.016, // Stage 7 (Personal Cloud): cleared mist for razor-sharp artifact details
     0.024, // Stage 8 (The Ritual): deeper temple precinct fog
-    0.026  // Stage 9 (Afterlight): mystic twilight mountain haze
+    0.011  // Stage 9 (Inner Sanctum): clear interior air
   ];
   window.STAGE_FOG_DENSITIES = STAGE_FOG_DENSITIES;
 
@@ -3666,6 +3710,49 @@ ${modalHtml}
     map: pillarWoodTex, bumpMap: pillarWoodTex, bumpScale: 0.02
   });
   const redLacquerMat = new THREE.MeshStandardMaterial({ color: 0x9b1b1b, roughness: 0.45, metalness: 0.25 });
+
+  // Pure-white snow-frost lacquer for the hero Torii gate (snow textures fly out of it)
+  function texFrostSurface() {
+    const W = 256, H = 256, c = cvs(W, H), x = c.getContext('2d');
+    x.fillStyle = '#ffffff';
+    x.fillRect(0, 0, W, H);
+    for (let i = 0; i < 240; i++) {
+      const r = 5 + Math.random() * 26;
+      const a = 0.020 + Math.random() * 0.055;
+      x.save();
+      x.translate(Math.random() * W, Math.random() * H);
+      const g = x.createRadialGradient(0, 0, 0, 0, 0, r);
+      g.addColorStop(0, 'rgba(150, 178, 210, ' + a.toFixed(3) + ')');
+      g.addColorStop(1, 'rgba(150, 178, 210, 0)');
+      x.fillStyle = g;
+      x.beginPath();
+      x.arc(0, 0, r, 0, Math.PI * 2);
+      x.fill();
+      x.restore();
+    }
+    for (let i = 0; i < 1500; i++) {
+      x.fillStyle = Math.random() > 0.45 ? 'rgba(255,255,255,0.92)' : 'rgba(182, 203, 228, 0.38)';
+      const s = Math.random() > 0.9 ? 2 : 1;
+      x.fillRect(Math.random() * W, Math.random() * H, s, s);
+    }
+    const tex = new THREE.CanvasTexture(c);
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    if (THREE.sRGBEncoding !== undefined) tex.encoding = THREE.sRGBEncoding;
+    return tex;
+  }
+  const frostTex = texFrostSurface();
+  frostTex.repeat.set(1, 3);
+  const snowPillarMat = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    roughness: 0.92,
+    metalness: 0.0,
+    map: frostTex,
+    bumpMap: frostTex,
+    bumpScale: 0.05,
+    emissive: 0xeef6ff,
+    emissiveIntensity: 1.0
+  });
+  window.__snowPillarMat = snowPillarMat;
   const purpleLacquerMat = new THREE.MeshStandardMaterial({ color: 0x4c1d6b, roughness: 0.45, metalness: 0.25 });
   const goldBrassMat = new THREE.MeshStandardMaterial({ color: 0xc89b3c, roughness: 0.35, metalness: 0.85 });
   window.__goldBrassMat = goldBrassMat;
@@ -4140,12 +4227,14 @@ ${modalHtml}
   WORLD_BG.add(podium);
 
   const stepCount = 20;
+  const stairGroup = new THREE.Group();
+  WORLD_BG.add(stairGroup);
   for (let i = 0; i < stepCount; i++) {
     const sy = (i + 1) * (PODIUM_Y / stepCount);
     const sz = -115 - i * 0.60;
     const step = new THREE.Mesh(new THREE.BoxGeometry(10.4, PODIUM_Y / stepCount + 0.04, 0.64), stoneMat);
     step.position.set(0, sy - (PODIUM_Y / stepCount) / 2, sz);
-    WORLD_BG.add(step);
+    stairGroup.add(step);
   }
 
   // Sanctuary Ground Mist & Luminous Light Spill Band across podium steps
@@ -4408,11 +4497,13 @@ ${modalHtml}
   WORLD_BG.add(palaceGroup);
 
   // Grand Torii Gate Avenue
-  function createGrandTorii(z, scale) {
+  function createGrandTorii(z, scale, bodyMat) {
     const tGroup = new THREE.Group();
+    const lq = bodyMat || redLacquerMat;
     const pillarGeo = new THREE.CylinderGeometry(0.42 * scale, 0.50 * scale, 12 * scale, 16);
-    const pL = new THREE.Mesh(pillarGeo, redLacquerMat); pL.position.set(-5.2 * scale, 6 * scale, 0); tGroup.add(pL);
-    const pR = new THREE.Mesh(pillarGeo, redLacquerMat); pR.position.set(5.2 * scale, 6 * scale, 0); tGroup.add(pR);
+    const pL = new THREE.Mesh(pillarGeo, lq); pL.position.set(-5.2 * scale, 6 * scale, 0); tGroup.add(pL);
+    const pR = new THREE.Mesh(pillarGeo, lq); pR.position.set(5.2 * scale, 6 * scale, 0); tGroup.add(pR);
+    tGroup.userData.pillars = [pL, pR];
 
     [-1, 1].forEach(side => {
       const ring = new THREE.Mesh(new THREE.CylinderGeometry(0.46 * scale, 0.46 * scale, 0.4 * scale, 16), goldBrassMat);
@@ -4420,7 +4511,7 @@ ${modalHtml}
       tGroup.add(ring);
     });
 
-    const kasagi = new THREE.Mesh(new THREE.BoxGeometry(15 * scale, 0.85 * scale, 1.0 * scale), redLacquerMat);
+    const kasagi = new THREE.Mesh(new THREE.BoxGeometry(15 * scale, 0.85 * scale, 1.0 * scale), lq);
     kasagi.position.set(0, 12.2 * scale, 0);
     tGroup.add(kasagi);
 
@@ -4430,7 +4521,7 @@ ${modalHtml}
       tGroup.add(cap);
     });
 
-    const nuki = new THREE.Mesh(new THREE.BoxGeometry(12.8 * scale, 0.6 * scale, 0.7 * scale), redLacquerMat);
+    const nuki = new THREE.Mesh(new THREE.BoxGeometry(12.8 * scale, 0.6 * scale, 0.7 * scale), lq);
     nuki.position.set(0, 10.4 * scale, 0);
     tGroup.add(nuki);
 
@@ -4438,7 +4529,7 @@ ${modalHtml}
     return tGroup;
   }
   const toriiFront = createGrandTorii(9.5, 1.0); WORLD_BG.add(toriiFront);
-  const toriiMid = createGrandTorii(-2.0, 1.15); WORLD_BG.add(toriiMid);
+  const toriiMid = createGrandTorii(-2.0, 1.15, snowPillarMat); WORLD_BG.add(toriiMid);
   const toriiInner = createGrandTorii(-60.0, 1.25); WORLD_BG.add(toriiInner);
 
   // Sacred Shimenawa Cord & Wind-Swaying Shide Streamers on Entrance Torii
@@ -5918,6 +6009,219 @@ ${modalHtml}
   window.PROJECT_HOUSES = PROJECT_HOUSES;
   window.HOUSES_GROUP = HOUSES_GROUP;
 
+  // ================================================================
+  // 6B. THE INNER SANCTUM — interior hall behind the Ritual (chapter 09)
+  //     Walking in through sliding shoji doors, the back wall carries the
+  //     framed ITM certificate above the "LET'S BUILD SOMETHING" inscription.
+  // ================================================================
+  const SANCTUM = {
+    // The hall is carved into the temple podium, flush with the mountain face
+    // at z = -115, so the lit doorway is visible from the foot of the stairs.
+    zFront: -114.85,
+    zBack: -127.85,
+    width: 16,
+    height: 6.4,
+    doorW: 9.2,
+    doorH: 5.1,
+    doorL: null,
+    doorR: null,
+    closedL: 0,
+    closedR: 0,
+    light: null,
+    group: null
+  };
+
+  function buildSanctum() {
+    const g = new THREE.Group();
+    const W = SANCTUM.width, H = SANCTUM.height;
+    const wallMat = new THREE.MeshStandardMaterial({
+      color: 0x3b3226, roughness: 0.96, metalness: 0.0,
+      map: plasterTex, bumpMap: plasterTex, bumpScale: 0.02
+    });
+    SANCTUM.wallMat = wallMat;
+    const zF = SANCTUM.zFront, zB = SANCTUM.zBack;
+    const depth = zF - zB;
+    const midZ = (zF + zB) / 2;
+
+    // Dark plank floor
+    const floor = new THREE.Mesh(new THREE.BoxGeometry(W, 0.24, depth), woodMat);
+    floor.position.set(0, -0.06, midZ);
+    g.add(floor);
+
+    // Coffered ceiling slab
+    const ceil = new THREE.Mesh(new THREE.BoxGeometry(W, 0.3, depth), woodMat);
+    ceil.position.set(0, H, midZ);
+    g.add(ceil);
+
+    // Back wall (warm plaster, carries the certificate)
+    const back = new THREE.Mesh(new THREE.BoxGeometry(W, H, 0.3), wallMat);
+    back.position.set(0, H / 2, zB + 0.15);
+    g.add(back);
+
+    // Side walls
+    [-1, 1].forEach(s => {
+      const sw = new THREE.Mesh(new THREE.BoxGeometry(0.3, H, depth), wallMat);
+      sw.position.set(s * (W / 2 - 0.15), H / 2, midZ);
+      g.add(sw);
+    });
+
+    // Front wall pierced by the doorway
+    const sideW = (W - SANCTUM.doorW) / 2;
+    [-1, 1].forEach(s => {
+      const fw = new THREE.Mesh(new THREE.BoxGeometry(sideW, H, 0.3), wallMat);
+      fw.position.set(s * (SANCTUM.doorW / 2 + sideW / 2), H / 2, zF);
+      g.add(fw);
+    });
+    const lintel = new THREE.Mesh(new THREE.BoxGeometry(SANCTUM.doorW, H - SANCTUM.doorH, 0.32), wallMat);
+    lintel.position.set(0, SANCTUM.doorH + (H - SANCTUM.doorH) / 2, zF);
+    g.add(lintel);
+
+    // Heavy hinoki door posts and head beam
+    [-1, 1].forEach(s => {
+      const post = new THREE.Mesh(new THREE.BoxGeometry(0.34, SANCTUM.doorH, 0.36), hinokiMat);
+      post.position.set(s * (SANCTUM.doorW / 2), SANCTUM.doorH / 2, zF);
+      g.add(post);
+    });
+    const headBeam = new THREE.Mesh(new THREE.BoxGeometry(SANCTUM.doorW + 1.4, 0.42, 0.52), hinokiMat);
+    headBeam.position.set(0, SANCTUM.doorH + 0.12, zF);
+    g.add(headBeam);
+
+    // Ceiling cross beams for depth
+    for (let i = 0; i < 5; i++) {
+      const cb = new THREE.Mesh(new THREE.BoxGeometry(W - 0.4, 0.26, 0.26), hinokiMat);
+      cb.position.set(0, H - 0.22, zF - 1.6 - i * 2.5);
+      g.add(cb);
+    }
+
+    // Sliding shoji doors (they part as the camera arrives)
+    const panelW = SANCTUM.doorW / 2;
+    function buildDoorPanel() {
+      const p = new THREE.Group();
+      const paper = new THREE.Mesh(
+        new THREE.PlaneGeometry(panelW - 0.16, SANCTUM.doorH - 0.2),
+        new THREE.MeshStandardMaterial({
+          color: 0xfff4e2, emissive: 0xffd2a0, emissiveIntensity: 0.9,
+          roughness: 0.95, side: THREE.DoubleSide
+        })
+      );
+      paper.position.z = 0.02;
+      p.add(paper);
+      const stile = new THREE.Mesh(new THREE.BoxGeometry(0.1, SANCTUM.doorH, 0.09), hinokiMat);
+      [-1, 1].forEach(s => {
+        const st = stile.clone();
+        st.position.set(s * (panelW / 2 - 0.07), 0, 0.04);
+        p.add(st);
+      });
+      const railTop = new THREE.Mesh(new THREE.BoxGeometry(panelW, 0.1, 0.09), hinokiMat);
+      railTop.position.set(0, SANCTUM.doorH / 2 - 0.06, 0.04);
+      p.add(railTop);
+      const railBot = railTop.clone();
+      railBot.position.y = -SANCTUM.doorH / 2 + 0.06;
+      p.add(railBot);
+      for (let i = 1; i <= 3; i++) {
+        const bar = new THREE.Mesh(new THREE.BoxGeometry(panelW - 0.12, 0.055, 0.07), hinokiMat);
+        bar.position.set(0, -SANCTUM.doorH / 2 + (SANCTUM.doorH / 4) * i, 0.04);
+        p.add(bar);
+      }
+      return p;
+    }
+
+    const doorL = buildDoorPanel();
+    const doorR = buildDoorPanel();
+    SANCTUM.closedL = -panelW / 2;
+    SANCTUM.closedR = panelW / 2;
+    doorL.position.set(SANCTUM.closedL, SANCTUM.doorH / 2, zF + 0.16);
+    doorR.position.set(SANCTUM.closedR, SANCTUM.doorH / 2, zF + 0.16);
+    g.add(doorL);
+    g.add(doorR);
+    SANCTUM.doorL = doorL;
+    SANCTUM.doorR = doorR;
+
+    // Vertical timber battens structure the back wall around the certificate
+    [-8.35, -5.6, -2.95, 2.95, 5.6, 8.35].forEach(x => {
+      const batten = new THREE.Mesh(new THREE.BoxGeometry(0.16, H - 0.5, 0.12), hinokiMat);
+      batten.position.set(x, (H - 0.5) / 2 + 0.2, zB + 0.34);
+      g.add(batten);
+    });
+    const plinth = new THREE.Mesh(new THREE.BoxGeometry(W, 0.55, 0.2), hinokiMat);
+    plinth.position.set(0, 0.27, zB + 0.36);
+    g.add(plinth);
+
+    // Framed certificate hung on the back wall
+    const certW = 4.15;
+    const certH = certW * (1131 / 1600);
+    const frame = new THREE.Group();
+    frame.position.set(0, 3.85, zB + 0.36);
+
+    const certMat = new THREE.MeshBasicMaterial({ color: 0xf7f4ec });
+    const certMesh = new THREE.Mesh(new THREE.PlaneGeometry(certW, certH), certMat);
+    frame.add(certMesh);
+
+    const barW = 0.11;
+    const barD = 0.09;
+    const fTop = new THREE.Mesh(new THREE.BoxGeometry(certW + barW * 2, barW, barD), goldBrassMat);
+    fTop.position.set(0, certH / 2 + barW / 2, 0.02);
+    frame.add(fTop);
+    const fBot = fTop.clone();
+    fBot.position.y = -certH / 2 - barW / 2;
+    frame.add(fBot);
+    [-1, 1].forEach(s => {
+      const side = new THREE.Mesh(new THREE.BoxGeometry(barW, certH + barW * 2, barD), goldBrassMat);
+      side.position.set(s * (certW / 2 + barW / 2), 0, 0.02);
+      frame.add(side);
+    });
+    g.add(frame);
+
+    if (THREE.TextureLoader) {
+      const tl = new THREE.TextureLoader();
+      tl.load('secret-pathways-assets/generated/certificate-itm.webp', function (tex) {
+        if (THREE.sRGBEncoding !== undefined) tex.encoding = THREE.sRGBEncoding;
+        else if (tex.colorSpace !== undefined && THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
+        if (renderer && renderer.capabilities && renderer.capabilities.getMaxAnisotropy) {
+          tex.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+        }
+        certMat.map = tex;
+        certMat.color.setHex(0xffffff);
+        certMat.needsUpdate = true;
+      });
+    }
+
+    // Hanging paper lamp lighting the wall
+    const cord = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.55, 6), darkIronMat);
+    cord.position.set(0, H - 0.3, zB + 5.2);
+    g.add(cord);
+    const lampMat = new THREE.MeshStandardMaterial({
+      color: 0xffe7c4, emissive: 0xffb877, emissiveIntensity: 0.75, roughness: 0.92
+    });
+    const lamp = new THREE.Mesh(new THREE.CylinderGeometry(0.30, 0.30, 0.42, 10, 1, true), lampMat);
+    lamp.position.set(0, H - 0.78, zB + 5.2);
+    g.add(lamp);
+
+    const warm = new THREE.PointLight(0xffb174, 2.9, 24);
+    warm.position.set(0, H - 1.1, zB + 4.6);
+    g.add(warm);
+    SANCTUM.light = warm;
+
+    // Threshold lamp spilling light onto the doorway from outside
+    const porch = new THREE.PointLight(0xffc08a, 1.1, 12);
+    porch.position.set(0, 3.6, zF + 1.6);
+    g.add(porch);
+
+    g.visible = true;
+    return g;
+  }
+
+  const sanctumGroup = buildSanctum();
+  WORLD_BG.add(sanctumGroup);
+  SANCTUM.group = sanctumGroup;
+  window.__SANCTUM = SANCTUM;
+
+  // The mountain shell (podium, grand staircase, summit palace) is swapped for the
+  // hall interior once the camera is inside the doorway, so the sanctum never has
+  // to share space with the exterior architecture.
+  const MOUNTAIN_SHELL = [podium, stairGroup, palaceGroup];
+  window.__MOUNTAIN_SHELL = MOUNTAIN_SHELL;
+
   // Floating Embers
   const emberCount = 650;
   const emberGeo = new THREE.BufferGeometry();
@@ -6047,6 +6351,84 @@ ${modalHtml}
   window.__sakuraPetals = sakuraPetals;
   window.__sakuraData = sakuraData;
 
+  // --- 5C. SNOWFALL EMITTER: snow textures flying out of the white hero Torii ---
+  function texSnowFlake() {
+    const S = 64, c = cvs(S, S), x = c.getContext('2d');
+    const g = x.createRadialGradient(S / 2, S / 2, 0, S / 2, S / 2, S / 2);
+    g.addColorStop(0.0, 'rgba(255, 255, 255, 1.0)');
+    g.addColorStop(0.35, 'rgba(246, 250, 255, 0.92)');
+    g.addColorStop(0.70, 'rgba(220, 234, 250, 0.35)');
+    g.addColorStop(1.0, 'rgba(210, 228, 248, 0.0)');
+    x.fillStyle = g;
+    x.fillRect(0, 0, S, S);
+    return new THREE.CanvasTexture(c);
+  }
+
+  const SNOW_COUNT = 720;
+  const SNOW_PILLAR_X = 5.2 * 1.15;   // hero Torii pillar offsets (x = +/-5.98)
+  const SNOW_PILLAR_Z = -2.0;
+  const SNOW_TOP = 12 * 1.15;
+  const snowGeo = new THREE.BufferGeometry();
+  const snowPos = new Float32Array(SNOW_COUNT * 3);
+  const snowSize = new Float32Array(SNOW_COUNT);
+  const snowAlpha = new Float32Array(SNOW_COUNT);
+  const snowVel = new Float32Array(SNOW_COUNT * 3);
+  const snowSeed = new Float32Array(SNOW_COUNT);
+
+  function seedSnowFlake(i, atTop) {
+    const side = Math.random() < 0.5 ? -1 : 1;
+    const ang = Math.random() * Math.PI * 2;
+    const rad = 0.50 + Math.random() * 0.55;
+    const i3 = i * 3;
+    snowPos[i3 + 0] = side * SNOW_PILLAR_X + Math.cos(ang) * rad;
+    snowPos[i3 + 1] = atTop ? SNOW_TOP - Math.random() * 2.5 : Math.random() * SNOW_TOP;
+    snowPos[i3 + 2] = SNOW_PILLAR_Z + Math.sin(ang) * rad;
+    snowVel[i3 + 0] = Math.cos(ang) * (0.22 + Math.random() * 0.40);
+    snowVel[i3 + 1] = -(0.28 + Math.random() * 0.50);
+    snowVel[i3 + 2] = Math.sin(ang) * (0.18 + Math.random() * 0.34) + 0.10;
+    snowSize[i] = 0.11 + Math.random() * 0.24;
+    snowAlpha[i] = 0.45 + Math.random() * 0.5;
+    snowSeed[i] = Math.random() * 100;
+  }
+  for (let i = 0; i < SNOW_COUNT; i++) seedSnowFlake(i, false);
+
+  snowGeo.setAttribute('position', new THREE.BufferAttribute(snowPos, 3));
+  snowGeo.setAttribute('aS', new THREE.BufferAttribute(snowSize, 1));
+  snowGeo.setAttribute('aA', new THREE.BufferAttribute(snowAlpha, 1));
+
+  const snowMat = new THREE.ShaderMaterial({
+    uniforms: { uTex: { value: texSnowFlake() }, uPx: { value: window.innerHeight } },
+    transparent: true,
+    depthWrite: false,
+    fog: false,
+    vertexShader: 'attribute float aS; attribute float aA; uniform float uPx; varying float vA; void main() { vA = aA; vec4 mv = modelViewMatrix * vec4(position, 1.0); gl_PointSize = uPx * aS / max(-mv.z, 0.5); gl_Position = projectionMatrix * mv; }',
+    fragmentShader: 'uniform sampler2D uTex; varying float vA; void main() { if (vA <= 0.002) discard; vec4 t = texture2D(uTex, gl_PointCoord); gl_FragColor = vec4(t.rgb, t.a * vA); }'
+  });
+
+  const snowPoints = new THREE.Points(snowGeo, snowMat);
+  snowPoints.frustumCulled = false;
+  scene.add(snowPoints);
+  window.__snowPoints = snowPoints;
+
+  function updateSnow(dt) {
+    // Only the hero gate area needs the flakes; skip the cost past the avenue.
+    if (currentProgress > 4.2) {
+      if (snowPoints.visible) snowPoints.visible = false;
+      return;
+    }
+    if (!snowPoints.visible) snowPoints.visible = true;
+    const P = snowPos, V = snowVel;
+    for (let i = 0; i < SNOW_COUNT; i++) {
+      const i3 = i * 3;
+      const swirl = snowSeed[i];
+      P[i3 + 0] += (V[i3 + 0] + Math.sin(clock * 0.9 + swirl) * 0.06) * dt;
+      P[i3 + 1] += V[i3 + 1] * dt;
+      P[i3 + 2] += V[i3 + 2] * dt;
+      if (P[i3 + 1] < -0.4) seedSnowFlake(i, true);
+    }
+    snowGeo.attributes.position.needsUpdate = true;
+  }
+
   // --- 6. 10-STAGE CAMERA CHOREOGRAPHY WAYPOINTS ---
   // Physical continuous glide through 3D space across all 10 stages
   const CAM_WAYPOINTS = [
@@ -6059,7 +6441,7 @@ ${modalHtml}
     { p: new THREE.Vector3(-3.5, 3.8, -54.0), t: new THREE.Vector3(-8.0, 4.8, -64.0) }, // 6: framing House 4 Castle Keep (x = -8.0, z = -64) on the left
     { p: new THREE.Vector3( 2.5, 3.0, -68.0), t: new THREE.Vector3( 7.0, 3.2, -76.0) }, // 7: framing House 5 Imperial Vault (x = 7.0, z = -76) on the right
     { p: new THREE.Vector3(-1.0, 4.5, -78.0), t: new THREE.Vector3( 0.0, 4.2, -96.0) }, // 8: mountain summit overlook
-    { p: new THREE.Vector3( 0.0, 3.8, -88.0), t: new THREE.Vector3( 0.0, 4.5,-105.0) }  // 9: afterlight moon pool
+    { p: new THREE.Vector3( 0.0, 3.0,-117.4), t: new THREE.Vector3( 0.0, 3.05,-128.3) }  // 9: inner sanctum (interior wall + certificate)
   ];
 
   const camPosSpline = new THREE.CatmullRomCurve3(
@@ -6089,7 +6471,7 @@ ${modalHtml}
     'GREATE ENGINE',
     'PERSONAL CLOUD',
     'THE RITUAL',
-    'AFTERLIGHT'
+    'THE INNER SANCTUM'
   ];
 
   const KANJI_WATERMARKS = [
@@ -6102,7 +6484,7 @@ ${modalHtml}
     '天守閣',
     '宝蔵',
     '作法',
-    '残光'
+    '内殿'
   ];
 
   // Dynamic Document Tab Titles & Ambient Presence
@@ -6116,7 +6498,7 @@ ${modalHtml}
     'SUBADEEPAN — Chapter 06: Greate Engine (天守閣)',
     'SUBADEEPAN — Chapter 07: Personal Cloud (宝蔵)',
     'SUBADEEPAN — Chapter 08: The Ritual (作法)',
-    'SUBADEEPAN — Chapter 09: Afterlight (残光)'
+    'SUBADEEPAN — Chapter 09: The Inner Sanctum (内殿)'
   ];
 
   const STILLNESS_TITLE = 'SUBADEEPAN — Stillness in the Void';
@@ -6206,6 +6588,7 @@ ${modalHtml}
   window.getActiveFgStage = () => activeFgStage;
 
   function jumpTo(idx) {
+    if (window.__isFlightActive && window.__isFlightActive()) window.__cancelFlight();
   targetFocusAmt = 0.0;
     const validIdx = Math.max(0.0, Math.min(9.0, Number(idx) || 0));
     targetProgress = validIdx;
@@ -6214,13 +6597,42 @@ ${modalHtml}
     }
   }
   window.jumpTo = jumpTo;
+  // Debug/QA hook: snap the scroll position without waiting for inertia.
+  window.__setProgress = function (v) {
+    const n = Math.max(0, Math.min(9, Number(v) || 0));
+    currentProgress = n;
+    targetProgress = n;
+    return n;
+  };
 
-  // Cinematic fly-in: glide the camera down the temple avenue to the clicked
-  // house, then open its dossier once the camera has arrived.
-  let flyRafId = null;
+  // Cinematic fly-in: the camera lifts out of its current shot and arcs on a
+  // single deliberate dolly straight onto the clicked house's framing shot.
+  // It never replays the scroll path, so no intermediate house is passed through.
+  let flight = null;
+  const _flightA = new THREE.Vector3();
+  const _flightB = new THREE.Vector3();
+  const _flightC = new THREE.Vector3();
+  const _flightT = new THREE.Vector3();
+
+  function finishFlight() {
+    const f = flight;
+    if (!f) return;
+    flight = null;
+    currentProgress = f.stageIdx;
+    targetProgress = f.stageIdx;
+    if (typeof PROJECT_HOUSES !== 'undefined' && PROJECT_HOUSES) {
+      PROJECT_HOUSES.forEach(h => { h.visible = true; });
+    }
+    document.body.classList.remove('cinematic-flight');
+    if (f.projIdx >= 0 && typeof window.openModal === 'function') {
+      window.openModal(f.projIdx);
+    }
+  }
+
   function flyToProject(projIdx) {
     const stageIdx = Math.max(0, Math.min(9, 2 + (Number(projIdx) || 0)));
-    if (flyRafId) { cancelAnimationFrame(flyRafId); flyRafId = null; }
+    const dest = CAM_WAYPOINTS[stageIdx];
+    if (!dest) return;
     if (typeof window.closeModal === 'function') {
       try { window.closeModal(); } catch (_) {}
     }
@@ -6230,50 +6642,41 @@ ${modalHtml}
       try { playTactileClick(); } catch (_) {}
     }
 
-    const startP = currentProgress;
-    const dist = Math.abs(stageIdx - startP);
-    const dur = Math.max(650, Math.min(1700, 520 + dist * 260));
-    const t0 = performance.now();
-    const ease = function (t) {
-      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    const fromPos = camera.position.clone();
+    const fromTarget = currentCamTarget.clone();
+    const toPos = dest.p.clone();
+    const toTarget = dest.t.clone();
+    const span = fromPos.distanceTo(toPos);
+
+    // Lift the mid-point of the arc so the dolly clears the avenue rooftops
+    // instead of cutting through the buildings between the two shots.
+    const lift = Math.min(30, 7 + span * 0.30);
+    const ctrl = fromPos.clone().add(toPos).multiplyScalar(0.5);
+    ctrl.y += lift;
+
+    flight = {
+      projIdx: projIdx,
+      stageIdx: stageIdx,
+      fromPos: fromPos,
+      toPos: toPos,
+      fromTarget: fromTarget,
+      toTarget: toTarget,
+      ctrl: ctrl,
+      t0: performance.now(),
+      dur: Math.max(900, Math.min(1750, 780 + span * 9))
     };
-    const hs = Math.max(0, Math.min(5, Math.floor(startP) - 2));
-    const th = Math.max(0, Math.min(5, Math.floor(stageIdx) - 2));
 
-    // Keep only the departure/arrival houses visible during the flight so the
-    // camera does NOT pass through the intermediate houses one by one.
-    function applyDirectHouseVis(high, low) {
-      if (!PROJECT_HOUSES || PROJECT_HOUSES.length === 0) return;
-      if (high === low) { PROJECT_HOUSES.forEach(h => { h.visible = true; }); return; }
-      PROJECT_HOUSES.forEach((h, i) => { h.visible = (i === high || i === low); });
+    // Hide every house that is neither the departure nor the arrival landmark so
+    // nothing can intersect the flight path.
+    if (typeof PROJECT_HOUSES !== 'undefined' && PROJECT_HOUSES && PROJECT_HOUSES.length) {
+      const hs = Math.max(0, Math.min(5, Math.floor(currentProgress) - 2));
+      const th = Math.max(0, Math.min(5, stageIdx - 2));
+      PROJECT_HOUSES.forEach((h, i) => { h.visible = (i === hs || i === th); });
     }
-
-    function step(now) {
-      const t = Math.min(1, (now - t0) / dur);
-      const eased = startP + (stageIdx - startP) * ease(t);
-      // Drive the camera directly so the flight is a deliberate dolly, not
-      // the normal scroll inertia.
-      currentProgress = eased;
-      targetProgress = eased;
-      if (t < 1) {
-        applyDirectHouseVis(hs, th);
-        flyRafId = requestAnimationFrame(step);
-        return;
-      }
-      currentProgress = stageIdx;
-      targetProgress = stageIdx;
-      flyRafId = null;
-      setTimeout(function () {
-        document.body.classList.remove('cinematic-flight');
-        if (PROJECT_HOUSES && PROJECT_HOUSES.length > 0) {
-          PROJECT_HOUSES.forEach(h => { h.visible = true; });
-        }
-        if (typeof window.openModal === 'function') window.openModal(projIdx);
-      }, 180);
-    }
-    flyRafId = requestAnimationFrame(step);
   }
   window.flyToProject = flyToProject;
+  window.__isFlightActive = function () { return !!flight; };
+  window.__cancelFlight = function () { if (flight) { flight = null; document.body.classList.remove('cinematic-flight'); } };
   Object.defineProperty(window, 'currentProgress', {
     get: function() { return currentProgress; },
     configurable: true
@@ -6288,6 +6691,7 @@ ${modalHtml}
   // DAMPED DELIBERATE SCROLL WHEEL LISTENER (Fixes "scrolls too fast" completely!)
   window.addEventListener('wheel', function (e) {
     if (document.getElementById('modal').classList.contains('open')) return;
+    if (window.__isFlightActive && window.__isFlightActive()) window.__cancelFlight();
     targetFocusAmt = 0.0;
     e.preventDefault();
     // Gentle calibrated pacing across 10 stages
@@ -6308,6 +6712,7 @@ ${modalHtml}
   }, { passive: true });
   window.addEventListener('touchmove', function (e) {
     if (document.getElementById('modal').classList.contains('open')) return;
+    if (window.__isFlightActive && window.__isFlightActive()) window.__cancelFlight();
     targetFocusAmt = 0.0;
     if (e.touches.length > 0) {
       const dist = Math.hypot(e.touches[0].clientX - touchStartX, e.touches[0].clientY - touchStartY);
@@ -6669,22 +7074,44 @@ ${modalHtml}
   window.setFocus = (val) => { targetFocusAmt = val ? 1.0 : 0.0; };
   window.getFocusAmt = () => focusAmt;
 
-  function tick() {
+    // Cached DOM handles for the render loop (no per-frame getElementById calls)
+  const elFgWall = document.getElementById('fgWall');
+  const elFgStones = document.getElementById('fgStones');
+  const elFgMaple = document.getElementById('fgMaple');
+  const elModal = document.getElementById('modal');
+  const elDossierModal = document.getElementById('dossierModal');
+
+  let lastTickNow = 0;
+  let frameAccum = 0;
+  let frameCount = 0;
+  let currentPixelRatio = renderer.getPixelRatio();
+  let interiorAmt = 0;
+
+  function tick(now) {
     if (document.hidden || isContextLost) {
       rafId = null;
       return;
     }
-    clock += 0.016;
+    // Frame-rate independent delta (clamped so tab-switch resumes never jump)
+    const timeNow = typeof now === 'number' ? now : performance.now();
+    let dt = lastTickNow ? (timeNow - lastTickNow) / 1000 : 0.016;
+    if (!isFinite(dt) || dt <= 0) dt = 0.016;
+    if (dt > 0.05) dt = 0.05;
+    lastTickNow = timeNow;
+    clock += dt;
 
-    // Fluid Inertia LERP (Guarded against NaN)
-    if (isNaN(currentProgress)) currentProgress = 0;
-    if (isNaN(targetProgress)) targetProgress = 0;
-    const diff = targetProgress - currentProgress;
-    if (Math.abs(diff) < 0.0002) {
-      currentProgress = targetProgress;
-    } else {
-      currentProgress += diff * 0.075;
+    // Fluid Inertia LERP (Guarded against NaN). Frozen while a direct flight owns the camera.
+    if (!flight) {
+      if (isNaN(currentProgress)) currentProgress = 0;
+      if (isNaN(targetProgress)) targetProgress = 0;
+      const d = targetProgress - currentProgress;
+      if (Math.abs(d) < 0.0002) {
+        currentProgress = targetProgress;
+      } else {
+        currentProgress += d * (1 - Math.exp(-dt * 4.6));
+      }
     }
+    const diff = targetProgress - currentProgress;
 
     const p = currentProgress;
     const baseIdx = Math.floor(p);
@@ -6750,13 +7177,29 @@ ${modalHtml}
 
     camera.lookAt(currentCamTarget);
 
+    // --- Direct house-click flight: straight cinematic dolly, no scroll path ---
+    if (flight) {
+      const u = Math.min(1, (performance.now() - flight.t0) / flight.dur);
+      const e = u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+      const inv = 1 - e;
+      _flightA.copy(flight.fromPos).multiplyScalar(inv * inv);
+      _flightB.copy(flight.ctrl).multiplyScalar(2 * inv * e);
+      _flightC.copy(flight.toPos).multiplyScalar(e * e);
+      camera.position.copy(_flightA).add(_flightB).add(_flightC);
+      _flightT.copy(flight.fromTarget).lerp(flight.toTarget, e);
+      camera.lookAt(_flightT);
+      camOffset.x = 0;
+      camOffset.y = 0;
+      if (u >= 1) finishFlight();
+    }
+
     // Dynamic Foreground Parallax with Cursor Tilt Micro-Parallax
     const mouseShiftX = camOffset.x * 18;
     const mouseShiftY = camOffset.y * 14;
 
-    const fgWall = document.getElementById('fgWall');
-    const fgStones = document.getElementById('fgStones');
-    const fgMaple = document.getElementById('fgMaple');
+    const fgWall = elFgWall;
+    const fgStones = elFgStones;
+    const fgMaple = elFgMaple;
 
     if (fgWall) {
       const wallX = p * 42 + mouseShiftX * 0.8;
@@ -6822,6 +7265,18 @@ ${modalHtml}
       if (positions[i] > 24) positions[i] = 0;
     }
     emberGeo.attributes.position.needsUpdate = true;
+
+    // Snow textures drifting out of the white hero Torii gate
+    if (typeof updateSnow === 'function') updateSnow(dt);
+
+    // Sanctum shoji doors part as the camera walks up to the hall
+    if (SANCTUM.doorL && SANCTUM.doorR) {
+      const openT = Math.max(0, Math.min(1, (p - 8.64) / 0.24));
+      const eo = openT * openT * (3 - 2 * openT);
+      SANCTUM.doorL.position.x = SANCTUM.closedL - eo * 4.44;
+      SANCTUM.doorR.position.x = SANCTUM.closedR + eo * 4.44;
+      if (SANCTUM.light) SANCTUM.light.intensity = 2.1 + eo * 1.1;
+    }
 
     // Drifting 3D Autumn Maple Leaves with rotational turbulence & kinetic breeze
     leafData.forEach(d => {
@@ -6993,12 +7448,20 @@ ${modalHtml}
     const primaryStage = Math.max(0, Math.min(9, Math.round(p)));
 
     // Project-Specific Dynamic 3D Lighting Modulation with Blood Moon Surge Bloom
+    // (the interior sanctum is sealed from the outdoor moon, so it dims down)
+    interiorAmt += (((primaryStage === 9) ? 1 : 0) - interiorAmt) * (1 - Math.exp(-dt * 6.0));
     if (moonLight) {
-      moonLight.intensity = 2.2 + (4.5 - 2.2) * bloodMoonSurge;
+      moonLight.intensity = (2.2 + (4.5 - 2.2) * bloodMoonSurge) * (1 - interiorAmt * 0.94);
     }
     if (shrineLight) {
-      shrineLight.intensity = 3.2 + (4.5 - 3.2) * bloodMoonSurge;
+      // Sealed off inside the sanctum: the hall is lit by its own paper lamp.
+      shrineLight.intensity = (3.2 + (4.5 - 3.2) * bloodMoonSurge) * (1 - interiorAmt * 0.72);
     }
+    // Outdoor weather particles do not exist indoors
+    const outdoorVisible = camera.position.z > -110;
+    if (SAKURA_GROUP) SAKURA_GROUP.visible = outdoorVisible;
+    if (LEAVES_GROUP) LEAVES_GROUP.visible = outdoorVisible;
+    if (typeof embers !== 'undefined' && embers) embers.visible = outdoorVisible;
     targetLightColor.setHex(STAGE_LIGHT_COLORS[primaryStage] || 0xff5a3c);
     if (bloodMoonSurge > 0.001) {
       targetLightColor.lerp(bloodMoonColor, Math.min(1.0, bloodMoonSurge * 0.85));
@@ -7017,6 +7480,12 @@ ${modalHtml}
         playZenChime();
       }
       activeStageIdx = primaryStage;
+      const fgLayerEl = document.getElementById('fg');
+      if (fgLayerEl) {
+        const hideFg = (primaryStage === 9);
+        fgLayerEl.classList.toggle('sanctum-hidden', hideFg);
+        fgLayerEl.style.display = hideFg ? 'none' : '';
+      }
       updateTabTitle();
       activateStageFg(primaryStage);
 
@@ -7101,45 +7570,67 @@ ${modalHtml}
       }
     }
 
-    // --- 3D LANDMARK RAYCASTING & HOUSE HOVER EMISSIVE FLARE (+25% WARM BLOOM) ---
-    let newlyHoveredHouseIdx = -1;
-    const modalEl = document.getElementById('modal');
-    const dossierModalEl = document.getElementById('dossierModal');
-    const modalIsOpen = (modalEl && modalEl.classList.contains('open')) ||
-                        (dossierModalEl && dossierModalEl.classList.contains('open'));
-
-    if (!modalIsOpen && houseRayMouse.x > -900 && typeof camera !== 'undefined' && camera && PROJECT_HOUSES && PROJECT_HOUSES.length > 0) {
-      houseRaycaster.setFromCamera(houseRayMouse, camera);
-      const intersects = houseRaycaster.intersectObjects(PROJECT_HOUSES, true);
-      if (intersects.length > 0) {
-        let curr = intersects[0].object;
-        while (curr) {
-          if (curr.userData && typeof curr.userData.projectIndex === 'number') {
-            newlyHoveredHouseIdx = curr.userData.projectIndex;
-            break;
-          }
-          const pIdx = PROJECT_HOUSES.indexOf(curr);
-          if (pIdx !== -1) {
-            newlyHoveredHouseIdx = pIdx;
-            break;
-          }
-          curr = curr.parent;
-        }
+    // Distance culling: far landmarks are pure fog, so they cost nothing to skip.
+    // This roughly halves the per-frame draw-call count at every stage.
+    let visibleHouses = PROJECT_HOUSES;
+    if (!flight) {
+      const camZ = camera.position.z;
+      visibleHouses = [];
+      for (let i = 0; i < PROJECT_HOUSES.length; i++) {
+        const h = PROJECT_HOUSES[i];
+        h.visible = Math.abs(h.position.z - camZ) < 66;
+        if (h.visible) visibleHouses.push(h);
+      }
+      if (SANCTUM.group) SANCTUM.group.visible = camZ < -66;
+      const shellHidden = camZ < -108;
+      if (window.__shellHidden !== shellHidden) {
+        window.__shellHidden = shellHidden;
+        for (let s = 0; s < MOUNTAIN_SHELL.length; s++) MOUNTAIN_SHELL[s].visible = !shellHidden;
       }
     }
 
-    hoveredHouseIdx = newlyHoveredHouseIdx;
-    isHouseHovered = (hoveredHouseIdx !== -1);
-    let isMoonHovered = false;
-    if (typeof moonDisc !== 'undefined' && moonDisc && typeof houseRaycaster !== 'undefined' && houseRaycaster && houseRayMouse.x > -900) {
-      const mHits = houseRaycaster.intersectObjects([moonDisc, moonHalo], true);
-      isMoonHovered = (mHits.length > 0);
-    }
-    window.__isHouseHovered = isHouseHovered;
-    window.__hoveredHouseIndex = hoveredHouseIdx;
-    window.__isMoonHovered = isMoonHovered;
+    // --- 3D LANDMARK RAYCASTING & HOUSE HOVER EMISSIVE FLARE (+25% WARM BLOOM) ---
+    const modalIsOpen = (elModal && elModal.classList.contains('open')) ||
+                        (elDossierModal && elDossierModal.classList.contains('open'));
 
-    if (cursorRing) {
+    // Hover picking is throttled to every other frame (~30 Hz). The last result is
+    // reused on skipped frames so nothing flickers.
+    hoverFrameCount++;
+    if ((hoverFrameCount & 1) === 0) {
+      let pick = -1;
+      if (!modalIsOpen && !flight && houseRayMouse.x > -900 && PROJECT_HOUSES && PROJECT_HOUSES.length > 0) {
+        houseRaycaster.setFromCamera(houseRayMouse, camera);
+        const intersects = houseRaycaster.intersectObjects(visibleHouses, true);
+        if (intersects.length > 0) {
+          let curr = intersects[0].object;
+          while (curr) {
+            if (curr.userData && typeof curr.userData.projectIndex === 'number') {
+              pick = curr.userData.projectIndex;
+              break;
+            }
+            const pIdx = PROJECT_HOUSES.indexOf(curr);
+            if (pIdx !== -1) {
+              pick = pIdx;
+              break;
+            }
+            curr = curr.parent;
+          }
+        }
+      }
+      hoveredHouseIdx = pick;
+      isHouseHovered = (pick !== -1);
+
+      let moonHover = false;
+      if (!modalIsOpen && typeof moonDisc !== 'undefined' && moonDisc && houseRayMouse.x > -900) {
+        moonHover = houseRaycaster.intersectObjects([moonDisc, moonHalo], true).length > 0;
+      }
+      isMoonHovered = moonHover;
+      window.__isHouseHovered = isHouseHovered;
+      window.__hoveredHouseIndex = hoveredHouseIdx;
+      window.__isMoonHovered = isMoonHovered;
+    }
+
+    if (cursorEnabled && cursorRing) {
       if (isHouseHovered || isMoonHovered) {
         cursorRing.classList.add('hovering');
         document.body.style.cursor = 'pointer';
@@ -7189,6 +7680,26 @@ ${modalHtml}
     // Idle Shakuhachi flute breath check
     if (typeof checkIdleFluteBreath === 'function') {
       checkIdleFluteBreath();
+    }
+
+    // --- Adaptive Resolution Governor: trade pixels for a steady frame time ---
+    frameAccum += dt * 1000;
+    frameCount++;
+    if (frameCount >= 96) {
+      const avgMs = frameAccum / frameCount;
+      frameAccum = 0;
+      frameCount = 0;
+      const cap = Math.min(window.devicePixelRatio || 1, window.innerWidth < 900 ? 1.25 : 1.5);
+      let target = currentPixelRatio;
+      if (avgMs > 25 && target > 0.7) target = Math.max(0.7, target - 0.15);
+      else if (avgMs < 14 && target < cap) target = Math.min(cap, target + 0.1);
+      if (Math.abs(target - currentPixelRatio) > 0.01) {
+        currentPixelRatio = target;
+        renderer.setPixelRatio(currentPixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        if (wispMat && wispMat.uniforms && wispMat.uniforms.uPx) wispMat.uniforms.uPx.value = window.innerHeight;
+        if (snowMat && snowMat.uniforms && snowMat.uniforms.uPx) snowMat.uniforms.uPx.value = window.innerHeight;
+      }
     }
 
     renderer.render(scene, camera);
@@ -7675,6 +8186,8 @@ ${modalHtml}
   // --- 10. CINEMATIC CURSOR & HANKO SEAL RIPPLE ---
   const cursorRing = document.getElementById('cursorRing');
   const cursorDot = document.getElementById('cursorDot');
+  // The custom cursor is retired in CSS; skip all of its per-frame DOM work.
+  const cursorEnabled = !!(cursorRing && window.getComputedStyle(cursorRing).display !== 'none');
   let mouseX = -100, mouseY = -100;
   let ringX = -100, ringY = -100;
   let cursorVisible = false;
