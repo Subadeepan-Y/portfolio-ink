@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<link rel="preload" href="secret-pathways-assets/fonts/IntegralCF-Regular.ttf" as="font" type="font/ttf" crossorigin>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>SUBADEEPAN — Chapter 00: The Hidden Gate (影の道)</title>
 <meta name="theme-color" content="#040507">
@@ -256,7 +255,6 @@ html, body {
 
 /* Specific Stage Placement Rules */
 /* Stage 0 (Hero) */
-[data-fg="sec0"] .fg-grass  { left: 3%;   bottom: -220px; width: clamp(420px, 60vw, 1050px); }
 [data-fg="sec0"] .fg-sakura { left: -6%;  bottom: -80px;  width: clamp(430px, 50vw, 880px); }
 [data-fg="sec0"] .fg-leaves { right: -6%; bottom: -60px;  width: clamp(330px, 38vw, 670px); }
 
@@ -547,82 +545,60 @@ body.blood-moon-active #filmGrain {
   position: relative;
 }
 .rail-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(242, 245, 242, 0.35);
-  box-shadow: 0 0 6px rgba(0, 0, 0, 0.8);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: none;
 }
-.rail-btn:hover .rail-dot {
-  background: #fbfaf6;
-  transform: scale(1.3);
-  box-shadow: 0 0 10px rgba(251, 250, 246, 0.7);
-}
-.rail-btn.on .rail-dot {
-  width: 8px;
-  height: 8px;
-  background: var(--red);
-  box-shadow: 0 0 14px var(--red), 0 0 24px var(--red-glow);
-  animation: railPulse 2.4s infinite ease-in-out;
-}
-@keyframes railPulse {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 0 12px var(--red), 0 0 20px var(--red-glow);
-  }
-  50% {
-    transform: scale(1.35);
-    box-shadow: 0 0 18px var(--red), 0 0 30px rgba(224, 35, 28, 0.8);
-  }
-}
+/* Chapter rail is always readable text (no dot -> label expansion) */
 .rail-label {
   font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.22em;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  opacity: 0;
-  transform: translateX(10px);
-  transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), letter-spacing 0.35s ease, color 0.3s ease;
-  pointer-events: none;
+  opacity: 1;
+  transform: none;
+  transition: color 0.3s ease, letter-spacing 0.35s ease;
+  pointer-events: auto;
   white-space: nowrap;
-  color: var(--bone-title);
-  background: rgba(4, 5, 7, 0.82);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  padding: 4px 10px;
-  border-radius: 2px;
-  border: 1px solid rgba(242, 245, 242, 0.12);
+  color: rgba(242, 245, 242, 0.42);
+  text-align: right;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.95), 0 0 18px rgba(0, 0, 0, 0.8);
   display: inline-flex;
   align-items: center;
   gap: 8px;
 }
 .rail-num {
-  color: var(--red);
+  color: rgba(242, 245, 242, 0.30);
   font-weight: 700;
   font-size: 9px;
   letter-spacing: 0.1em;
+  transition: color 0.3s ease, text-shadow 0.3s ease;
 }
 .rail-kanji {
   font-family: var(--font-jp);
-  font-size: 11px;
-  color: var(--gold);
+  font-size: 10px;
+  color: rgba(212, 175, 55, 0.45);
   letter-spacing: 0.15em;
   padding-left: 4px;
-  border-left: 1px solid rgba(212, 175, 55, 0.35);
-  text-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
-}
-.rail-btn:hover .rail-label, .rail-btn.on .rail-label {
-  opacity: 1;
-  transform: translateX(0);
+  border-left: 1px solid rgba(212, 175, 55, 0.18);
+  transition: color 0.3s ease, border-color 0.3s ease;
 }
 .rail-btn:hover .rail-label {
-  border-color: rgba(212, 175, 55, 0.45);
-  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.7);
+  color: #fbfaf6;
+  letter-spacing: 0.22em;
+}
+.rail-btn:hover .rail-num {
+  color: var(--gold);
 }
 .rail-btn.on .rail-label {
-  border-color: rgba(224, 35, 28, 0.4);
-  box-shadow: 0 0 12px var(--red-glow), 0 2px 14px rgba(0, 0, 0, 0.7);
+  color: #fbfaf6;
+  letter-spacing: 0.22em;
+}
+.rail-btn.on .rail-num {
+  color: var(--red);
+  text-shadow: 0 0 10px var(--red-glow);
+}
+.rail-btn.on .rail-kanji {
+  color: var(--gold);
+  border-left-color: rgba(212, 175, 55, 0.45);
 }
 
 /* ================================================================
@@ -2599,7 +2575,6 @@ body.loaded .hero-heading {
 <div id="fg" aria-hidden="true" style="pointer-events:none; position:fixed; inset:0; z-index:4;">
   <img id="fgWall" class="fg-el fg-wall" src="secret-pathways-assets/foreground/png/temple-wall.webp" alt="" style="position:fixed; left:-5%; bottom:-20px; width:45vw; max-width:650px; pointer-events:none; will-change:transform;">
   <img id="fgStones" class="fg-el fg-stones" src="secret-pathways-assets/foreground/png/basalt-stones.webp" alt="" style="position:fixed; right:-4%; bottom:-20px; width:35vw; max-width:500px; pointer-events:none; will-change:transform;">
-  <img id="fgGrass" class="fg-el fg-grass" src="secret-pathways-assets/foreground/png/tall-grass.webp" alt="" style="position:fixed; left:22%; bottom:-30px; width:28vw; max-width:400px; pointer-events:none; will-change:transform;">
   <img id="fgMaple" class="fg-el fg-maple" src="secret-pathways-assets/foreground/png/maple-leaves.webp" alt="" style="position:fixed; right:8%; top:-10px; width:25vw; max-width:350px; pointer-events:none; will-change:transform;">
 </div>
 
@@ -2654,9 +2629,6 @@ body.loaded .hero-heading {
   <!-- Stage 0: HERO // THE HIDDEN GATE -->
   <section class="scene-layer active" id="sec0">
     <div class="fg" data-fg="sec0" aria-hidden="true">
-      <span class="fg-el fg-grass" data-fg-in="up">
-        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/tall-grass.webp" alt="" width="1717" height="916" loading="lazy" decoding="async">
-      </span>
       <span class="fg-el fg-sakura fg-el--sway" data-fg-in="left">
         <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/sakura-branch.webp" alt="" width="1536" height="1024" loading="lazy" decoding="async">
       </span>
@@ -3741,18 +3713,172 @@ body.loaded .hero-heading {
   scene.add(shrineLight);
   window.shrineLight = shrineLight;
 
+  // --- Procedural architectural surface maps (aged wood, roof tile, stone, plaster) ---
+  function texWoodSurface(base, grainRGB, contrast) {
+    const W = 256, H = 512, c = cvs(W, H), x = c.getContext('2d');
+    x.fillStyle = base || '#d6c3ae';
+    x.fillRect(0, 0, W, H);
+    for (let i = 0; i < 130; i++) {
+      const gx = Math.random() * W;
+      const amp = 2 + Math.random() * 7;
+      const freq = 0.008 + Math.random() * 0.022;
+      const alpha = (contrast || 0.18) * (0.35 + Math.random() * 0.65);
+      x.strokeStyle = 'rgba(' + grainRGB + ',' + alpha.toFixed(3) + ')';
+      x.lineWidth = 0.6 + Math.random() * 2.2;
+      x.beginPath();
+      for (let y = 0; y <= H; y += 10) {
+        const px = gx + Math.sin(y * freq + i * 0.7) * amp;
+        if (y === 0) x.moveTo(px, y); else x.lineTo(px, y);
+      }
+      x.stroke();
+    }
+    // Knots / grain swirls
+    for (let k = 0; k < 7; k++) {
+      const kx = Math.random() * W, ky = Math.random() * H;
+      for (let r = 3; r < 18; r += 3) {
+        x.strokeStyle = 'rgba(' + grainRGB + ',' + Math.max(0.02, 0.20 - r * 0.009).toFixed(3) + ')';
+        x.lineWidth = 1.2;
+        x.beginPath();
+        x.ellipse(kx, ky, r * 1.7, r, 0, 0, Math.PI * 2);
+        x.stroke();
+      }
+    }
+    const tex = new THREE.CanvasTexture(c);
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    if (THREE.sRGBEncoding !== undefined) tex.encoding = THREE.sRGBEncoding;
+    return tex;
+  }
+
+  function texRoofTiles() {
+    const W = 256, H = 256, c = cvs(W, H), x = c.getContext('2d');
+    x.fillStyle = '#8d99a3';
+    x.fillRect(0, 0, W, H);
+    const rows = 8, cols = 8, tw = W / cols, th = H / rows;
+    for (let r = -1; r <= rows; r++) {
+      const y0 = r * th;
+      for (let col = -1; col <= cols; col++) {
+        const cx = col * tw + (r % 2 ? tw * 0.5 : 0) + tw * 0.5;
+        const g = x.createLinearGradient(0, y0, 0, y0 + th);
+        g.addColorStop(0, '#dbe3e8');
+        g.addColorStop(0.42, '#aebac3');
+        g.addColorStop(0.82, '#7e8a94');
+        g.addColorStop(1, '#5c6771');
+        x.fillStyle = g;
+        x.beginPath();
+        x.moveTo(cx - tw * 0.52, y0 + th);
+        x.quadraticCurveTo(cx - tw * 0.52, y0, cx, y0);
+        x.quadraticCurveTo(cx + tw * 0.52, y0, cx + tw * 0.52, y0 + th);
+        x.closePath();
+        x.fill();
+        x.strokeStyle = 'rgba(30, 38, 46, 0.42)';
+        x.lineWidth = 1.5;
+        x.stroke();
+      }
+      // Horizontal tile-course shadow line
+      x.fillStyle = 'rgba(18, 24, 30, 0.38)';
+      x.fillRect(0, y0 + th - 2, W, 2);
+    }
+    const tex = new THREE.CanvasTexture(c);
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    if (THREE.sRGBEncoding !== undefined) tex.encoding = THREE.sRGBEncoding;
+    return tex;
+  }
+
+  function texStoneBlocks() {
+    const W = 256, H = 256, c = cvs(W, H), x = c.getContext('2d');
+    x.fillStyle = '#4c535b';
+    x.fillRect(0, 0, W, H);
+    const rows = 6, rowH = H / rows;
+    for (let r = 0; r < rows; r++) {
+      const y0 = r * rowH;
+      const offset = (r % 2) * 0.5;
+      const cols = 3;
+      for (let col = -1; col <= cols; col++) {
+        const bw = W / cols;
+        const bx = (col + offset) * bw + 2;
+        const shade = 138 + Math.floor(Math.random() * 46);
+        x.fillStyle = 'rgb(' + shade + ',' + (shade + 3) + ',' + (shade + 8) + ')';
+        x.fillRect(bx, y0 + 2, bw - 4, rowH - 4);
+        // Weathering speckles
+        for (let s = 0; s < 26; s++) {
+          const sx = bx + Math.random() * (bw - 4);
+          const sy = y0 + 2 + Math.random() * (rowH - 4);
+          x.fillStyle = 'rgba(' + (shade - 40) + ',' + (shade - 36) + ',' + (shade - 30) + ',' + (0.08 + Math.random() * 0.16).toFixed(3) + ')';
+          x.fillRect(sx, sy, 1 + Math.random() * 3, 1 + Math.random() * 2);
+        }
+      }
+    }
+    const tex = new THREE.CanvasTexture(c);
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    if (THREE.sRGBEncoding !== undefined) tex.encoding = THREE.sRGBEncoding;
+    return tex;
+  }
+
+  function texPlasterSurface() {
+    const W = 256, H = 256, c = cvs(W, H), x = c.getContext('2d');
+    x.fillStyle = '#f0ede4';
+    x.fillRect(0, 0, W, H);
+    for (let i = 0; i < 420; i++) {
+      const r = 2 + Math.random() * 16;
+      x.fillStyle = 'rgba(150, 143, 128, ' + (0.015 + Math.random() * 0.045).toFixed(3) + ')';
+      x.beginPath();
+      x.arc(Math.random() * W, Math.random() * H, r, 0, Math.PI * 2);
+      x.fill();
+    }
+    for (let i = 0; i < 900; i++) {
+      x.fillStyle = 'rgba(110, 104, 92, ' + (0.02 + Math.random() * 0.05).toFixed(3) + ')';
+      x.fillRect(Math.random() * W, Math.random() * H, 1, 1);
+    }
+    const tex = new THREE.CanvasTexture(c);
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    if (THREE.sRGBEncoding !== undefined) tex.encoding = THREE.sRGBEncoding;
+    return tex;
+  }
+
+  const woodTex = texWoodSurface('#c4b09a', '48,32,22', 0.24);
+  woodTex.repeat.set(2, 2);
+  const pillarWoodTex = texWoodSurface('#bda890', '40,26,18', 0.26);
+  pillarWoodTex.repeat.set(1, 3);
+  const roofTileTex = texRoofTiles();
+  roofTileTex.repeat.set(1, 1);
+  const stoneBlockTex = texStoneBlocks();
+  stoneBlockTex.repeat.set(2, 2);
+  const plasterTex = texPlasterSurface();
+  plasterTex.repeat.set(3, 3);
+
   // Common Materials
-  const woodMat = new THREE.MeshStandardMaterial({ color: 0x140f10, roughness: 0.85 });
-  const pillarWoodMat = new THREE.MeshStandardMaterial({ color: 0x221a18, roughness: 0.75 });
+  const woodMat = new THREE.MeshStandardMaterial({
+    color: 0x241a16, roughness: 0.85,
+    map: woodTex, bumpMap: woodTex, bumpScale: 0.025
+  });
+  const pillarWoodMat = new THREE.MeshStandardMaterial({
+    color: 0x2b1f1a, roughness: 0.75,
+    map: pillarWoodTex, bumpMap: pillarWoodTex, bumpScale: 0.02
+  });
   const redLacquerMat = new THREE.MeshStandardMaterial({ color: 0x9b1b1b, roughness: 0.45, metalness: 0.25 });
   const purpleLacquerMat = new THREE.MeshStandardMaterial({ color: 0x4c1d6b, roughness: 0.45, metalness: 0.25 });
   const goldBrassMat = new THREE.MeshStandardMaterial({ color: 0xc89b3c, roughness: 0.35, metalness: 0.85 });
   window.__goldBrassMat = goldBrassMat;
-  const darkTileMat = new THREE.MeshStandardMaterial({ color: 0x1b2328, roughness: 0.72, metalness: 0.12 });
-  const redTileMat = new THREE.MeshStandardMaterial({ color: 0x5a1816, roughness: 0.75, metalness: 0.1 });
-  const purpleTileMat = new THREE.MeshStandardMaterial({ color: 0x2a1438, roughness: 0.75, metalness: 0.1 });
-  const whitePlasterMat = new THREE.MeshStandardMaterial({ color: 0xe8e5dc, roughness: 0.92 });
-  const stoneMat = new THREE.MeshStandardMaterial({ color: 0x24282e, roughness: 0.92 });
+  const darkTileMat = new THREE.MeshStandardMaterial({
+    color: 0x222b32, roughness: 0.68, metalness: 0.14,
+    map: roofTileTex, bumpMap: roofTileTex, bumpScale: 0.04
+  });
+  const redTileMat = new THREE.MeshStandardMaterial({
+    color: 0x5f1d1a, roughness: 0.72, metalness: 0.1,
+    map: roofTileTex, bumpMap: roofTileTex, bumpScale: 0.04
+  });
+  const purpleTileMat = new THREE.MeshStandardMaterial({
+    color: 0x301c42, roughness: 0.72, metalness: 0.1,
+    map: roofTileTex, bumpMap: roofTileTex, bumpScale: 0.04
+  });
+  const whitePlasterMat = new THREE.MeshStandardMaterial({
+    color: 0xe8e5dc, roughness: 0.92,
+    map: plasterTex, bumpMap: plasterTex, bumpScale: 0.012
+  });
+  const stoneMat = new THREE.MeshStandardMaterial({
+    color: 0x2b3037, roughness: 0.92,
+    map: stoneBlockTex, bumpMap: stoneBlockTex, bumpScale: 0.035
+  });
   const paperMat = new THREE.MeshStandardMaterial({
     color: 0xffaa48,
     emissive: 0xffaa48,
@@ -3767,8 +3893,14 @@ body.loaded .hero-heading {
     roughness: 0.9,
     metalness: 0.0
   });
-  const cedarShingleMat = new THREE.MeshStandardMaterial({ color: 0x3d271d, roughness: 0.88 });
-  const hinokiMat = new THREE.MeshStandardMaterial({ color: 0x8a5d3b, roughness: 0.78 });
+  const cedarShingleMat = new THREE.MeshStandardMaterial({
+    color: 0x3d281f, roughness: 0.88,
+    map: woodTex, bumpMap: woodTex, bumpScale: 0.03
+  });
+  const hinokiMat = new THREE.MeshStandardMaterial({
+    color: 0x7d5537, roughness: 0.78,
+    map: pillarWoodTex, bumpMap: pillarWoodTex, bumpScale: 0.025
+  });
   const darkIronMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1c, roughness: 0.55, metalness: 0.85 });
   function texWaterRipple() {
     const W = 256, H = 256, c = cvs(W, H), ctx = c.getContext('2d');
@@ -3856,22 +3988,42 @@ body.loaded .hero-heading {
   const bambooMat = new THREE.MeshStandardMaterial({ color: 0x6e783a, roughness: 0.65 });
   const bronzeBellMat = new THREE.MeshStandardMaterial({ color: 0x4a3b22, roughness: 0.40, metalness: 0.75 });
 
-  // Scholar plaque calligraphy texture
+  // Scholar plaque calligraphy texture (high-res to avoid shimmer/moire at distance)
   function texScholarPlaque() {
-    const W = 256, H = 128, c = cvs(W, H), x = c.getContext('2d');
+    const W = 1024, H = 512, c = cvs(W, H), x = c.getContext('2d');
     x.fillStyle = '#110d0e';
     x.fillRect(0, 0, W, H);
+    // Subtle lacquered wood grain behind the calligraphy
+    for (let i = 0; i < 90; i++) {
+      x.strokeStyle = 'rgba(120, 92, 48, ' + (0.03 + Math.random() * 0.05).toFixed(3) + ')';
+      x.lineWidth = 1 + Math.random() * 2;
+      const gx = Math.random() * W;
+      x.beginPath();
+      for (let y = 0; y <= H; y += 16) {
+        const px = gx + Math.sin(y * 0.012 + i) * 5;
+        y === 0 ? x.moveTo(px, y) : x.lineTo(px, y);
+      }
+      x.stroke();
+    }
     x.strokeStyle = '#c89b3c';
-    x.lineWidth = 6;
-    x.strokeRect(6, 6, W - 12, H - 12);
-    x.lineWidth = 2;
-    x.strokeRect(12, 12, W - 24, H - 24);
+    x.lineWidth = 24;
+    x.strokeRect(24, 24, W - 48, H - 48);
+    x.lineWidth = 8;
+    x.strokeRect(52, 52, W - 104, H - 104);
     x.fillStyle = '#f5eedc';
-    x.font = 'bold 54px serif';
+    x.font = 'bold 216px serif';
     x.textAlign = 'center';
     x.textBaseline = 'middle';
-    x.fillText('學宮', W / 2, H / 2);
-    return new THREE.CanvasTexture(c);
+    x.fillText('學宮', W / 2, H / 2 + 8);
+    const tex = new THREE.CanvasTexture(c);
+    tex.wrapS = THREE.ClampToEdgeWrapping;
+    tex.wrapT = THREE.ClampToEdgeWrapping;
+    tex.minFilter = THREE.LinearMipmapLinearFilter;
+    tex.magFilter = THREE.LinearFilter;
+    tex.generateMipmaps = true;
+    tex.anisotropy = 8;
+    if (THREE.sRGBEncoding !== undefined) tex.encoding = THREE.sRGBEncoding;
+    return tex;
   }
 
   // Japanese Tokukyo (Dougong) Eaves Bracket Complex
@@ -4769,7 +4921,92 @@ body.loaded .hero-heading {
   ];
   const lanterns = LANTERN_CONFIGS.map(c => createStoneLantern(c.x, c.z));
   lanterns.forEach(l => WORLD_BG.add(l.group));
+
+  // Additional garden lantern on the right bank to anchor the empty hero skyline
+  const rightGardenLantern = createStoneLantern(12.5, -12);
+  WORLD_BG.add(rightGardenLantern.group);
+  lanterns.push(rightGardenLantern);
   window.__lanterns = lanterns;
+
+  // Distant hillside pagoda silhouette filling the right-hand horizon at the hero
+  function createDistantPagoda() {
+    const g = new THREE.Group();
+    const bodyMat = new THREE.MeshBasicMaterial({ color: 0x0d1420, fog: false });
+    const roofMat = new THREE.MeshBasicMaterial({ color: 0x080c14, fog: false });
+    const eaveMat = new THREE.MeshBasicMaterial({ color: 0x2a1710, fog: false });
+    const glowMat = new THREE.MeshBasicMaterial({ color: 0xe08a42, fog: false });
+
+    const plinth = new THREE.Mesh(new THREE.BoxGeometry(5.6, 0.9, 5.6), bodyMat);
+    plinth.position.y = 0.45;
+    g.add(plinth);
+
+    let py = 0.9, pw = 4.4;
+    for (let i = 0; i < 3; i++) {
+      const body = new THREE.Mesh(new THREE.BoxGeometry(pw, 1.5, pw), bodyMat);
+      body.position.y = py + 0.75;
+      g.add(body);
+
+      const roof = new THREE.Mesh(roofGeo(pw * 0.82, pw * 0.82, pw * 0.22, 0.85, 0.16, 0.32), roofMat);
+      roof.position.y = py + 1.5;
+      g.add(roof);
+
+      // Faint warm eave edge so the silhouette reads as a pagoda, not a blob
+      const eave = new THREE.Mesh(new THREE.BoxGeometry(pw * 1.62, 0.055, 0.09), eaveMat);
+      eave.position.set(0, py + 1.47, pw * 0.80);
+      g.add(eave);
+      const eaveL = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.055, pw * 1.30), eaveMat);
+      eaveL.position.set(-pw * 0.80, py + 1.47, 0);
+      g.add(eaveL);
+      const eaveR = eaveL.clone();
+      eaveR.position.x = pw * 0.80;
+      g.add(eaveR);
+
+      const win = new THREE.Mesh(new THREE.PlaneGeometry(pw * 0.22, 0.55), glowMat);
+      win.position.set(0, py + 0.72, pw / 2 + 0.02);
+      g.add(win);
+
+      py += 1.95;
+      pw *= 0.74;
+    }
+
+    const finial = new THREE.Mesh(new THREE.ConeGeometry(0.22, 1.5, 6), roofMat);
+    finial.position.y = py + 0.5;
+    g.add(finial);
+    return g;
+  }
+
+  // Dark hillside mound so the distant pagoda is seated on the ridge line
+  const pagodaHill = new THREE.Mesh(
+    new THREE.ConeGeometry(15, 7.5, 10),
+    new THREE.MeshBasicMaterial({ color: 0x070b12, fog: false })
+  );
+  pagodaHill.position.set(36, -1.4, -62);
+  pagodaHill.scale.set(1.6, 0.8, 1);
+  WORLD_BG.add(pagodaHill);
+
+  const distantPagoda = createDistantPagoda();
+  distantPagoda.position.set(36, 3.4, -60);
+  distantPagoda.scale.setScalar(2.2);
+  distantPagoda.rotation.y = -0.35;
+  WORLD_BG.add(distantPagoda);
+  window.__distantPagoda = distantPagoda;
+
+  // Warm atmospheric halo anchoring the distant pagoda to the skyline
+  const pagodaHalo = new THREE.Mesh(
+    new THREE.PlaneGeometry(26, 22),
+    new THREE.MeshBasicMaterial({
+      map: texWispDot(),
+      color: 0xff5a32,
+      transparent: true,
+      opacity: 0.11,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      fog: false
+    })
+  );
+  pagodaHalo.position.set(36, 7.5, -64);
+  WORLD_BG.add(pagodaHalo);
+  window.__pagodaHalo = pagodaHalo;
 
   // --- 4A-2. ZEN GARDEN RAKED SAND RIPPLES (SAMON 砂紋) AROUND 13 LANTERN BASES ---
   function texSamonDiffuse() {
@@ -5164,9 +5401,18 @@ body.loaded .hero-heading {
     }
 
     // Scholar Plaque (Hengaku) with Kanji Inscription
-    const plaqueMat = new THREE.MeshBasicMaterial({ map: texScholarPlaque(), side: THREE.DoubleSide });
+    // Plane sits clearly in front of the frame face to prevent z-fighting shimmer.
+    const plaqueMat = new THREE.MeshBasicMaterial({
+      map: texScholarPlaque(),
+      side: THREE.FrontSide,
+      transparent: false,
+      polygonOffset: true,
+      polygonOffsetFactor: -2,
+      polygonOffsetUnits: -2
+    });
     const plaque = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.8), plaqueMat);
-    plaque.position.set(0, 6.6, 2.0);
+    plaque.position.set(0, 6.6, 2.035);
+    plaque.renderOrder = 2;
     h.add(plaque);
     const plaqueFrame = new THREE.Mesh(new THREE.BoxGeometry(1.72, 0.92, 0.08), goldBrassMat);
     plaqueFrame.position.set(0, 6.6, 1.96);
@@ -6638,7 +6884,6 @@ body.loaded .hero-heading {
 
     const fgWall = document.getElementById('fgWall');
     const fgStones = document.getElementById('fgStones');
-    const fgGrass = document.getElementById('fgGrass');
     const fgMaple = document.getElementById('fgMaple');
 
     if (fgWall) {
@@ -6652,13 +6897,6 @@ body.loaded .hero-heading {
       const stonesY = Math.cos(p * 0.45) * 14 + mouseShiftY * 0.8;
       fgStones.style.transform = `translate3d(${stonesX.toFixed(2)}px, ${stonesY.toFixed(2)}px, 0)`;
       fgStones.style.opacity = p >= 2 && p <= 7 ? 0.40 : 0.85;
-    }
-    if (fgGrass) {
-      const grassSway = Math.sin(clock * 0.85) * 6;
-      const grassY = p * 18 + mouseShiftY * 1.5;
-      const grassX = grassSway + mouseShiftX * 1.4;
-      fgGrass.style.transform = `translate3d(${grassX.toFixed(2)}px, ${grassY.toFixed(2)}px, 0)`;
-      fgGrass.style.opacity = p >= 2 && p <= 7 ? 0.40 : 0.75;
     }
     if (fgMaple) {
       const mapleX = Math.cos(clock * 0.6) * 7 + mouseShiftX * 2.2;
@@ -7219,64 +7457,67 @@ body.loaded .hero-heading {
   }
   window.initAudio = initAudio;
 
-  function unlockAudio() {
+  let audioUnlocked = false;
+  let bgmStarted = false;
+
+  if (bgm) {
+    bgm.addEventListener('playing', function () {
+      bgmStarted = true;
+      audioUnlocked = true;
+      if (soundBtn) soundBtn.classList.remove('muted');
+      startVisualizerLoop();
+    });
+  }
+
+  // Audio must be created/resumed inside a real user activation. No eager
+  // AudioContext at load (that leaves a suspended context that appears "on").
+  function forceAudioPlay(evt) {
+    if (isMuted) return;
+    const type = evt && evt.type;
+    const isActivation = !type || type === 'click' || type === 'pointerdown' ||
+      type === 'touchend' || type === 'keydown' || type === 'touchstart';
+    // Never construct an AudioContext from scroll/load: Chrome leaves it
+    // suspended and the UI would claim sound is on while it is silent.
+    if (!audioCtx && !isActivation) return;
     try {
       if (!audioCtx) initAudioEngine();
-      if (audioCtx && audioCtx.state === 'suspended' && !isMuted) {
-        audioCtx.resume().catch(() => {});
-        if (ambientGain) {
+      if (!audioCtx) return;
+
+      const markRunning = function () {
+        audioUnlocked = true;
+        if (ambientGain && audioCtx.state === 'running') {
           const now = audioCtx.currentTime;
           ambientGain.gain.cancelScheduledValues(now);
-          ambientGain.gain.setValueAtTime(0.0001, now);
-          ambientGain.gain.linearRampToValueAtTime(TARGET_AMBIENT_VOL, now + 0.4);
+          ambientGain.gain.setTargetAtTime(TARGET_AMBIENT_VOL, now, 0.12);
         }
         startVisualizerLoop();
+      };
+
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume().then(markRunning).catch(function () {});
+      } else {
+        markRunning();
       }
-      if (bgm && !isMuted) {
+
+      if (bgm) {
         bgm.muted = false;
         if (bgm.paused) {
-          bgm.play().then(() => {
-            rampBgmVolume(TARGET_VOL, 500);
-          }).catch(() => {});
+          const p = bgm.play();
+          if (p && p.then) {
+            p.then(function () { rampBgmVolume(TARGET_VOL, 400); }).catch(function () {});
+          }
+        } else {
+          rampBgmVolume(TARGET_VOL, 250);
         }
       }
     } catch (e) {}
   }
+  window.forceAudioPlay = forceAudioPlay;
 
-  // Attempt immediate playback on page load
-  try {
-    initAudioEngine();
-    if (bgm) {
-      bgm.muted = false;
-      bgm.volume = TARGET_VOL;
-      bgm.play().catch(() => {
-        // Autoplay blocked by browser policy until first gesture
-      });
-    }
-  } catch (_) {}
-
-  function forceAudioPlay() {
-    if (isMuted) return;
-    try {
-      if (!audioCtx) initAudioEngine();
-      if (audioCtx && audioCtx.state === 'suspended') {
-        audioCtx.resume();
-        startVisualizerLoop();
-      }
-      if (bgm && !isMuted) {
-        bgm.muted = false;
-        bgm.volume = 0.35;
-        const p = bgm.play();
-        if (p && p.catch) p.catch(() => {});
-      }
-    } catch(e) {}
-  }
-  ['click', 'pointerdown', 'touchstart', 'keydown', 'wheel', 'scroll'].forEach(evt => {
-    window.addEventListener(evt, forceAudioPlay, { passive: true });
-    document.addEventListener(evt, forceAudioPlay, { passive: true });
+  // Capture phase: fires even if a control's handler calls stopPropagation().
+  ['click', 'pointerdown', 'touchend', 'keydown', 'touchstart', 'wheel', 'scroll'].forEach(function (evt) {
+    window.addEventListener(evt, forceAudioPlay, { passive: true, capture: true });
   });
-  window.addEventListener('load', forceAudioPlay);
-  forceAudioPlay();
 
   // Zen bell resonance on chapter transitions (432Hz + 864Hz octave with exponential decay)
   // Custom House Arrival Sound Effect (Base64 data URI for zero network delay)
@@ -7446,6 +7687,7 @@ body.loaded .hero-heading {
   // Smooth Volume Ramps (400ms unmute ramp-in, 300ms mute ramp-out, zero clicks/pops)
   function unmuteSound() {
     isMuted = false;
+    audioUnlocked = true;
     if (soundBtn) soundBtn.classList.remove('muted');
     if (!audioCtx) initAudioEngine();
 
@@ -7538,7 +7780,9 @@ body.loaded .hero-heading {
   if (soundBtn) {
     soundBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (isMuted) {
+      // If audio never actually started (autoplay policy blocked it), the first
+      // click must start sound instead of silently flipping to "muted".
+      if (isMuted || !bgmStarted) {
         unmuteSound();
       } else {
         muteSound();
@@ -7639,7 +7883,6 @@ body.loaded .hero-heading {
   window.init3DCardTilt = init3DCardTilt;
   init3DCardTilt();
 
-  try { initAudioEngine(); } catch (_) {}
   updateTabTitle();
   activateStageFg(0);
   tick();
