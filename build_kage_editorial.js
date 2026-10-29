@@ -4803,12 +4803,12 @@ ${modalHtml}
 
   // Warm atmospheric halo anchoring the distant pagoda to the skyline
   const pagodaHalo = new THREE.Mesh(
-    new THREE.PlaneGeometry(26, 22),
+    new THREE.PlaneGeometry(30, 26),
     new THREE.MeshBasicMaterial({
       map: texWispDot(),
-      color: 0xff5a32,
+      color: 0xfff1e2,
       transparent: true,
-      opacity: 0.11,
+      opacity: 0.16,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
       fog: false
@@ -6237,6 +6237,16 @@ ${modalHtml}
     const ease = function (t) {
       return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
     };
+    const hs = Math.max(0, Math.min(5, Math.floor(startP) - 2));
+    const th = Math.max(0, Math.min(5, Math.floor(stageIdx) - 2));
+
+    // Keep only the departure/arrival houses visible during the flight so the
+    // camera does NOT pass through the intermediate houses one by one.
+    function applyDirectHouseVis(high, low) {
+      if (!PROJECT_HOUSES || PROJECT_HOUSES.length === 0) return;
+      if (high === low) { PROJECT_HOUSES.forEach(h => { h.visible = true; }); return; }
+      PROJECT_HOUSES.forEach((h, i) => { h.visible = (i === high || i === low); });
+    }
 
     function step(now) {
       const t = Math.min(1, (now - t0) / dur);
@@ -6246,6 +6256,7 @@ ${modalHtml}
       currentProgress = eased;
       targetProgress = eased;
       if (t < 1) {
+        applyDirectHouseVis(hs, th);
         flyRafId = requestAnimationFrame(step);
         return;
       }
@@ -6254,6 +6265,9 @@ ${modalHtml}
       flyRafId = null;
       setTimeout(function () {
         document.body.classList.remove('cinematic-flight');
+        if (PROJECT_HOUSES && PROJECT_HOUSES.length > 0) {
+          PROJECT_HOUSES.forEach(h => { h.visible = true; });
+        }
         if (typeof window.openModal === 'function') window.openModal(projIdx);
       }, 180);
     }
