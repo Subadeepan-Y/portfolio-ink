@@ -4806,7 +4806,7 @@ ${modalHtml}
     new THREE.PlaneGeometry(30, 26),
     new THREE.MeshBasicMaterial({
       map: texWispDot(),
-      color: 0xfff1e2,
+      color: 0xffffff,
       transparent: true,
       opacity: 0.16,
       blending: THREE.AdditiveBlending,
