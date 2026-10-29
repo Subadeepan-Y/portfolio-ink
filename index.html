@@ -76,6 +76,11 @@ html, body {
   height: 100vh;
   z-index: 1;
   display: block;
+  transform-origin: 50% 46%;
+  transition: transform 1.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+body.cinematic-flight #gl {
+  transform: scale(1.055);
 }
 
 /* Atmospheric Overlays */
@@ -261,39 +266,32 @@ html, body {
 /* Stage 1 (Maker) */
 [data-fg="sec1"] .fg-wall   { left: 0;    bottom: -30px;  width: clamp(430px, 47vw, 780px); }
 [data-fg="sec1"] .fg-pine   { right: -4%; bottom: -46px;  width: clamp(190px, 21vw, 370px); }
-[data-fg="sec1"] .fg-grass  { left: 3%;   bottom: -230px; width: clamp(420px, 60vw, 1050px); }
 
 /* Stage 2 (iGradeify) */
 [data-fg="sec2"] .fg-stones { left: -4%;  bottom: -48px;  width: clamp(250px, 30vw, 530px); }
 [data-fg="sec2"] .fg-lantern{ left: 10%;  bottom: -60px;  width: clamp(120px, 13vw, 215px); }
 [data-fg="sec2"] .fg-lantern > img { filter: saturate(1.1) brightness(1.05) drop-shadow(0 0 24px rgba(255, 142, 60, 0.5)); }
-[data-fg="sec2"] .fg-grass  { right: -4%; bottom: -210px; width: clamp(360px, 50vw, 850px); }
 
 /* Stage 3 (Manim-TS) */
 [data-fg="sec3"] .fg-pine   { left: -4%;  bottom: -40px;  width: clamp(190px, 21vw, 370px); }
-[data-fg="sec3"] .fg-bush   { right: -4%; bottom: -38px;  width: clamp(250px, 30vw, 530px); }
 [data-fg="sec3"] .fg-leaves { right: -5%; top: -30px; bottom: auto; width: clamp(300px, 35vw, 620px); }
 
 /* Stage 4 (Duel Deck) */
 [data-fg="sec4"] .fg-sakura { left: -8%;  bottom: -70px;  width: clamp(400px, 48vw, 820px); }
 [data-fg="sec4"] .fg-stones { right: -4%; bottom: -48px;  width: clamp(250px, 30vw, 530px); }
-[data-fg="sec4"] .fg-grass  { left: 16%;  bottom: -120px; width: clamp(340px, 46vw, 780px); }
 
 /* Stage 5 (Desktop Buddy) */
 [data-fg="sec5"] .fg-wall   { right: -5%; bottom: -40px;  width: clamp(390px, 45vw, 760px); }
-[data-fg="sec5"] .fg-bush   { left: -5%;  bottom: -50px;  width: clamp(240px, 28vw, 480px); }
 [data-fg="sec5"] .fg-lantern{ right: 16%; bottom: -60px;  width: clamp(120px, 13vw, 215px); }
 [data-fg="sec5"] .fg-lantern > img { filter: saturate(1.1) brightness(1.05) drop-shadow(0 0 24px rgba(255, 142, 60, 0.5)); }
 
 /* Stage 6 (Greate Engine) */
 [data-fg="sec6"] .fg-hill   { left: -8%;  bottom: calc(-1 * min(18vh, 14vw)); width: min(140vh, 112%); }
 [data-fg="sec6"] .fg-stones { right: -3%; bottom: -48px;  width: clamp(240px, 28vw, 500px); }
-[data-fg="sec6"] .fg-grass  { right: 12%; bottom: -110px; width: clamp(320px, 45vw, 750px); }
 
 /* Stage 7 (Personal Cloud) */
 [data-fg="sec7"] .fg-ruins  { left: -5%;  bottom: -32px;  width: clamp(240px, 28vw, 500px); }
 [data-fg="sec7"] .fg-pine   { right: -4%; bottom: -46px;  width: clamp(190px, 21vw, 370px); }
-[data-fg="sec7"] .fg-grass  { left: 18%;  bottom: -110px; width: clamp(340px, 48vw, 800px); }
 
 /* Stage 8 (Ritual) */
 [data-fg="sec8"] .fg-wall   { right: -6%; bottom: -40px;  width: clamp(390px, 48vw, 820px); }
@@ -304,7 +302,6 @@ html, body {
 [data-fg="sec9"] .fg-lantern{ left: 2%;   bottom: -60px;  width: clamp(130px, 15vw, 240px); }
 [data-fg="sec9"] .fg-lantern > img { filter: saturate(1.1) brightness(1.05) drop-shadow(0 0 24px rgba(255, 142, 60, 0.5)); }
 [data-fg="sec9"] .fg-sakura { right: -8%; bottom: -70px;  width: clamp(400px, 46vw, 800px); }
-[data-fg="sec9"] .fg-grass  { left: 12%;  bottom: -110px; width: clamp(380px, 55vw, 900px); }
 
 @media (max-width: 1080px) {
   [data-fg] .fg-wall   { width: clamp(360px, 42vw, 600px); }
@@ -313,9 +310,7 @@ html, body {
 }
 
 @media (max-width: 900px) {
-  /* Prevent high bushes and hanging trees from obscuring text and headings on mobile */
-  .fg .fg-grass,
-  .fg .fg-bush,
+  /* Prevent hanging trees from obscuring text and headings on mobile */
   .fg .fg-leaves,
   .fg .fg-sakura {
     display: none !important;
@@ -1892,10 +1887,6 @@ body.blood-moon-active #filmGrain {
     width: clamp(160px, 40vw, 240px);
     left: -4vw;
   }
-  .fg-grass {
-    width: clamp(180px, 45vw, 260px);
-    left: 8vw;
-  }
   .fg-maple {
     width: clamp(140px, 35vw, 220px);
     right: -4vw;
@@ -2660,9 +2651,6 @@ body.loaded .hero-heading {
       <span class="fg-el fg-pine" data-fg-in="right">
         <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/pine-tree.webp" alt="" width="1024" height="1438" loading="lazy" decoding="async">
       </span>
-      <span class="fg-el fg-grass" data-fg-in="up">
-        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/tall-grass.webp" alt="" width="1717" height="916" loading="lazy" decoding="async">
-      </span>
     </div>
     <div class="chapter-eyebrow">
       <span class="dot"></span>
@@ -2698,9 +2686,6 @@ body.loaded .hero-heading {
       </span>
       <span class="fg-el fg-lantern" data-fg-in="left">
         <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/stone-lantern.webp" alt="" width="1024" height="1499" loading="lazy" decoding="async">
-      </span>
-      <span class="fg-el fg-grass" data-fg-in="up">
-        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/tall-grass.webp" alt="" width="1717" height="916" loading="lazy" decoding="async">
       </span>
     </div>
     <div class="work-flank">
@@ -2745,9 +2730,6 @@ body.loaded .hero-heading {
     <div class="fg" data-fg="sec3" aria-hidden="true">
       <span class="fg-el fg-pine" data-fg-in="left">
         <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/pine-tree.webp" alt="" width="1024" height="1438" loading="lazy" decoding="async">
-      </span>
-      <span class="fg-el fg-bush" data-fg-in="right">
-        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/garden-bush.webp" alt="" width="1717" height="876" loading="lazy" decoding="async">
       </span>
       <span class="fg-el fg-leaves fg-el--sway" data-fg-in="right">
         <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/maple-leaves.webp" alt="" width="1536" height="1024" loading="lazy" decoding="async">
@@ -2799,9 +2781,6 @@ body.loaded .hero-heading {
       <span class="fg-el fg-stones" data-fg-in="right">
         <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/basalt-stones.webp" alt="" width="1536" height="996" loading="lazy" decoding="async">
       </span>
-      <span class="fg-el fg-grass" data-fg-in="up">
-        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/tall-grass.webp" alt="" width="1717" height="916" loading="lazy" decoding="async">
-      </span>
     </div>
     <div class="work-flank">
       <div class="chapter-eyebrow">
@@ -2845,9 +2824,6 @@ body.loaded .hero-heading {
     <div class="fg" data-fg="sec5" aria-hidden="true">
       <span class="fg-el fg-wall" data-fg-in="right">
         <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/temple-wall.webp" alt="" width="1536" height="884" loading="lazy" decoding="async">
-      </span>
-      <span class="fg-el fg-bush" data-fg-in="left">
-        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/garden-bush.webp" alt="" width="1717" height="876" loading="lazy" decoding="async">
       </span>
       <span class="fg-el fg-lantern" data-fg-in="right">
         <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/stone-lantern.webp" alt="" width="1024" height="1499" loading="lazy" decoding="async">
@@ -2899,9 +2875,6 @@ body.loaded .hero-heading {
       <span class="fg-el fg-stones" data-fg-in="right">
         <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/basalt-stones.webp" alt="" width="1536" height="996" loading="lazy" decoding="async">
       </span>
-      <span class="fg-el fg-grass" data-fg-in="up">
-        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/tall-grass.webp" alt="" width="1717" height="916" loading="lazy" decoding="async">
-      </span>
     </div>
     <div class="work-flank">
       <div class="chapter-eyebrow">
@@ -2948,9 +2921,6 @@ body.loaded .hero-heading {
       </span>
       <span class="fg-el fg-pine" data-fg-in="right">
         <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/pine-tree.webp" alt="" width="1024" height="1438" loading="lazy" decoding="async">
-      </span>
-      <span class="fg-el fg-grass" data-fg-in="up">
-        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/tall-grass.webp" alt="" width="1717" height="916" loading="lazy" decoding="async">
       </span>
     </div>
     <div class="work-flank">
@@ -3058,9 +3028,6 @@ body.loaded .hero-heading {
       </span>
       <span class="fg-el fg-sakura fg-el--flip fg-el--sway" data-fg-in="right">
         <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/sakura-branch.webp" alt="" width="1536" height="1024" loading="lazy" decoding="async">
-      </span>
-      <span class="fg-el fg-grass" data-fg-in="up">
-        <img crossorigin="anonymous" src="secret-pathways-assets/foreground/png/tall-grass.webp" alt="" width="1717" height="916" loading="lazy" decoding="async">
       </span>
     </div>
     <div class="contact-flank">
@@ -6404,6 +6371,52 @@ body.loaded .hero-heading {
     }
   }
   window.jumpTo = jumpTo;
+
+  // Cinematic fly-in: glide the camera down the temple avenue to the clicked
+  // house, then open its dossier once the camera has arrived.
+  let flyRafId = null;
+  function flyToProject(projIdx) {
+    const stageIdx = Math.max(0, Math.min(9, 2 + (Number(projIdx) || 0)));
+    if (flyRafId) { cancelAnimationFrame(flyRafId); flyRafId = null; }
+    if (typeof window.closeModal === 'function') {
+      try { window.closeModal(); } catch (_) {}
+    }
+    targetFocusAmt = 0.0;
+    document.body.classList.add('cinematic-flight');
+    if (typeof playTactileClick === 'function') {
+      try { playTactileClick(); } catch (_) {}
+    }
+
+    const startP = currentProgress;
+    const dist = Math.abs(stageIdx - startP);
+    const dur = Math.max(650, Math.min(1700, 520 + dist * 260));
+    const t0 = performance.now();
+    const ease = function (t) {
+      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    };
+
+    function step(now) {
+      const t = Math.min(1, (now - t0) / dur);
+      const eased = startP + (stageIdx - startP) * ease(t);
+      // Drive the camera directly so the flight is a deliberate dolly, not
+      // the normal scroll inertia.
+      currentProgress = eased;
+      targetProgress = eased;
+      if (t < 1) {
+        flyRafId = requestAnimationFrame(step);
+        return;
+      }
+      currentProgress = stageIdx;
+      targetProgress = stageIdx;
+      flyRafId = null;
+      setTimeout(function () {
+        document.body.classList.remove('cinematic-flight');
+        if (typeof window.openModal === 'function') window.openModal(projIdx);
+      }, 180);
+    }
+    flyRafId = requestAnimationFrame(step);
+  }
+  window.flyToProject = flyToProject;
   Object.defineProperty(window, 'currentProgress', {
     get: function() { return currentProgress; },
     configurable: true
@@ -6501,7 +6514,9 @@ body.loaded .hero-heading {
           curr = curr.parent;
         }
         if (targetProjIdx >= 0 && targetProjIdx <= 5) {
-          if (typeof openModal === 'function') {
+          if (typeof window.flyToProject === 'function') {
+            window.flyToProject(targetProjIdx);
+          } else if (typeof openModal === 'function') {
             openModal(targetProjIdx);
           }
         }
@@ -7513,6 +7528,16 @@ body.loaded .hero-heading {
     } catch (e) {}
   }
   window.forceAudioPlay = forceAudioPlay;
+
+  // Best-effort immediate playback on load. Browsers that permit autoplay
+  // (high media engagement, installed PWA, relaxed settings) start the music
+  // right away; otherwise the first gesture listeners below unlock it.
+  if (bgm) {
+    bgm.muted = false;
+    bgm.volume = TARGET_VOL;
+    const autoplayAttempt = bgm.play();
+    if (autoplayAttempt && autoplayAttempt.catch) autoplayAttempt.catch(function () {});
+  }
 
   // Capture phase: fires even if a control's handler calls stopPropagation().
   ['click', 'pointerdown', 'touchend', 'keydown', 'touchstart', 'wheel', 'scroll'].forEach(function (evt) {
