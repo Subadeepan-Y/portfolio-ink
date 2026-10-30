@@ -3077,6 +3077,14 @@ ${modalHtml}
 (function () {
   'use strict';
 
+  // Defer the heavy scene build until after the first paint: the browser paints
+  // the preloader during this idle window instead of showing a blank page while
+  // several seconds of geometry/texture work runs in one blocking task.
+  setTimeout(boot, 50);
+  return;
+
+  function boot() {
+
   // Interactive Camera Focus Dolly-In & 3D Landmark Raycast State
   let targetFocusAmt = 0.0;
   let focusAmt = 0.0;
@@ -8305,7 +8313,10 @@ ${modalHtml}
 
   window.addEventListener('load', () => finishPreloader(), { once: true });
   setTimeout(() => finishPreloader(), 600);
+  // Boot is deferred, so 'load' may already have fired by the time we get here.
+  if (document.readyState === 'complete') setTimeout(() => finishPreloader(), 120);
 
+  }
 })();
 
 /* ============================================================================
