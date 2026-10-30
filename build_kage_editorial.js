@@ -1,5 +1,10 @@
 const fs = require('fs');
 
+// Embed the certificate image into the generated HTML itself (data URI) so
+// the frame never depends on a runtime HTTP request for the texture.
+const CERT_FILE = 'D:/PROJECTS/portfolio-ink/secret-pathways-assets/generated/certificate-itm.webp';
+const CERT_DATA_URI = 'data:image/webp;base64,' + fs.readFileSync(CERT_FILE).toString('base64');
+
 // Read the modal HTML, CSS, and PROJECTS data from index.html.v2.bak
 const bakHtml = fs.readFileSync('D:/PROJECTS/portfolio-ink/index.html.v2.bak', 'utf8');
 
@@ -6473,7 +6478,7 @@ ${modalHtml}
 
     if (THREE.TextureLoader) {
       const tl = new THREE.TextureLoader();
-      tl.load('secret-pathways-assets/generated/certificate-itm.webp', function (tex) {
+      tl.load('${CERT_DATA_URI}', function (tex) {
         if (THREE.sRGBEncoding !== undefined) tex.encoding = THREE.sRGBEncoding;
         else if (tex.colorSpace !== undefined && THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
         if (renderer && renderer.capabilities && renderer.capabilities.getMaxAnisotropy) {
