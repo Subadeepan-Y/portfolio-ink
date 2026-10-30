@@ -6636,7 +6636,27 @@ body.loaded .hero-heading {
         if (renderer && renderer.capabilities && renderer.capabilities.getMaxAnisotropy) {
           tex.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
         }
-        certTex.image = tex.image;
+        // The source certificate is pale cream paper; post-process it at load
+        // time — contrast/saturation lift plus a warm vignette — so it reads
+        // as a designed artifact instead of a blank white sheet.
+        try {
+          const pc = document.createElement('canvas');
+          pc.width = tex.image.width; pc.height = tex.image.height;
+          const pctx = pc.getContext('2d');
+          pctx.filter = 'contrast(1.16) saturate(1.08) brightness(0.98)';
+          pctx.drawImage(tex.image, 0, 0);
+          const vg = pctx.createRadialGradient(
+            pc.width / 2, pc.height / 2, Math.min(pc.width, pc.height) * 0.35,
+            pc.width / 2, pc.height / 2, Math.max(pc.width, pc.height) * 0.75
+          );
+          vg.addColorStop(0, 'rgba(110, 72, 36, 0)');
+          vg.addColorStop(1, 'rgba(104, 66, 28, 0.22)');
+          pctx.fillStyle = vg;
+          pctx.fillRect(0, 0, pc.width, pc.height);
+          certTex.image = pc;
+        } catch (_) {
+          certTex.image = tex.image;
+        }
         certTex.needsUpdate = true;
         certMat.color.setHex(0xffffff);
       });
