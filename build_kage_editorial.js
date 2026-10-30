@@ -6428,35 +6428,21 @@ ${modalHtml}
 
     // Framed certificate hung on the back wall
     const certW = 4.15;
-    const certH = certW * (1131 / 1600);
+    const certH = certW * (723 / 1024);
     const frame = new THREE.Group();
     frame.position.set(0, 3.85, zB + 0.36);
 
-    const certMat = new THREE.MeshBasicMaterial({ color: 0xf7f4ec });
-    // Placeholder texture is assigned at build time so the material's
-    // program (which includes a map sampler) compiles during warm-up; the
-    // real certificate image later swaps into this same texture object
-    // instead of swapping materials (which would force a late recompile).
-    // The placeholder is pre-drawn as a paper-like certificate so the frame
-    // never reads as an empty void while the real image is in flight.
-    const certTexCanvas = document.createElement('canvas');
-    certTexCanvas.width = 512; certTexCanvas.height = 362;
-    const cx = certTexCanvas.getContext('2d');
-    cx.fillStyle = '#f7f4ec';
-    cx.fillRect(0, 0, 512, 362);
-    const cg = cx.createLinearGradient(0, 0, 0, 362);
-    cg.addColorStop(0, 'rgba(120, 90, 50, 0.10)');
-    cg.addColorStop(0.5, 'rgba(255, 255, 255, 0)');
-    cg.addColorStop(1, 'rgba(120, 90, 50, 0.12)');
-    cx.fillStyle = cg; cx.fillRect(0, 0, 512, 362);
-    cx.strokeStyle = 'rgba(150, 120, 70, 0.35)'; cx.lineWidth = 3; cx.strokeRect(24, 24, 464, 314);
-    cx.fillStyle = 'rgba(160, 70, 40, 0.16)';
-    cx.font = '700 64px serif'; cx.textAlign = 'center'; cx.textBaseline = 'middle';
-    cx.fillText('影', 256, 176);
-    const certTex = new THREE.CanvasTexture(certTexCanvas);
+    const certImg = new Image();
+    const certTex = new THREE.Texture(certImg);
     if (THREE.sRGBEncoding !== undefined) certTex.encoding = THREE.sRGBEncoding;
     else if (certTex.colorSpace !== undefined && THREE.SRGBColorSpace) certTex.colorSpace = THREE.SRGBColorSpace;
-    certMat.map = certTex;
+
+    certImg.onload = function () {
+      certTex.needsUpdate = true;
+    };
+    certImg.src = '${CERT_DATA_URI}';
+
+    const certMat = new THREE.MeshBasicMaterial({ map: certTex, color: 0xffffff });
     const certMesh = new THREE.Mesh(new THREE.PlaneGeometry(certW, certH), certMat);
     frame.add(certMesh);
 
@@ -6475,40 +6461,6 @@ ${modalHtml}
     });
     g.add(frame);
     frame.userData.isCertificate = true;
-
-    if (THREE.TextureLoader) {
-      const tl = new THREE.TextureLoader();
-      tl.load('${CERT_DATA_URI}', function (tex) {
-        if (THREE.sRGBEncoding !== undefined) tex.encoding = THREE.sRGBEncoding;
-        else if (tex.colorSpace !== undefined && THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
-        if (renderer && renderer.capabilities && renderer.capabilities.getMaxAnisotropy) {
-          tex.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
-        }
-        // The source certificate is pale cream paper; post-process it at load
-        // time — contrast/saturation lift plus a warm vignette — so it reads
-        // as a designed artifact instead of a blank white sheet.
-        try {
-          const pc = document.createElement('canvas');
-          pc.width = tex.image.width; pc.height = tex.image.height;
-          const pctx = pc.getContext('2d');
-          pctx.filter = 'contrast(1.16) saturate(1.08) brightness(0.98)';
-          pctx.drawImage(tex.image, 0, 0);
-          const vg = pctx.createRadialGradient(
-            pc.width / 2, pc.height / 2, Math.min(pc.width, pc.height) * 0.35,
-            pc.width / 2, pc.height / 2, Math.max(pc.width, pc.height) * 0.75
-          );
-          vg.addColorStop(0, 'rgba(110, 72, 36, 0)');
-          vg.addColorStop(1, 'rgba(104, 66, 28, 0.22)');
-          pctx.fillStyle = vg;
-          pctx.fillRect(0, 0, pc.width, pc.height);
-          certTex.image = pc;
-        } catch (_) {
-          certTex.image = tex.image;
-        }
-        certTex.needsUpdate = true;
-        certMat.color.setHex(0xffffff);
-      });
-    }
 
     // ---- Presentation dais, uplight and brass nameplate -----------------
     const dais = new THREE.Mesh(new THREE.BoxGeometry(6.6, 0.34, 1.6), hinokiMat);
