@@ -3738,31 +3738,58 @@ body.loaded .hero-heading {
 
   // --- Procedural architectural surface maps (aged wood, roof tile, stone, plaster) ---
   function texWoodSurface(base, grainRGB, contrast) {
-    const W = 256, H = 512, c = cvs(W, H), x = c.getContext('2d');
+    const W = 512, H = 512, c = cvs(W, H), x = c.getContext('2d');
     x.fillStyle = base || '#d6c3ae';
     x.fillRect(0, 0, W, H);
-    for (let i = 0; i < 130; i++) {
+    // Board layout: six planks, each with its own tonal drift and a seam
+    const boards = 6, bh = H / boards;
+    for (let b = 0; b < boards; b++) {
+      const y0 = b * bh;
+      const shade = (Math.random() - 0.5) * 0.18;
+      x.fillStyle = shade > 0
+        ? 'rgba(255, 246, 230, ' + shade.toFixed(3) + ')'
+        : 'rgba(56, 36, 22, ' + (-shade).toFixed(3) + ')';
+      x.fillRect(0, y0, W, bh);
+      x.fillStyle = 'rgba(26, 15, 8, 0.34)';
+      x.fillRect(0, y0 + bh - 2.5, W, 2.5);
+      x.fillStyle = 'rgba(255, 244, 226, 0.12)';
+      x.fillRect(0, y0 + 1, W, 1.2);
+      // occasional board-end joint
+      if (Math.random() > 0.5) {
+        const jx = (0.25 + Math.random() * 0.5) * W;
+        x.fillStyle = 'rgba(26, 15, 8, 0.26)';
+        x.fillRect(jx, y0, 2.5, bh);
+      }
+    }
+    for (let i = 0; i < 340; i++) {
       const gx = Math.random() * W;
-      const amp = 2 + Math.random() * 7;
-      const freq = 0.008 + Math.random() * 0.022;
-      const alpha = (contrast || 0.18) * (0.35 + Math.random() * 0.65);
+      const amp = 2 + Math.random() * 8;
+      const freq = 0.006 + Math.random() * 0.02;
+      const alpha = (contrast || 0.18) * (0.3 + Math.random() * 0.75);
       x.strokeStyle = 'rgba(' + grainRGB + ',' + alpha.toFixed(3) + ')';
-      x.lineWidth = 0.6 + Math.random() * 2.2;
+      x.lineWidth = 0.5 + Math.random() * 2.4;
       x.beginPath();
-      for (let y = 0; y <= H; y += 10) {
+      for (let y = 0; y <= H; y += 9) {
         const px = gx + Math.sin(y * freq + i * 0.7) * amp;
         if (y === 0) x.moveTo(px, y); else x.lineTo(px, y);
       }
       x.stroke();
     }
+    // Fine open pores / flecks
+    for (let i = 0; i < 2400; i++) {
+      x.fillStyle = Math.random() > 0.55
+        ? 'rgba(' + grainRGB + ',0.16)'
+        : 'rgba(255, 246, 232, 0.14)';
+      x.fillRect(Math.random() * W, Math.random() * H, 1 + Math.random() * 2, 1);
+    }
     // Knots / grain swirls
-    for (let k = 0; k < 7; k++) {
+    for (let k = 0; k < 9; k++) {
       const kx = Math.random() * W, ky = Math.random() * H;
-      for (let r = 3; r < 18; r += 3) {
-        x.strokeStyle = 'rgba(' + grainRGB + ',' + Math.max(0.02, 0.20 - r * 0.009).toFixed(3) + ')';
-        x.lineWidth = 1.2;
+      for (let r = 3; r < 22; r += 3) {
+        x.strokeStyle = 'rgba(' + grainRGB + ',' + Math.max(0.02, 0.22 - r * 0.009).toFixed(3) + ')';
+        x.lineWidth = 1.3;
         x.beginPath();
-        x.ellipse(kx, ky, r * 1.7, r, 0, 0, Math.PI * 2);
+        x.ellipse(kx, ky, r * 1.8, r, 0, 0, Math.PI * 2);
         x.stroke();
       }
     }
@@ -3838,18 +3865,43 @@ body.loaded .hero-heading {
   }
 
   function texPlasterSurface() {
-    const W = 256, H = 256, c = cvs(W, H), x = c.getContext('2d');
+    const W = 512, H = 512, c = cvs(W, H), x = c.getContext('2d');
     x.fillStyle = '#f0ede4';
     x.fillRect(0, 0, W, H);
-    for (let i = 0; i < 420; i++) {
-      const r = 2 + Math.random() * 16;
-      x.fillStyle = 'rgba(150, 143, 128, ' + (0.015 + Math.random() * 0.045).toFixed(3) + ')';
+    for (let i = 0; i < 900; i++) {
+      const r = 2 + Math.random() * 22;
+      x.fillStyle = 'rgba(150, 143, 128, ' + (0.012 + Math.random() * 0.05).toFixed(3) + ')';
       x.beginPath();
       x.arc(Math.random() * W, Math.random() * H, r, 0, Math.PI * 2);
       x.fill();
     }
-    for (let i = 0; i < 900; i++) {
-      x.fillStyle = 'rgba(110, 104, 92, ' + (0.02 + Math.random() * 0.05).toFixed(3) + ')';
+    // Trowel sweeps — broad arcs of slightly lifted plaster
+    for (let i = 0; i < 46; i++) {
+      const sx = Math.random() * W, sy = Math.random() * H;
+      const rad = 40 + Math.random() * 120;
+      const a0 = Math.random() * Math.PI * 2;
+      x.strokeStyle = Math.random() > 0.5
+        ? 'rgba(255, 253, 246, 0.16)'
+        : 'rgba(158, 150, 134, 0.14)';
+      x.lineWidth = 5 + Math.random() * 14;
+      x.lineCap = 'round';
+      x.beginPath();
+      x.arc(sx, sy, rad, a0, a0 + 0.7 + Math.random() * 1.3);
+      x.stroke();
+    }
+    // Straw fibres pressed into the render
+    for (let i = 0; i < 700; i++) {
+      const px = Math.random() * W, py = Math.random() * H;
+      const a = Math.random() * Math.PI, len = 3 + Math.random() * 12;
+      x.strokeStyle = 'rgba(176, 164, 138, ' + (0.10 + Math.random() * 0.2).toFixed(3) + ')';
+      x.lineWidth = 0.7;
+      x.beginPath();
+      x.moveTo(px, py);
+      x.lineTo(px + Math.cos(a) * len, py + Math.sin(a) * len);
+      x.stroke();
+    }
+    for (let i = 0; i < 2600; i++) {
+      x.fillStyle = 'rgba(110, 104, 92, ' + (0.02 + Math.random() * 0.06).toFixed(3) + ')';
       x.fillRect(Math.random() * W, Math.random() * H, 1, 1);
     }
     const tex = new THREE.CanvasTexture(c);
@@ -6200,6 +6252,135 @@ body.loaded .hero-heading {
     group: null
   };
 
+  // ---------------------------------------------------------------
+  // Sanctum surface library — tatami, washi, brushed-brass plaques and
+  // hanging scroll art. Drawn to canvas so the room ships no new binaries.
+  // ---------------------------------------------------------------
+  function canvasTex(c, rx, ry) {
+    const t = new THREE.CanvasTexture(c);
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    if (THREE.sRGBEncoding !== undefined) t.encoding = THREE.sRGBEncoding;
+    if (rx) t.repeat.set(rx, ry === undefined ? rx : ry);
+    return t;
+  }
+
+  // One tatami mat: woven rush field inside a dark cloth heri border.
+  function texTatamiMat() {
+    const S = 256, c = cvs(S, S), x = c.getContext('2d');
+    x.fillStyle = '#c3ae74';
+    x.fillRect(0, 0, S, S);
+    for (let y = 0; y < S; y += 3) {
+      x.fillStyle = 'rgba(96, 76, 38, ' + (0.05 + Math.random() * 0.06).toFixed(3) + ')';
+      x.fillRect(0, y, S, 1);
+    }
+    for (let i = 0; i < 3200; i++) {
+      x.fillStyle = Math.random() > 0.5
+        ? 'rgba(255, 244, 205, 0.16)'
+        : 'rgba(84, 66, 30, 0.14)';
+      x.fillRect(Math.random() * S, Math.random() * S, 1, 2);
+    }
+    // sun-bleached centre, shaded edges
+    const vg = x.createRadialGradient(S / 2, S / 2, S * 0.1, S / 2, S / 2, S * 0.72);
+    vg.addColorStop(0, 'rgba(255, 238, 190, 0.16)');
+    vg.addColorStop(1, 'rgba(70, 54, 24, 0.24)');
+    x.fillStyle = vg; x.fillRect(0, 0, S, S);
+    x.strokeStyle = '#241a16'; x.lineWidth = 15; x.strokeRect(7.5, 7.5, S - 15, S - 15);
+    x.strokeStyle = 'rgba(150, 120, 66, 0.55)'; x.lineWidth = 2;
+    x.strokeRect(17, 17, S - 34, S - 34);
+    return canvasTex(c);
+  }
+
+  // Warm handmade paper with visible kozo fibres.
+  function texWashi() {
+    const W = 256, H = 256, c = cvs(W, H), x = c.getContext('2d');
+    x.fillStyle = '#f3e9d6';
+    x.fillRect(0, 0, W, H);
+    for (let i = 0; i < 700; i++) {
+      const px = Math.random() * W, py = Math.random() * H;
+      const len = 6 + Math.random() * 26, a = (Math.random() - 0.5) * Math.PI;
+      x.strokeStyle = 'rgba(' + (Math.random() > 0.5 ? '196,182,152' : '226,214,188') + ',' + (0.10 + Math.random() * 0.24).toFixed(3) + ')';
+      x.lineWidth = 0.6 + Math.random() * 1.1;
+      x.beginPath();
+      x.moveTo(px, py);
+      x.lineTo(px + Math.cos(a) * len, py + Math.sin(a) * len);
+      x.stroke();
+    }
+    for (let i = 0; i < 160; i++) {
+      x.fillStyle = 'rgba(170, 154, 122, ' + (0.02 + Math.random() * 0.05).toFixed(3) + ')';
+      x.beginPath();
+      x.arc(Math.random() * W, Math.random() * H, 3 + Math.random() * 20, 0, Math.PI * 2);
+      x.fill();
+    }
+    return canvasTex(c);
+  }
+
+  // Brushed-brass plaque with engraved caption text.
+  function texPlaque(lines, cols, rows, fsize) {
+    const W = 512, H = 160, c = cvs(W, H), x = c.getContext('2d');
+    const g = x.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0.00, '#f0d491');
+    g.addColorStop(0.42, '#cba44f');
+    g.addColorStop(0.56, '#b78d3a');
+    g.addColorStop(1.00, '#8b6624');
+    x.fillStyle = g; x.fillRect(0, 0, W, H);
+    for (let i = 0; i < 260; i++) {
+      x.fillStyle = 'rgba(255, 246, 214, ' + (0.03 + Math.random() * 0.06).toFixed(3) + ')';
+      x.fillRect(0, Math.random() * H, W, 1);
+    }
+    x.strokeStyle = 'rgba(58, 38, 10, 0.8)'; x.lineWidth = 7;
+    x.strokeRect(9, 9, W - 18, H - 18);
+    x.strokeStyle = 'rgba(255, 240, 200, 0.5)'; x.lineWidth = 2;
+    x.strokeRect(15, 15, W - 30, H - 30);
+    const arr = Array.isArray(lines) ? lines : [lines];
+    const size = fsize || (arr.length > 1 ? 34 : 46);
+    x.textAlign = 'center'; x.textBaseline = 'middle';
+    arr.forEach((s, i) => {
+      const y = H / 2 + (i - (arr.length - 1) / 2) * (size + 10);
+      x.fillStyle = 'rgba(46, 30, 8, 0.92)';
+      x.fillText(s, W / 2, y + 1.5);
+      x.fillStyle = 'rgba(255, 240, 202, 0.55)';
+      x.fillText(s, W / 2, y - 1.0);
+      x.fillStyle = 'rgba(40, 26, 6, 0.95)';
+      x.fillText(s, W / 2, y);
+    });
+    return canvasTex(c, cols || 1, rows || 1);
+  }
+
+  // Kakejiku hanging scroll: ink brush calligraphy on washi with a red seal.
+  function texScrollArt(chars) {
+    const W = 160, H = 520, c = cvs(W, H), x = c.getContext('2d');
+    x.fillStyle = '#ece2cd'; x.fillRect(0, 0, W, H);
+    for (let i = 0; i < 520; i++) {
+      x.strokeStyle = 'rgba(186, 170, 138, ' + (0.06 + Math.random() * 0.16).toFixed(3) + ')';
+      x.lineWidth = 0.6;
+      const px = Math.random() * W, py = Math.random() * H;
+      x.beginPath(); x.moveTo(px, py); x.lineTo(px + (Math.random() - 0.5) * 30, py + (Math.random() - 0.5) * 30); x.stroke();
+    }
+    const vg = x.createLinearGradient(0, 0, 0, H);
+    vg.addColorStop(0, 'rgba(120, 104, 74, 0.16)');
+    vg.addColorStop(0.5, 'rgba(255, 252, 240, 0)');
+    vg.addColorStop(1, 'rgba(120, 104, 74, 0.20)');
+    x.fillStyle = vg; x.fillRect(0, 0, W, H);
+    x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.fillStyle = 'rgba(22, 19, 17, 0.94)';
+    x.font = '700 84px "Noto Serif JP", "Yu Mincho", "Hiragino Mincho ProN", serif';
+    const glyphList = Array.isArray(chars) ? chars : [chars];
+    glyphList.forEach((ch, i) => {
+      const y = 130 + i * 118;
+      x.save();
+      x.translate(W / 2, y);
+      x.rotate((Math.random() - 0.5) * 0.05);
+      x.fillText(ch, 0, 0);
+      x.restore();
+    });
+    x.fillStyle = '#b3231f';
+    x.fillRect(W / 2 - 24, H - 96, 48, 48);
+    x.fillStyle = 'rgba(255, 246, 232, 0.92)';
+    x.font = '700 26px serif';
+    x.fillText('印', W / 2, H - 72);
+    return canvasTex(c);
+  }
+
   function buildSanctum() {
     const g = new THREE.Group();
     const W = SANCTUM.width, H = SANCTUM.height;
@@ -6212,15 +6393,56 @@ body.loaded .hero-heading {
     const depth = zF - zB;
     const midZ = (zF + zB) / 2;
 
-    // Dark plank floor
-    const floor = new THREE.Mesh(new THREE.BoxGeometry(W, 0.24, depth), woodMat);
+    // Polished plank floor — lacquer sheen, tight grain, own UV scale
+    const floorTex = woodTex.clone();
+    floorTex.repeat.set(5, 9);
+    floorTex.needsUpdate = true;
+    const floorMat = new THREE.MeshStandardMaterial({
+      color: 0x2f211a, roughness: 0.42, metalness: 0.08,
+      map: floorTex, bumpMap: floorTex, bumpScale: 0.03
+    });
+    const floor = new THREE.Mesh(new THREE.BoxGeometry(W, 0.24, depth), floorMat);
     floor.position.set(0, -0.06, midZ);
     g.add(floor);
+
+    // Ceremonial tatami field laid over the planks, framed by a plank border
+    const tatTex = texTatamiMat();
+    tatTex.repeat.set(5, 3);
+    const tatami = new THREE.Mesh(
+      new THREE.PlaneGeometry(W - 3.2, depth - 4.6),
+      new THREE.MeshStandardMaterial({
+        color: 0xd7c389, roughness: 0.9, metalness: 0.0,
+        map: tatTex, bumpMap: tatTex, bumpScale: 0.02
+      })
+    );
+    tatami.rotation.x = -Math.PI / 2;
+    tatami.position.set(0, 0.075, midZ + 0.6);
+    g.add(tatami);
 
     // Coffered ceiling slab
     const ceil = new THREE.Mesh(new THREE.BoxGeometry(W, 0.3, depth), woodMat);
     ceil.position.set(0, H, midZ);
     g.add(ceil);
+
+    // Coffered grid: transverse hinoki ribs with a gilt shadow-line, plus a
+    // lacquered centre panel so the ceiling reads as joinery, not a slab.
+    [-6.4, -3.2, 0, 3.2, 6.4].forEach(x => {
+      const rib = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.3, depth - 0.5), hinokiMat);
+      rib.position.set(x, H - 0.24, midZ);
+      g.add(rib);
+      const gilt = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.06, depth - 0.7), goldBrassMat);
+      gilt.position.set(x, H - 0.4, midZ);
+      g.add(gilt);
+    });
+    const centrePanel = new THREE.Mesh(
+      new THREE.BoxGeometry(6.2, 0.06, 5.4),
+      new THREE.MeshStandardMaterial({
+        color: 0x5d1f1c, roughness: 0.5, metalness: 0.18,
+        map: plasterTex, bumpMap: plasterTex, bumpScale: 0.01
+      })
+    );
+    centrePanel.position.set(0, H - 0.18, midZ - 1.4);
+    g.add(centrePanel);
 
     // Back wall (warm plaster, carries the certificate)
     const back = new THREE.Mesh(new THREE.BoxGeometry(W, H, 0.3), wallMat);
@@ -6262,19 +6484,27 @@ body.loaded .hero-heading {
       g.add(cb);
     }
 
-    // Sliding shoji doors (they part as the camera arrives)
+    // Hinged hinoki doors — each leaf hangs on iron strap hinges at the outer
+    // jamb and swings inward on that hinge as the camera reaches the threshold.
     const panelW = SANCTUM.doorW / 2;
-    function buildDoorPanel() {
-      const p = new THREE.Group();
+    const shojiTex = texWashi();
+    shojiTex.repeat.set(1.6, 3.2);
+    function buildDoorLeaf(hingeSign) {
+      const pivot = new THREE.Group();  // origin = hinge axis
+      const p = new THREE.Group();      // leaf body, offset from that axis
+      p.position.x = -hingeSign * panelW / 2;
+
       const paper = new THREE.Mesh(
         new THREE.PlaneGeometry(panelW - 0.16, SANCTUM.doorH - 0.2),
         new THREE.MeshStandardMaterial({
-          color: 0xfff4e2, emissive: 0xffd2a0, emissiveIntensity: 0.9,
-          roughness: 0.95, side: THREE.DoubleSide
+          color: 0xfff4e2, emissive: 0xffd2a0, emissiveIntensity: 0.72,
+          roughness: 0.95, side: THREE.DoubleSide,
+          map: shojiTex, bumpMap: shojiTex, bumpScale: 0.012
         })
       );
       paper.position.z = 0.02;
       p.add(paper);
+
       const stile = new THREE.Mesh(new THREE.BoxGeometry(0.1, SANCTUM.doorH, 0.09), hinokiMat);
       [-1, 1].forEach(s => {
         const st = stile.clone();
@@ -6287,18 +6517,51 @@ body.loaded .hero-heading {
       const railBot = railTop.clone();
       railBot.position.y = -SANCTUM.doorH / 2 + 0.06;
       p.add(railBot);
+      // Kumiko lattice: horizontal rails + vertical muntins
       for (let i = 1; i <= 3; i++) {
         const bar = new THREE.Mesh(new THREE.BoxGeometry(panelW - 0.12, 0.055, 0.07), hinokiMat);
         bar.position.set(0, -SANCTUM.doorH / 2 + (SANCTUM.doorH / 4) * i, 0.04);
         p.add(bar);
       }
-      return p;
+      for (let i = 1; i <= 4; i++) {
+        const muntin = new THREE.Mesh(new THREE.BoxGeometry(0.05, SANCTUM.doorH - 0.24, 0.065), hinokiMat);
+        muntin.position.set(-panelW / 2 + (panelW / 5) * i, 0, 0.04);
+        p.add(muntin);
+      }
+
+      // Iron strap hinges bolted across the hinge edge + knuckle barrels
+      const edgeX = hingeSign * (panelW / 2 - 0.03);
+      [SANCTUM.doorH / 2 - 0.85, -SANCTUM.doorH / 2 + 0.85].forEach(y => {
+        const strap = new THREE.Mesh(new THREE.BoxGeometry(1.35, 0.16, 0.05), darkIronMat);
+        strap.position.set(hingeSign * (panelW / 2 - 0.62), y, 0.075);
+        p.add(strap);
+        for (let b = 0; b < 3; b++) {
+          const rivet = new THREE.Mesh(new THREE.SphereGeometry(0.035, 8, 6), goldBrassMat);
+          rivet.position.set(hingeSign * (panelW / 2 - 0.18 - b * 0.42), y, 0.1);
+          p.add(rivet);
+        }
+        const knuckle = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.42, 10), darkIronMat);
+        knuckle.position.set(edgeX, y, 0.06);
+        p.add(knuckle);
+      });
+      // Ring pull on the meeting stile
+      const plate = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.34, 0.05), darkIronMat);
+      plate.position.set(-hingeSign * (panelW / 2 - 0.34), 0, 0.07);
+      p.add(plate);
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(0.13, 0.028, 8, 20), goldBrassMat);
+      ring.position.set(-hingeSign * (panelW / 2 - 0.34), -0.06, 0.13);
+      ring.rotation.x = Math.PI / 2;
+      p.add(ring);
+
+      pivot.add(p);
+      return pivot;
     }
 
-    const doorL = buildDoorPanel();
-    const doorR = buildDoorPanel();
-    SANCTUM.closedL = -panelW / 2;
-    SANCTUM.closedR = panelW / 2;
+    const doorL = buildDoorLeaf(-1);
+    const doorR = buildDoorLeaf(1);
+    SANCTUM.closedL = -SANCTUM.doorW / 2;   // hinge axes (leaf centres, not edges)
+    SANCTUM.closedR = SANCTUM.doorW / 2;
+    SANCTUM.openAngle = 1.95;               // ~112° inward swing
     doorL.position.set(SANCTUM.closedL, SANCTUM.doorH / 2, zF + 0.16);
     doorR.position.set(SANCTUM.closedR, SANCTUM.doorH / 2, zF + 0.16);
     g.add(doorL);
@@ -6306,8 +6569,9 @@ body.loaded .hero-heading {
     SANCTUM.doorL = doorL;
     SANCTUM.doorR = doorR;
 
-    // Vertical timber battens structure the back wall around the certificate
-    [-8.35, -5.6, -2.95, 2.95, 5.6, 8.35].forEach(x => {
+    // Vertical timber battens divide the back wall into gallery bays around
+    // the certificate, leaving three framed slots on each side for the work.
+    [-8.3, -6.55, -4.45, -2.35, 2.35, 4.45, 6.55, 8.3].forEach(x => {
       const batten = new THREE.Mesh(new THREE.BoxGeometry(0.16, H - 0.5, 0.12), hinokiMat);
       batten.position.set(x, (H - 0.5) / 2 + 0.2, zB + 0.34);
       g.add(batten);
@@ -6340,6 +6604,7 @@ body.loaded .hero-heading {
       frame.add(side);
     });
     g.add(frame);
+    frame.userData.isCertificate = true;
 
     if (THREE.TextureLoader) {
       const tl = new THREE.TextureLoader();
@@ -6354,6 +6619,242 @@ body.loaded .hero-heading {
         certMat.needsUpdate = true;
       });
     }
+
+    // ---- Presentation dais, uplight and brass nameplate -----------------
+    const dais = new THREE.Mesh(new THREE.BoxGeometry(6.6, 0.34, 1.6), hinokiMat);
+    dais.position.set(0, 0.17, zB + 1.25);
+    g.add(dais);
+    const daisEdge = new THREE.Mesh(new THREE.BoxGeometry(6.74, 0.09, 1.74), goldBrassMat);
+    daisEdge.position.set(0, 0.37, zB + 1.25);
+    g.add(daisEdge);
+    const uplight = new THREE.PointLight(0xffd7a4, 1.0, 8, 2);
+    uplight.position.set(0, 1.0, zB + 2.1);
+    g.add(uplight);
+
+    const nameplate = new THREE.Mesh(
+      new THREE.PlaneGeometry(3.1, 0.97),
+      new THREE.MeshStandardMaterial({
+        map: texPlaque(['SUBADEEPAN Y', 'IIT MADRAS  //  NPTEL CCDEE']),
+        roughness: 0.32, metalness: 0.72,
+        emissive: 0x2a1e06, emissiveIntensity: 0.5
+      })
+    );
+    nameplate.position.set(0, 1.92, zB + 0.37);
+    g.add(nameplate);
+
+    // ---- Kakejiku scrolls on the side walls, flanking the walk-in -------
+    [-1, 1].forEach(s => {
+      const scrollTex = texScrollArt(s < 0 ? ['道', '在', '己'] : ['作', '物', '心']);
+      const sc = new THREE.Mesh(
+        new THREE.PlaneGeometry(1.15, 3.55),
+        new THREE.MeshStandardMaterial({ map: scrollTex, roughness: 0.94, side: THREE.DoubleSide })
+      );
+      sc.position.set(s * (W / 2 - 0.4), 3.6, zB + 3.4);
+      sc.rotation.y = s > 0 ? -Math.PI / 2 : Math.PI / 2;
+      g.add(sc);
+      [1.86, -1.86].forEach(dy => {
+        const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, 1.34, 10), hinokiMat);
+        rod.rotation.z = Math.PI / 2;
+        rod.position.set(s * (W / 2 - 0.44), 3.6 + dy, zB + 3.4);
+        rod.rotation.x = 0;
+        g.add(rod);
+      });
+      const cordTop = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.7, 5), darkIronMat);
+      cordTop.position.set(s * (W / 2 - 0.42), 5.75, zB + 3.4);
+      g.add(cordTop);
+    });
+
+    // ---- Portfolio plates hung on the back wall in framed bays around ----
+    //     the certificate. Four columns: a single large plate in each inner
+    //     bay flanking the certificate, and a diptych pair in each outer
+    //     bay — all facing the stage-09 camera dead-on.
+    const PLATE_LAYOUT = [
+      { src: 'shots/landing.png',        cap: ['02 // GRADEIFY', 'AI TUTOR PLATFORM'],    x: -3.4, y: 3.6, big: true },
+      { src: 'shots/manim_hero.png',     cap: ['03 // MANIM-TS', 'ANIMATION ENGINE'],       x: -5.5, y: 4.35, big: false },
+      { src: 'shots/duel_home.png',      cap: ['04 // DUEL DECK', 'CARD GAME COMPILER'],   x: -5.5, y: 2.55, big: false },
+      { src: 'shots/buddy_desktop.png',  cap: ['05 // DESKTOP BUDDY', 'AMBIENT COMPANION'], x: 5.5,  y: 4.35, big: false },
+      { src: 'shots/explainer.png',      cap: ['06 // GREATE ENGINE', 'WEBGPU RENDERER'],  x: 5.5,  y: 2.55, big: false },
+      { src: 'shots/desk.png',           cap: ['07 // PERSONAL CLOUD', 'SELF-HOSTED STACK'], x: 3.4, y: 3.6, big: true }
+    ];
+    const plateLoader = new THREE.TextureLoader();
+    PLATE_LAYOUT.forEach(item => {
+      const grp = new THREE.Group();
+      grp.position.set(item.x, item.y, zB + 0.36);
+
+      const imgW = item.big ? 1.5 : 1.25;
+      const imgH = item.big ? 0.93 : 0.77;
+      const bar = item.big ? 0.09 : 0.075;
+
+      const imgMat = new THREE.MeshStandardMaterial({
+        color: 0x1a1d22, roughness: 0.42, metalness: 0.15,
+        emissive: 0x11141a, emissiveIntensity: 0.6
+      });
+      const img = new THREE.Mesh(new THREE.PlaneGeometry(imgW, imgH), imgMat);
+      img.position.z = 0.045;
+      grp.add(img);
+
+      // Backing board + gilt frame
+      const back = new THREE.Mesh(
+        new THREE.BoxGeometry(imgW + 0.22, imgH + 0.22, 0.1),
+        new THREE.MeshStandardMaterial({ color: 0x17110d, roughness: 0.8 })
+      );
+      back.position.z = -0.02;
+      grp.add(back);
+      const fTop = new THREE.Mesh(new THREE.BoxGeometry(imgW + bar * 2, bar, 0.13), goldBrassMat);
+      fTop.position.set(0, imgH / 2 + bar / 2, 0.03);
+      grp.add(fTop);
+      const fBot = fTop.clone();
+      fBot.position.y = -imgH / 2 - bar / 2;
+      grp.add(fBot);
+      [-1, 1].forEach(s => {
+        const side = new THREE.Mesh(new THREE.BoxGeometry(bar, imgH + bar * 2, 0.13), goldBrassMat);
+        side.position.set(s * (imgW / 2 + bar / 2), 0, 0.03);
+        grp.add(side);
+      });
+
+      // Engraved caption plaque under the frame — larger type so the labels
+      // read at the stage-09 viewing distance
+      const plaque = new THREE.Mesh(
+        new THREE.PlaneGeometry(item.big ? 1.78 : 1.5, item.big ? 0.5 : 0.44),
+        new THREE.MeshStandardMaterial({
+          map: texPlaque(item.cap, 1, 1, item.big ? 62 : 58), roughness: 0.34, metalness: 0.68,
+          emissive: 0x271b05, emissiveIntensity: 0.45
+        })
+      );
+      plaque.position.set(0, -imgH / 2 - 0.5, 0.07);
+      grp.add(plaque);
+
+      // Picture light arcing over the frame
+      const arm = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, item.big ? 0.34 : 0.3), darkIronMat);
+      arm.position.set(0, imgH / 2 + 0.44, 0.2);
+      grp.add(arm);
+      const shade = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.09, 0.12, item.big ? 1.3 : 1.1, 10, 1, true, 0, Math.PI),
+        new THREE.MeshStandardMaterial({ color: 0x2a2320, roughness: 0.5, metalness: 0.7, side: THREE.DoubleSide })
+      );
+      shade.rotation.z = Math.PI / 2;
+      shade.position.set(0, imgH / 2 + 0.52, 0.3);
+      grp.add(shade);
+      const bulb = new THREE.Mesh(
+        new THREE.BoxGeometry(item.big ? 1.1 : 0.95, 0.045, 0.06),
+        new THREE.MeshStandardMaterial({ color: 0xffe9c6, emissive: 0xffd9a0, emissiveIntensity: 2.0 })
+      );
+      bulb.position.set(0, imgH / 2 + 0.4, 0.26);
+      grp.add(bulb);
+
+      g.add(grp);
+      grp.userData.isPlate = true;
+      grp.userData.cap = item.cap[0];
+      plateLoader.load(item.src, function (tex) {
+        if (THREE.sRGBEncoding !== undefined) tex.encoding = THREE.sRGBEncoding;
+        else if (tex.colorSpace !== undefined && THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
+        if (renderer && renderer.capabilities && renderer.capabilities.getMaxAnisotropy) {
+          tex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+        }
+        imgMat.map = tex;
+        imgMat.color.setHex(0xffffff);
+        imgMat.emissive.setHex(0x0a0c10);
+        imgMat.needsUpdate = true;
+      });
+    });
+
+    // ---- Wall sconces, corner posts, gilt chair-rail ---------------------
+    [-1, 1].forEach(s => {
+      // Wainscot + gilt rail along each side wall
+      const wains = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.62, depth - 1.2), hinokiMat);
+      wains.position.set(s * (W / 2 - 0.24), 0.32, midZ + 0.3);
+      g.add(wains);
+      const rail = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.09, depth - 1.2), goldBrassMat);
+      rail.position.set(s * (W / 2 - 0.26), 2.06, midZ + 0.3);
+      g.add(rail);
+
+      // Warm paper sconce glowing on the wall between the plates
+      [-117.2, -121.3, -125.0].forEach(z => {
+        const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.07, 0.07), darkIronMat);
+        bracket.position.set(s * (W / 2 - 0.42), 4.62, z);
+        g.add(bracket);
+        const shade = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.17, 0.21, 0.5, 12, 1, true),
+          new THREE.MeshStandardMaterial({
+            color: 0xffeccd, emissive: 0xffc98d, emissiveIntensity: 1.45,
+            roughness: 0.94, side: THREE.DoubleSide
+          })
+        );
+        shade.position.set(s * (W / 2 - 0.62), 4.5, z);
+        g.add(shade);
+      });
+
+      // Corner post with brass collars
+      const post = new THREE.Mesh(new THREE.BoxGeometry(0.42, H, 0.42), hinokiMat);
+      post.position.set(s * (W / 2 - 0.3), H / 2, zB + 0.3);
+      g.add(post);
+      [1.0, H - 0.7].forEach(y => {
+        const collar = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.1, 0.5), goldBrassMat);
+        collar.position.set(s * (W / 2 - 0.3), y, zB + 0.3);
+        g.add(collar);
+      });
+    });
+
+    // ---- ikebana on stands in the two front corners ---------------------
+    [-1, 1].forEach(s => {
+      const stand = new THREE.Mesh(new THREE.BoxGeometry(0.94, 0.72, 0.94), hinokiMat);
+      stand.position.set(s * 6.1, 0.36, zF - 1.7);
+      g.add(stand);
+      const lip = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.07, 1.0), goldBrassMat);
+      lip.position.set(s * 6.1, 0.75, zF - 1.7);
+      g.add(lip);
+      const vase = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.2, 0.31, 0.66, 16),
+        new THREE.MeshStandardMaterial({ color: 0x2c3a3a, roughness: 0.3, metalness: 0.18 })
+      );
+      vase.position.set(s * 6.1, 1.13, zF - 1.7);
+      g.add(vase);
+      for (let b = 0; b < 5; b++) {
+        const len = 0.9 + Math.random() * 0.7;
+        const branch = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.03, len, 5), hinokiMat);
+        const ang = (b / 5) * Math.PI * 2;
+        branch.position.set(
+          s * 6.1 + Math.cos(ang) * 0.22,
+          1.45 + len * 0.42,
+          zF - 1.7 + Math.sin(ang) * 0.22
+        );
+        branch.rotation.z = Math.cos(ang) * 0.5;
+        branch.rotation.x = Math.sin(ang) * 0.5;
+        g.add(branch);
+        for (let k = 0; k < 3; k++) {
+          const blossom = new THREE.Mesh(
+            new THREE.SphereGeometry(0.055, 7, 6),
+            new THREE.MeshStandardMaterial({
+              color: 0xffe9ee, emissive: 0xffcfdb, emissiveIntensity: 0.5, roughness: 0.9
+            })
+          );
+          blossom.position.set(
+            branch.position.x + (Math.random() - 0.5) * 0.42,
+            branch.position.y + Math.random() * 0.4,
+            branch.position.z + (Math.random() - 0.5) * 0.42
+          );
+          g.add(blossom);
+        }
+      }
+    });
+
+    // ---- Two more hanging lanterns down the hall ------------------------
+    [zB + 9.4, zF - 3.0].forEach(z => {      const cord = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.7, 6), darkIronMat);
+      cord.position.set(0, H - 0.34, z);
+      g.add(cord);
+      const cage = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.34, 0.34, 0.5, 12, 1, true),
+        new THREE.MeshStandardMaterial({
+          color: 0xffeed2, emissive: 0xffb877, emissiveIntensity: 1.25,
+          roughness: 0.92, side: THREE.DoubleSide
+        })
+      );
+      cage.position.set(0, H - 0.92, z);
+      g.add(cage);
+      const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.36, 0.16, 12), goldBrassMat);
+      cap.position.set(0, H - 0.6, z);
+      g.add(cap);
+    });
 
     // Hanging paper lamp lighting the wall
     const cord = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.55, 6), darkIronMat);
@@ -7438,12 +7939,13 @@ body.loaded .hero-heading {
     // Snow textures drifting out of the white hero Torii gate
     if (typeof updateSnow === 'function') updateSnow(dt);
 
-    // Sanctum shoji doors part as the camera walks up to the hall
+    // Sanctum doors swing inward on their iron hinges as the camera walks up
     if (SANCTUM.doorL && SANCTUM.doorR) {
-      const openT = Math.max(0, Math.min(1, (p - 8.64) / 0.24));
+      const openT = Math.max(0, Math.min(1, (p - 8.6) / 0.28));
       const eo = openT * openT * (3 - 2 * openT);
-      SANCTUM.doorL.position.x = SANCTUM.closedL - eo * 4.44;
-      SANCTUM.doorR.position.x = SANCTUM.closedR + eo * 4.44;
+      const ang = SANCTUM.openAngle || 1.95;
+      SANCTUM.doorL.rotation.y = eo * ang;
+      SANCTUM.doorR.rotation.y = -eo * ang;
       if (SANCTUM.light) SANCTUM.light.intensity = 2.1 + eo * 1.1;
     }
 
