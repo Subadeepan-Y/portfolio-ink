@@ -7647,11 +7647,18 @@ body.loaded .hero-heading {
     }
   };
 
-  // PWA Service Worker Registration
-  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js').catch(() => {});
-    });
+  // No service worker for this site: it caches old builds (the certificate
+  // and plates changed repeatedly). Unregister any previously installed one
+  // and purge caches so returning visitors always get the fresh page.
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(rs => {
+      rs.forEach(r => r.unregister().catch(() => {}));
+    }).catch(() => {});
+    if (window.caches && window.caches.keys) {
+      window.caches.keys().then(keys => {
+        return Promise.all(keys.map(k => window.caches.delete(k)));
+      }).catch(() => {});
+    }
   }
 
   // --- 8. RENDER LOOP (RAF) & INTERACTIVE CAMERA FOCUS RIG ---

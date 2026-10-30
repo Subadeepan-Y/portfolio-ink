@@ -2,7 +2,7 @@ const fs = require('fs');
 
 // Embed the certificate image into the generated HTML itself (data URI) so
 // the frame never depends on a runtime HTTP request for the texture.
-const CERT_FILE = 'D:/PROJECTS/portfolio-ink/secret-pathways-assets/generated/certificate-itm.jpg';
+const CERT_FILE = 'D:/PROJECTS/portfolio-ink/assettt/subadeepany@gmail.com_COM_SC-4758.jpg';
 const CERT_DATA_URI = 'data:image/jpeg;base64,' + fs.readFileSync(CERT_FILE).toString('base64');
 
 // Read the modal HTML, CSS, and PROJECTS data from index.html.v2.bak
@@ -7495,11 +7495,18 @@ ${modalHtml}
     }
   };
 
-  // PWA Service Worker Registration
-  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js').catch(() => {});
-    });
+  // No service worker for this site: it caches old builds (the certificate
+  // and plates changed repeatedly). Unregister any previously installed one
+  // and purge caches so returning visitors always get the fresh page.
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(rs => {
+      rs.forEach(r => r.unregister().catch(() => {}));
+    }).catch(() => {});
+    if (window.caches && window.caches.keys) {
+      window.caches.keys().then(keys => {
+        return Promise.all(keys.map(k => window.caches.delete(k)));
+      }).catch(() => {});
+    }
   }
 
   // --- 8. RENDER LOOP (RAF) & INTERACTIVE CAMERA FOCUS RIG ---
