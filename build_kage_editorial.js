@@ -2,8 +2,8 @@ const fs = require('fs');
 
 // Embed the certificate image into the generated HTML itself (data URI) so
 // the frame never depends on a runtime HTTP request for the texture.
-const CERT_FILE = 'D:/PROJECTS/portfolio-ink/secret-pathways-assets/generated/certificate-itm.webp';
-const CERT_DATA_URI = 'data:image/webp;base64,' + fs.readFileSync(CERT_FILE).toString('base64');
+const CERT_FILE = 'D:/PROJECTS/portfolio-ink/secret-pathways-assets/generated/certificate-itm.jpg';
+const CERT_DATA_URI = 'data:image/jpeg;base64,' + fs.readFileSync(CERT_FILE).toString('base64');
 
 // Read the modal HTML, CSS, and PROJECTS data from index.html.v2.bak
 const bakHtml = fs.readFileSync('D:/PROJECTS/portfolio-ink/index.html.v2.bak', 'utf8');
