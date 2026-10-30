@@ -3277,6 +3277,10 @@ body.loaded .hero-heading {
 
   function finishPreloader() {
     if (preDone) return;
+    if (window.__preflight) {
+      setTimeout(finishPreloader, 120);
+      return;
+    }
     preDone = true;
     if (preFill) preFill.style.width = '100%';
     if (prePct) prePct.textContent = '100';
@@ -3469,12 +3473,12 @@ body.loaded .hero-heading {
   const canvas = document.getElementById('gl');
   const renderer = new THREE.WebGLRenderer({
     canvas: canvas,
-    antialias: true,
+    antialias: (window.devicePixelRatio || 1) < 1.35,
     alpha: false,
     powerPreference: 'high-performance'
   });
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, window.innerWidth < 900 ? 1.25 : 1.5));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, window.innerWidth < 900 ? 1.1 : 1.25));
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.15;
   window.renderer = renderer;
@@ -6587,6 +6591,16 @@ body.loaded .hero-heading {
     frame.position.set(0, 3.85, zB + 0.36);
 
     const certMat = new THREE.MeshBasicMaterial({ color: 0xf7f4ec });
+    // Placeholder texture is assigned at build time so the material's
+    // program (which includes a map sampler) compiles during warm-up; the
+    // real certificate image later swaps into this same texture object
+    // instead of swapping materials (which would force a late recompile).
+    const certTexCanvas = document.createElement('canvas');
+    certTexCanvas.width = 2; certTexCanvas.height = 2;
+    const certTex = new THREE.CanvasTexture(certTexCanvas);
+    if (THREE.sRGBEncoding !== undefined) certTex.encoding = THREE.sRGBEncoding;
+    else if (certTex.colorSpace !== undefined && THREE.SRGBColorSpace) certTex.colorSpace = THREE.SRGBColorSpace;
+    certMat.map = certTex;
     const certMesh = new THREE.Mesh(new THREE.PlaneGeometry(certW, certH), certMat);
     frame.add(certMesh);
 
@@ -6614,9 +6628,9 @@ body.loaded .hero-heading {
         if (renderer && renderer.capabilities && renderer.capabilities.getMaxAnisotropy) {
           tex.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
         }
-        certMat.map = tex;
+        certTex.image = tex.image;
+        certTex.needsUpdate = true;
         certMat.color.setHex(0xffffff);
-        certMat.needsUpdate = true;
       });
     }
 
@@ -6689,6 +6703,15 @@ body.loaded .hero-heading {
         color: 0x1a1d22, roughness: 0.42, metalness: 0.15,
         emissive: 0x11141a, emissiveIntensity: 0.6
       });
+      // Placeholder texture assigned at build (program with map sampler
+      // compiles at warm-up); the real screenshot swaps in later via the
+      // same texture object so no late program recompile is triggered.
+      const imgTexCanvas = document.createElement('canvas');
+      imgTexCanvas.width = 2; imgTexCanvas.height = 2;
+      const imgTex = new THREE.CanvasTexture(imgTexCanvas);
+      if (THREE.sRGBEncoding !== undefined) imgTex.encoding = THREE.sRGBEncoding;
+      else if (imgTex.colorSpace !== undefined && THREE.SRGBColorSpace) imgTex.colorSpace = THREE.SRGBColorSpace;
+      imgMat.map = imgTex;
       const img = new THREE.Mesh(new THREE.PlaneGeometry(imgW, imgH), imgMat);
       img.position.z = 0.045;
       grp.add(img);
@@ -6751,10 +6774,10 @@ body.loaded .hero-heading {
         if (renderer && renderer.capabilities && renderer.capabilities.getMaxAnisotropy) {
           tex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
         }
-        imgMat.map = tex;
+        imgTex.image = tex.image;
+        imgTex.needsUpdate = true;
         imgMat.color.setHex(0xffffff);
         imgMat.emissive.setHex(0x0a0c10);
-        imgMat.needsUpdate = true;
       });
     });
 
@@ -7034,7 +7057,7 @@ body.loaded .hero-heading {
     return new THREE.CanvasTexture(c);
   }
 
-  const SNOW_COUNT = 720;
+  const SNOW_COUNT = 240;
   const SNOW_PILLAR_X = 5.2 * 1.15;   // hero Torii pillar offsets (x = +/-5.98)
   const SNOW_PILLAR_Z = -2.0;
   const SNOW_TOP = 12 * 1.15;
@@ -7063,20 +7086,22 @@ body.loaded .hero-heading {
   for (let i = 0; i < SNOW_COUNT; i++) seedSnowFlake(i, false);
 
   snowGeo.setAttribute('position', new THREE.BufferAttribute(snowPos, 3));
-  snowGeo.setAttribute('aS', new THREE.BufferAttribute(snowSize, 1));
-  snowGeo.setAttribute('aA', new THREE.BufferAttribute(snowAlpha, 1));
 
-  const snowMat = new THREE.ShaderMaterial({
-    uniforms: { uTex: { value: texSnowFlake() }, uPx: { value: window.innerHeight } },
+  // Standard PointsMaterial (no custom vertex layout) — keeps the flake
+  // look without exotic VAO/shader combos that force expensive pipeline
+  // compiles mid-journey.
+  const snowMat = new THREE.PointsMaterial({
+    map: texSnowFlake(),
+    size: 0.34,
+    sizeAttenuation: true,
     transparent: true,
     depthWrite: false,
-    fog: false,
-    vertexShader: 'attribute float aS; attribute float aA; uniform float uPx; varying float vA; void main() { vA = aA; vec4 mv = modelViewMatrix * vec4(position, 1.0); gl_PointSize = uPx * aS / max(-mv.z, 0.5); gl_Position = projectionMatrix * mv; }',
-    fragmentShader: 'uniform sampler2D uTex; varying float vA; void main() { if (vA <= 0.002) discard; vec4 t = texture2D(uTex, gl_PointCoord); gl_FragColor = vec4(t.rgb, t.a * vA); }'
+    opacity: 0.8,
+    fog: false
   });
 
   const snowPoints = new THREE.Points(snowGeo, snowMat);
-  snowPoints.frustumCulled = false;
+  snowPoints.frustumCulled = true;
   scene.add(snowPoints);
   window.__snowPoints = snowPoints;
 
@@ -7871,13 +7896,13 @@ body.loaded .hero-heading {
     const fgStones = elFgStones;
     const fgMaple = elFgMaple;
 
-    if (fgWall) {
+    if ((frameCount & 1) === 0 && fgWall) {
       const wallX = p * 42 + mouseShiftX * 0.8;
       const wallY = Math.sin(p * 0.5) * 16 + mouseShiftY * 0.6;
       fgWall.style.transform = `translate3d(${wallX.toFixed(2)}px, ${wallY.toFixed(2)}px, 0)`;
       fgWall.style.opacity = p >= 2 && p <= 7 ? 0.35 : 0.88;
     }
-    if (fgStones) {
+    if ((frameCount & 1) === 0 && fgStones) {
       const stonesX = -p * 36 - mouseShiftX * 1.2;
       const stonesY = Math.cos(p * 0.45) * 14 + mouseShiftY * 0.8;
       fgStones.style.transform = `translate3d(${stonesX.toFixed(2)}px, ${stonesY.toFixed(2)}px, 0)`;
@@ -8147,7 +8172,7 @@ body.loaded .hero-heading {
       scene.fog.density += (targetFogDensity - scene.fog.density) * 0.05;
     }
     if (primaryStage !== activeStageIdx) {
-      if (activeStageIdx !== -1) {
+      if (activeStageIdx !== -1 && !window.__preflight) {
         playZenChime();
       }
       activeStageIdx = primaryStage;
@@ -8360,10 +8385,10 @@ body.loaded .hero-heading {
       const avgMs = frameAccum / frameCount;
       frameAccum = 0;
       frameCount = 0;
-      const cap = Math.min(window.devicePixelRatio || 1, window.innerWidth < 900 ? 1.25 : 1.5);
+      const cap = Math.min(window.devicePixelRatio || 1, window.innerWidth < 900 ? 1.1 : 1.25);
       let target = currentPixelRatio;
-      if (avgMs > 25 && target > 0.7) target = Math.max(0.7, target - 0.15);
-      else if (avgMs < 14 && target < cap) target = Math.min(cap, target + 0.1);
+      if (avgMs > 20 && target > 0.6) target = Math.max(0.6, target - 0.2);
+      else if (avgMs < 14 && target < cap) target = Math.min(cap, target + 0.08);
       if (Math.abs(target - currentPixelRatio) > 0.01) {
         currentPixelRatio = target;
         renderer.setPixelRatio(currentPixelRatio);
@@ -8951,12 +8976,100 @@ body.loaded .hero-heading {
 
   updateTabTitle();
   activateStageFg(0);
+
+  // Pre-warm the GPU pipeline before the first tick so the initial scroll
+  // doesn't stall on lazy shader-program compiles / texture uploads.
+  // Two passes:
+  //   1) Per-pose renders (all 10 chapters + a god view) upload textures and
+  //      compile programs for anything visible in those views.
+  //   2) An exhaustive material sweep: every unique material in the scene is
+  //      bound once via a dummy mesh, so even never-seen programs are linked
+  //      ahead of time (entrance torii & houses were the worst offenders).
+  try {
+    const warmPos = new THREE.Vector3(), warmTgt = new THREE.Vector3();
+    CAM_WAYPOINTS.forEach(w => {
+      warmPos.copy(w.p); warmTgt.copy(w.t);
+      camera.position.copy(warmPos);
+      camera.lookAt(warmTgt);
+      renderer.render(scene, camera);
+    });
+    camera.position.set(0, 70, 6);
+    camera.lookAt(0, 0, -70);
+    renderer.render(scene, camera);
+
+    const warmGroup = new THREE.Group();
+    const seenMats = new Set();
+    const pairSet = new Set();
+    const visRestore = [];
+    scene.traverse(o => {
+      if (o.isObject3D) {
+        visRestore.push([o, o.visible]);
+        o.visible = true;
+      }
+      if (!o.isMesh || !o.geometry || !o.material) return;
+      const mats = Array.isArray(o.material) ? o.material : [o.material];
+      mats.forEach(m => {
+        if (!m) return;
+        seenMats.add(m);
+        const key = m.uuid + '|' + o.geometry.uuid;
+        if (pairSet.has(key)) return;
+        pairSet.add(key);
+        // Proxy mesh reusing the real geometry+material pair so the GPU
+        // warms every (shader x vertex-layout) pipeline combo exactly as
+        // it will be used later.
+        const proxy = new THREE.Mesh(o.geometry, m);
+        proxy.frustumCulled = false;
+        const ang = (pairSet.size / 120) * Math.PI * 2;
+        proxy.position.set(Math.cos(ang) * 45, (pairSet.size % 9) * 8 - 32, Math.sin(ang) * 45);
+        proxy.lookAt(0, 0, 0);
+        warmGroup.add(proxy);
+      });
+    });
+    scene.add(warmGroup);
+    camera.position.set(0, 0, 0.1);
+    camera.lookAt(0, 0, 0);
+    renderer.render(scene, camera);
+    scene.remove(warmGroup);
+    visRestore.forEach(pair => { pair[0].visible = pair[1]; });
+    window.__warmMaterials = seenMats.size;
+    window.__warmRenders = CAM_WAYPOINTS.length + 1;
+    camera.position.copy(CAM_WAYPOINTS[0].p);
+    camera.lookAt(CAM_WAYPOINTS[0].t);
+  } catch (e) {}
+
   tick();
 
   // Pre-warm WebGL shaders and pipeline
   try {
     renderer.compile(scene, camera);
   } catch (e) {}
+
+  // Silent pre-flight: walk the whole journey once while the preloader is
+  // still up, so every stage transition, texture upload and shader/pipeline
+  // compile happens before the user's first scroll (this is what caused the
+  // first-visit stutter at the entrance torii / houses).
+  // The walk cancels the instant the user interacts (wheel/touch/click), so
+  // it never fights the visitor.
+  window.__preflight = true;
+  let preflightCancel = false;
+  const cancelPreflight = () => { preflightCancel = true; };
+  window.addEventListener('wheel', cancelPreflight, { once: true, passive: true });
+  window.addEventListener('touchstart', cancelPreflight, { once: true, passive: true });
+  window.addEventListener('pointerdown', cancelPreflight, { once: true, passive: true });
+  (async () => {
+    try {
+      for (let i = 1; i <= 30; i++) {
+        if (preflightCancel) break;
+        window.__setProgress((i / 30) * 9);
+        await new Promise(r => setTimeout(r, 45));
+      }
+      window.__setProgress(0);
+    } catch (_) {}
+    window.__preflight = false;
+    window.removeEventListener('wheel', cancelPreflight);
+    window.removeEventListener('touchstart', cancelPreflight);
+    window.removeEventListener('pointerdown', cancelPreflight);
+  })();
 
   // Progressive preloader completion
   setPreProgress(75);
