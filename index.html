@@ -6589,8 +6589,22 @@ body.loaded .hero-heading {
     // program (which includes a map sampler) compiles during warm-up; the
     // real certificate image later swaps into this same texture object
     // instead of swapping materials (which would force a late recompile).
+    // The placeholder is pre-drawn as a paper-like certificate so the frame
+    // never reads as an empty void while the real image is in flight.
     const certTexCanvas = document.createElement('canvas');
-    certTexCanvas.width = 2; certTexCanvas.height = 2;
+    certTexCanvas.width = 512; certTexCanvas.height = 362;
+    const cx = certTexCanvas.getContext('2d');
+    cx.fillStyle = '#f7f4ec';
+    cx.fillRect(0, 0, 512, 362);
+    const cg = cx.createLinearGradient(0, 0, 0, 362);
+    cg.addColorStop(0, 'rgba(120, 90, 50, 0.10)');
+    cg.addColorStop(0.5, 'rgba(255, 255, 255, 0)');
+    cg.addColorStop(1, 'rgba(120, 90, 50, 0.12)');
+    cx.fillStyle = cg; cx.fillRect(0, 0, 512, 362);
+    cx.strokeStyle = 'rgba(150, 120, 70, 0.35)'; cx.lineWidth = 3; cx.strokeRect(24, 24, 464, 314);
+    cx.fillStyle = 'rgba(160, 70, 40, 0.16)';
+    cx.font = '700 64px serif'; cx.textAlign = 'center'; cx.textBaseline = 'middle';
+    cx.fillText('影', 256, 176);
     const certTex = new THREE.CanvasTexture(certTexCanvas);
     if (THREE.sRGBEncoding !== undefined) certTex.encoding = THREE.sRGBEncoding;
     else if (certTex.colorSpace !== undefined && THREE.SRGBColorSpace) certTex.colorSpace = THREE.SRGBColorSpace;
