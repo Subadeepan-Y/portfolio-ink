@@ -2,7 +2,7 @@ const fs = require('fs');
 
 // Embed the certificate image into the generated HTML itself (data URI) so
 // the frame never depends on a runtime HTTP request for the texture.
-const CERT_FILE = 'D:/PROJECTS/portfolio-ink/assettt/subadeepany@gmail.com_COM_SC-4758.jpg';
+const CERT_FILE = 'D:/PROJECTS/portfolio-ink/assettt/certificate-official-2048.jpg';
 const CERT_DATA_URI = 'data:image/jpeg;base64,' + fs.readFileSync(CERT_FILE).toString('base64');
 
 // Read the modal HTML, CSS, and PROJECTS data from index.html.v2.bak
@@ -6426,23 +6426,35 @@ ${modalHtml}
     plinth.position.set(0, 0.27, zB + 0.36);
     g.add(plinth);
 
-    // Framed certificate hung on the back wall
-    const certW = 4.15;
-    const certH = certW * (723 / 1024);
+    // Framed certificate hung on the back wall — sized and placed so the
+    // document fills a large part of the stage-09 frame and the small print
+    // stays legible at the default viewing distance.
+    const certW = 5.0;
+    const certH = certW * (1446 / 2048);
     const frame = new THREE.Group();
-    frame.position.set(0, 3.85, zB + 0.36);
+    frame.position.set(0, 3.95, zB + 0.36);
 
     const certImg = new Image();
     const certTex = new THREE.Texture(certImg);
     if (THREE.sRGBEncoding !== undefined) certTex.encoding = THREE.sRGBEncoding;
     else if (certTex.colorSpace !== undefined && THREE.SRGBColorSpace) certTex.colorSpace = THREE.SRGBColorSpace;
+    // The certificate is viewed almost straight-on at high magnification:
+    // anisotropic filtering keeps the engraved type crisp instead of letting
+    // the mip chain smear it.
+    if (renderer && renderer.capabilities && renderer.capabilities.getMaxAnisotropy) {
+      certTex.anisotropy = Math.min(16, renderer.capabilities.getMaxAnisotropy());
+    }
 
     certImg.onload = function () {
       certTex.needsUpdate = true;
     };
     certImg.src = '${CERT_DATA_URI}';
 
-    const certMat = new THREE.MeshBasicMaterial({ map: certTex, color: 0xffffff });
+    // toneMapped:false bypasses the cinematic ACES curve for the document, so
+    // the cream paper and ink keep their true, high-contrast values.
+    const certMat = new THREE.MeshBasicMaterial({ map: certTex, color: 0xffffff, toneMapped: false });
+    SANCTUM.certW = certW;
+    SANCTUM.certH = certH;
     const certMesh = new THREE.Mesh(new THREE.PlaneGeometry(certW, certH), certMat);
     frame.add(certMesh);
 
@@ -6481,7 +6493,7 @@ ${modalHtml}
         emissive: 0x2a1e06, emissiveIntensity: 0.5
       })
     );
-    nameplate.position.set(0, 1.92, zB + 0.37);
+    nameplate.position.set(0, 1.58, zB + 0.37);
     g.add(nameplate);
 
     // ---- Kakejiku scrolls on the side walls, flanking the walk-in -------
@@ -6861,7 +6873,7 @@ ${modalHtml}
     { p: new THREE.Vector3(-3.5, 3.8, -54.0), t: new THREE.Vector3(-8.0, 4.8, -64.0) }, // 6: framing House 4 Castle Keep (x = -8.0, z = -64) on the left
     { p: new THREE.Vector3( 2.5, 3.0, -68.0), t: new THREE.Vector3( 7.0, 3.2, -76.0) }, // 7: framing House 5 Imperial Vault (x = 7.0, z = -76) on the right
     { p: new THREE.Vector3(-1.0, 4.5, -78.0), t: new THREE.Vector3( 0.0, 4.2, -96.0) }, // 8: mountain summit overlook
-    { p: new THREE.Vector3( 0.0, 3.0,-117.4), t: new THREE.Vector3( 0.0, 3.05,-128.3) }  // 9: inner sanctum (interior wall + certificate)
+    { p: new THREE.Vector3( 0.0, 3.05,-121.0), t: new THREE.Vector3( 0.0, 3.30,-128.2) }  // 9: inner sanctum (interior wall + certificate)
   ];
 
   const camPosSpline = new THREE.CatmullRomCurve3(
@@ -7595,6 +7607,20 @@ ${modalHtml}
     camera.position.x += camOffset.x;
     camera.position.y += camOffset.y;
     camera.position.z += af * 4.0;
+
+    // Stage-09 framing: on narrow / portrait viewports the certificate is
+    // wider than the horizontal field of view at the default dolly distance.
+    // Ease the camera back until the whole document fits with a margin, so
+    // every detail stays on screen instead of being cropped at the edges.
+    if (p > 8.45 && window.__SANCTUM && window.__SANCTUM.certW) {
+      const fit = Math.min(1, (p - 8.45) / 0.55);
+      const vHalf = Math.tan(camera.fov * 0.5 * Math.PI / 180);
+      const hHalf = vHalf * camera.aspect;
+      const needW = (window.__SANCTUM.certW * 0.5) / Math.tan(Math.atan(hHalf) * 0.84);
+      const needH = (window.__SANCTUM.certH * 0.5) / Math.tan(Math.atan(vHalf) * 0.78);
+      const wantZ = (window.__SANCTUM.zBack + 0.36) + Math.max(needW, needH);
+      if (wantZ > camera.position.z) camera.position.z += (wantZ - camera.position.z) * fit;
+    }
 
     // Interactive Camera Focus Dolly-In: glides 1.8 units closer along forward view vector
     if (focusAmt > 0.0001) {
@@ -8708,6 +8734,25 @@ ${modalHtml}
 
   updateTabTitle();
   activateStageFg(0);
+
+  // --- Light budget lock -------------------------------------------------
+  // Distance culling toggles whole groups (houses, sanctum, mountain shell).
+  // Point lights parented inside those groups therefore drop out of the
+  // render list when their group is hidden — and ANY change in the visible
+  // light count changes the shader program for every material in the scene,
+  // forcing a full pipeline relink mid-scroll (measured: multi-second freezes
+  // on the approach to the sanctum door). Reparent every light to one
+  // permanent group so the light budget is constant for the whole journey;
+  // culling still hides geometry only.
+  scene.updateMatrixWorld(true);
+  const LIGHT_KEEPER = new THREE.Group();
+  LIGHT_KEEPER.name = 'lightKeeper';
+  scene.add(LIGHT_KEEPER);
+  const lightsToKeep = [];
+  scene.traverse(o => { if (o.isLight && o.parent !== LIGHT_KEEPER) lightsToKeep.push(o); });
+  lightsToKeep.forEach(l => LIGHT_KEEPER.attach(l));
+  window.__LIGHT_KEEPER = LIGHT_KEEPER;
+  window.__LIGHT_COUNT = lightsToKeep.length;
 
   // Pre-warm the GPU pipeline before the first tick so the initial scroll
   // doesn't stall on lazy shader-program compiles / texture uploads.
