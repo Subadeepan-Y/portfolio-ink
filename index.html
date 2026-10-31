@@ -4443,24 +4443,51 @@ body.loaded .hero-heading {
   WORLD_BG.add(toriiSummit);
   window.__toriiSummit = toriiSummit;
 
-  // Podium & Grand Staircase leading up to the Sanmon Sanctuary in the far mist
+  // Podium leading up to the Sanmon Sanctuary in the far mist.
+  //
+  // The inner sanctum is carved *into* this mass (z -127.85 .. -114.85,
+  // |x| <= 8). A solid 46 x 6 x 26 block therefore fills the whole hall and
+  // its front face sits 0.15 units behind the shrine facade, so it showed
+  // through the doorway as a grey stone wall every time the doors were open.
+  // Build the podium around the hall instead - two flanking monoliths plus
+  // the rear mass. The outer silhouette is unchanged (same front plane, same
+  // side faces, same height); only the carved volume is now empty.
   const PODIUM_Y = 6.0;
   const TEMPLE_Z = -128;
+  const PODIUM_FRONT_Z = -115;           // flush with the sanctum facade
+  const PODIUM_BACK_Z = TEMPLE_Z - 13;   // -141
+  const HALL_HALF_W = 8;                 // sanctum interior half-width
+  const HALL_BACK_Z = -127.85;           // sanctum back wall
 
-  const podium = new THREE.Mesh(new THREE.BoxGeometry(46, PODIUM_Y, 26), stoneMat);
-  podium.position.set(0, PODIUM_Y / 2, TEMPLE_Z);
+  const podium = new THREE.Group();
+  podium.name = 'podium';
+  [-1, 1].forEach(s => {
+    const wing = new THREE.Mesh(
+      new THREE.BoxGeometry(15, PODIUM_Y, PODIUM_FRONT_Z - PODIUM_BACK_Z),
+      stoneMat
+    );
+    wing.position.set(
+      s * (HALL_HALF_W + 7.5),
+      PODIUM_Y / 2,
+      (PODIUM_FRONT_Z + PODIUM_BACK_Z) / 2
+    );
+    podium.add(wing);
+  });
+  const rearMass = new THREE.Mesh(
+    new THREE.BoxGeometry(HALL_HALF_W * 2, PODIUM_Y, HALL_BACK_Z - PODIUM_BACK_Z),
+    stoneMat
+  );
+  rearMass.position.set(0, PODIUM_Y / 2, (HALL_BACK_Z + PODIUM_BACK_Z) / 2);
+  podium.add(rearMass);
   WORLD_BG.add(podium);
 
-  const stepCount = 20;
+  // The old staircase climbed *into* the hall (its top step was 11 units
+  // behind the doorway), so it was never visible from outside and only
+  // appeared as grey slabs through the open doors. Keep the group so the
+  // MOUNTAIN_SHELL visibility contract is unchanged; the hall now reads as
+  // a carved room rather than a stack of steps.
   const stairGroup = new THREE.Group();
   WORLD_BG.add(stairGroup);
-  for (let i = 0; i < stepCount; i++) {
-    const sy = (i + 1) * (PODIUM_Y / stepCount);
-    const sz = -115 - i * 0.60;
-    const step = new THREE.Mesh(new THREE.BoxGeometry(10.4, PODIUM_Y / stepCount + 0.04, 0.64), stoneMat);
-    step.position.set(0, sy - (PODIUM_Y / stepCount) / 2, sz);
-    stairGroup.add(step);
-  }
 
   // Sanctuary Ground Mist & Luminous Light Spill Band across podium steps
   function texMistGradient() {
