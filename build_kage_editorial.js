@@ -2431,6 +2431,35 @@ ${modalCss}
   text-shadow: 0 4px 30px rgba(0, 0, 0, 0.9) !important;
   margin-bottom: clamp(18px, 2.8vh, 32px) !important;
 }
+
+/* ============ MOBILE SWIPE TUTORIAL POPUP (MOBILE DEVICES ONLY) ============ */
+.mobile-swipe-guide {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 11000;
+  background: rgba(4, 5, 7, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+.mobile-swipe-guide.show {
+  display: flex;
+  opacity: 1;
+  visibility: visible;
+}
+@media (min-width: 901px) and (hover: hover) and (pointer: fine) {
+  /* Desktop / PC with a mouse: never show the mobile tutorial */
+  .mobile-swipe-guide.show {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+  }
 }
 
 .mobile-guide-card {
@@ -7277,12 +7306,21 @@ ${modalHtml}
   }
   window.jumpTo = jumpTo;
 
-  // Mobile Swipe Tutorial Popup Controller
+  // Mobile Swipe Tutorial Popup Controller — MOBILE DEVICES ONLY.
+  // PC/laptop users (even touchscreens) must never see this overlay.
+  function isMobileOnlyDevice() {
+    const ua = navigator.userAgent || '';
+    const mobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|BB10|IEMobile|Opera Mini|Silk|Kindle|Mobile Safari/i.test(ua);
+    const iPadOS = /Mac/i.test(navigator.platform || '') && (navigator.maxTouchPoints || 0) > 1;
+    const isTouchPhone = /Windows Phone/i.test(ua);
+    return mobileUA || iPadOS || isTouchPhone;
+  }
+
   function initMobileSwipeGuide() {
-    const isMobile = window.innerWidth <= 900 || ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    if (!isMobileOnlyDevice()) return;
     const hasSeenGuide = localStorage.getItem('kage_seen_swipe_guide');
     const guideEl = document.getElementById('mobileSwipeGuide');
-    if (isMobile && !hasSeenGuide && guideEl) {
+    if (!hasSeenGuide && guideEl) {
       setTimeout(() => {
         guideEl.classList.add('show');
       }, 900);
