@@ -72,6 +72,30 @@ html, body {
 }
 ::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }
 
+/* Hanko Toast */
+#hankoToast {
+  position: fixed;
+  top: 28px;
+  left: 28px;
+  padding: 8px 16px;
+  background: rgba(14, 18, 22, 0.92);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  color: #fbfaf6;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  z-index: 999;
+  border-radius: 4px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+#hankoToast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 /* Fixed 3D WebGL Canvas */
 #gl {
   position: fixed;
@@ -2519,87 +2543,19 @@ body.blood-moon-active #filmGrain {
 }
 
 .hero-heading {
-  transition: opacity 1.0s cubic-bezier(0.16, 1, 0.3, 1), transform 1.0s cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+  color: #fbfaf6 !important;
+  font-family: var(--font-display) !important;
+  font-size: clamp(38px, 6.5vw, 96px) !important;
+  font-weight: 700 !important;
+  line-height: 0.95 !important;
+  letter-spacing: 0.02em !important;
+  text-transform: uppercase !important;
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.9) !important;
+  margin-bottom: clamp(18px, 2.8vh, 32px) !important;
 }
-body:not(.loaded) .hero-heading {
-  opacity: 0;
-  transform: translateY(16px);
-}
-body.loaded .hero-heading {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Editorial Modal Micro-Transitions & Dossier Alias */
-#dossierModal {
-  display: contents;
-}
-@keyframes slideGlideIn {
-  0% {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-.slide-glide {
-  animation: slideGlideIn 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
-}
-
-/* Segmented Hairline Slide Stepper (~16px wide, 2px high, spaced 4px apart) */
-#mDots {
-  display: flex !important;
-  align-items: center !important;
-  gap: 4px !important;
-}
-#mDots i, #mDots .m-dash {
-  width: 16px !important;
-  height: 2px !important;
-  border-radius: 1px !important;
-  background: rgba(223, 231, 224, 0.22) !important;
-  cursor: pointer !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  display: inline-block !important;
-  box-shadow: none !important;
-  border: none !important;
-}
-#mDots i:hover:not(.on), #mDots .m-dash:hover:not(.on) {
-  background: rgba(223, 231, 224, 0.6) !important;
-  transform: scaleY(1.6) !important;
-}
-#mDots i.on, #mDots .m-dash.on {
-  background: var(--red) !important;
-  box-shadow: 0 0 10px var(--red-glow) !important;
-  transform: scaleY(1.6) !important;
-}
-</style>
-<style>
-
-/* ============ MOBILE SWIPE TUTORIAL POPUP ============ */
-.mobile-swipe-guide {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 11000;
-  background: rgba(4, 5, 7, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.35s ease, visibility 0.35s ease;
-}
-
-@media (max-width: 900px), (hover: none) and (pointer: coarse) {
-  .mobile-swipe-guide.show {
-    display: flex;
-    opacity: 1;
-    visibility: visible;
-  }
 }
 
 .mobile-guide-card {
@@ -2819,12 +2775,6 @@ body.loaded .hero-heading {
 <body>
 
 <!-- PRELOADER REMOVED -->
-    <div class="pre-meta">
-      <span>SANCTUARY INITIALIZING // 2026</span>
-      <b><span id="prePct">0</span>%</b>
-    </div>
-  </div>
-</div>
 
 <canvas id="gl" aria-hidden="true"></canvas>
 <div id="cursorRing" aria-hidden="true"></div>
@@ -9337,20 +9287,7 @@ body.loaded .hero-heading {
   window.addEventListener('wheel', cancelPreflight, { once: true, passive: true });
   window.addEventListener('touchstart', cancelPreflight, { once: true, passive: true });
   window.addEventListener('pointerdown', cancelPreflight, { once: true, passive: true });
-  (async () => {
-    try {
-      for (let i = 1; i <= 30; i++) {
-        if (preflightCancel) break;
-        window.__setProgress((i / 30) * 9);
-        await new Promise(r => setTimeout(r, 45));
-      }
-      window.__setProgress(0);
-    } catch (_) {}
-    window.__preflight = false;
-    window.removeEventListener('wheel', cancelPreflight);
-    window.removeEventListener('touchstart', cancelPreflight);
-    window.removeEventListener('pointerdown', cancelPreflight);
-  })();
+  window.__preflight = false;
 
   // Progressive preloader completion
   setPreProgress(75);
