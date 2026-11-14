@@ -6,7 +6,7 @@ const path = require('path');
 
 const CHROME = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
 const PORT = 9400 + Math.floor(Math.random() * 200);
-const URL = 'http://127.0.0.1:5000/';
+const URL = (process.env.SITE_URL || 'http://127.0.0.1:5000/');
 const SHOTS = 'D:/PROJECTS/portfolio-ink/screenshots';
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
@@ -140,7 +140,7 @@ class CDP {
     platform: 'iPhone'
   });
   await c.send('Network.clearBrowserCache');
-  await c.send('Page.navigate', { url: URL + '?mobiletest=1' });
+  await c.send('Page.navigate', { url: (process.env.SITE_URL || 'http://127.0.0.1:5000/') + '?mobiletest=1' });
   for (let i = 0; i < 14; i++) {
     await sleep(800);
     const s = await c.eval(`(() => { const g=document.getElementById('mobileSwipeGuide'); return g ? g.className + '|' + getComputedStyle(g).display + '|ls=' + localStorage.getItem('kage_seen_swipe_guide') : 'none'; })()`);

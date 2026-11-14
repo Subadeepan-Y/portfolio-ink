@@ -31,7 +31,7 @@ function check(name, pass, detail) { results.push({ name, pass: pass ? 'PASS' : 
   c.on('Runtime.consoleAPICalled', p => { if (p.type === 'error' || p.type === 'warning') logs.push('[' + p.type + '] ' + p.args.map(a => a.value !== undefined ? a.value : (a.description || a.type)).join(' ')); });
   c.on('Log.entryAdded', p => { if (p.entry.level === 'error') logs.push('[log:error] ' + p.entry.text + ' ' + (p.entry.url || '')); });
 
-  await c.send('Page.navigate', { url: 'http://127.0.0.1:5000/' });
+  await c.send('Page.navigate', { url: (process.env.SITE_URL || 'http://127.0.0.1:5000/') });
   await sleep(10000);
 
   const boot = await c.eval(`(() => {
