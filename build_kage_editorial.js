@@ -18,7 +18,7 @@ if (projStartIndex === -1 || projEndIndex === -1) {
   process.exit(1);
 }
 
-const projectsJsCode = bakHtml.substring(projStartIndex, projEndIndex).trim();
+const projectsJsCode = fs.readFileSync('D:/PROJECTS/portfolio-ink/custom_projects_code.js', 'utf8').trim();
 
 // Extract Modal Markup
 const modalMarkupStart = '<!-- ============ MODAL ============ -->';
@@ -2462,6 +2462,246 @@ body.loaded .hero-heading {
   transform: scaleY(1.6) !important;
 }
 </style>
+<style>
+
+/* ============ MOBILE SWIPE TUTORIAL POPUP ============ */
+.mobile-swipe-guide {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 11000;
+  background: rgba(4, 5, 7, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+
+@media (max-width: 900px), (hover: none) and (pointer: coarse) {
+  .mobile-swipe-guide.show {
+    display: flex;
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.mobile-guide-card {
+  position: relative;
+  background: linear-gradient(165deg, rgba(24, 20, 16, 0.96), rgba(12, 10, 8, 0.98));
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.92), 0 0 32px rgba(212, 175, 55, 0.18);
+  border-radius: 18px;
+  padding: 32px 24px 26px 24px;
+  max-width: 360px;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mobile-guide-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #f2f5f2;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.mobile-guide-close:active {
+  transform: scale(0.92);
+  background: rgba(224, 35, 28, 0.35);
+  border-color: rgba(224, 35, 28, 0.8);
+}
+
+.mobile-guide-hanko {
+  width: 34px;
+  height: 34px;
+  border-radius: 4px;
+  background: rgba(224, 35, 28, 0.22);
+  border: 1px solid rgba(224, 35, 28, 0.8);
+  color: #ff5247;
+  font-family: var(--font-jp, serif);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  box-shadow: 0 0 16px rgba(224, 35, 28, 0.35);
+}
+
+.mobile-guide-title {
+  font-family: var(--font-display, 'Bebas Neue', sans-serif);
+  font-size: 26px;
+  letter-spacing: 0.12em;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.mobile-guide-sub {
+  font-family: var(--font-mono, monospace);
+  font-size: 9.5px;
+  letter-spacing: 0.22em;
+  color: #d4af37;
+  margin-bottom: 22px;
+}
+
+.swipe-animation-container {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.12) 0%, rgba(0,0,0,0) 70%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.phone-frame {
+  width: 76px;
+  height: 126px;
+  border: 2px solid rgba(212, 175, 55, 0.5);
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+  background: rgba(8, 10, 14, 0.6);
+}
+
+.swipe-path {
+  position: absolute;
+  top: 14px;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.swipe-trail {
+  flex: 1;
+  width: 2px;
+  background: linear-gradient(to bottom, rgba(212,175,55,0.8), rgba(224,35,28,0.8));
+  opacity: 0.45;
+}
+
+.swipe-arrow-up, .swipe-arrow-down {
+  font-size: 9px;
+  color: #d4af37;
+}
+
+.animated-hand-icon {
+  position: absolute;
+  left: 50%;
+  top: 65%;
+  transform: translate(-50%, -50%);
+  color: #f7df94;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.8));
+  animation: mobileHandSwipe 2.4s infinite ease-in-out;
+}
+
+@keyframes mobileHandSwipe {
+  0% {
+    top: 75%;
+    transform: translate(-50%, -50%) scale(0.92);
+    opacity: 0.3;
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+  50% {
+    top: 25%;
+    transform: translate(-50%, -50%) scale(1.0);
+    opacity: 1;
+  }
+  65% {
+    top: 25%;
+    opacity: 0.3;
+  }
+  75% {
+    top: 75%;
+    opacity: 0;
+  }
+  100% {
+    top: 75%;
+    opacity: 0.3;
+  }
+}
+
+.swipe-instructions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 22px;
+  text-align: left;
+}
+
+.swipe-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #e2ded4;
+}
+
+.step-badge {
+  flex-shrink: 0;
+  font-family: var(--font-mono, monospace);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  background: rgba(212, 175, 55, 0.18);
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  color: #ffe699;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.mobile-guide-ack-btn {
+  width: 100%;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.25), rgba(180, 140, 30, 0.15));
+  border: 1px solid rgba(212, 175, 55, 0.6);
+  border-radius: 10px;
+  color: #f7df94;
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.mobile-guide-ack-btn:active {
+  transform: scale(0.98);
+  background: rgba(212, 175, 55, 0.35);
+}
+.guide-ack-arrow {
+  font-size: 14px;
+}
+
+</style>
 </head>
 <body>
 
@@ -2530,7 +2770,7 @@ body.loaded .hero-heading {
 <div id="rail" role="navigation" aria-label="Chapter Progression Rail">
   <button type="button" class="rail-btn on" onclick="jumpTo(0)" aria-label="Chapter 00: The Hidden Gate"><span class="rail-label"><span class="rail-num">00</span> THE HIDDEN GATE <span class="rail-kanji">隠門</span></span><span class="rail-dot"></span></button>
   <button type="button" class="rail-btn" onclick="jumpTo(1)" aria-label="Chapter 01: The Maker"><span class="rail-label"><span class="rail-num">01</span> THE MAKER <span class="rail-kanji">門跡</span></span><span class="rail-dot"></span></button>
-  <button type="button" class="rail-btn" onclick="jumpTo(2)" aria-label="Chapter 02: iGradeify"><span class="rail-label"><span class="rail-num">02</span> IGRADEIFY <span class="rail-kanji">学宮</span></span><span class="rail-dot"></span></button>
+  <button type="button" class="rail-btn" onclick="jumpTo(2)" aria-label="Chapter 02: VI3ION"><span class="rail-label"><span class="rail-num">02</span> VI3ION <span class="rail-kanji">天眼</span></span><span class="rail-dot"></span></button>
   <button type="button" class="rail-btn" onclick="jumpTo(3)" aria-label="Chapter 03: manim-ts"><span class="rail-label"><span class="rail-num">03</span> MANIM-TS <span class="rail-kanji">三重塔</span></span><span class="rail-dot"></span></button>
   <button type="button" class="rail-btn" onclick="jumpTo(4)" aria-label="Chapter 04: Duel Deck"><span class="rail-label"><span class="rail-num">04</span> DUEL DECK <span class="rail-kanji">両極殿</span></span><span class="rail-dot"></span></button>
   <button type="button" class="rail-btn" onclick="jumpTo(5)" aria-label="Chapter 05: Desktop Buddy"><span class="rail-label"><span class="rail-num">05</span> DESKTOP BUDDY <span class="rail-kanji">茶室</span></span><span class="rail-dot"></span></button>
@@ -2592,14 +2832,14 @@ body.loaded .hero-heading {
         <p>No heavy third-party black boxes. Every computation runs on lean, hand-tuned execution loops with native GPU rendering.</p>
       </div>
       <div class="maker-col">
-        <span class="num">02 // TOOLCHAIN</span>
-        <h4>Modern Low-Latency</h4>
-        <p>TypeScript, WebGL, Node.js, WebAssembly, GLSL shaders, and resilient state machines engineered for continuous 60fps execution.</p>
+        <span class="num">02 // PUBLISHER</span>
+        <h4>PyPI &amp; NPM Publisher</h4>
+        <p>Author and maintainer of open-source packages across PyPI and NPM, engineering local AI agent vision systems and developer runtimes.</p>
       </div>
       <div class="maker-col">
         <span class="num">03 // RECORD</span>
-        <h4>6 Shipped Products</h4>
-        <p>From visual education platforms to browser animation runtimes, complete architectures built and deployed to real users worldwide.</p>
+        <h4>6 Shipped Systems</h4>
+        <p>From visual education platforms to local agent vision runtimes and bytecode compilers deployed to global users.</p>
       </div>
     </div>
   </section>
@@ -2619,33 +2859,33 @@ body.loaded .hero-heading {
         <span class="dot"></span>
         <span>02 // SACRED CRAFT // 01 OF 06</span>
         <span class="rule"></span>
-        <span class="kanji-marker">学宮</span>
+        <span class="kanji-marker">天眼</span>
       </div>
-      <h2 class="monumental-heading">IGRADEIFY</h2>
-      <p class="editorial-sub">All-in-one CBSE study ecosystem with automated 80-mark blueprint generator, multi-chapter library, and animated visual explainers.</p>
+      <h2 class="monumental-heading">VI3ION</h2>
+      <p class="editorial-sub">Gives blind AI agents local eyes — precise OCR coordinates, geometry, per-element colour measurement &amp; visual diffing. 100% private, zero cloud reliance.</p>
       <div class="work-specs">
-        <span>BLUEPRINT GENERATOR</span>
-        <span>AI STUDY ROOMS</span>
-        <span>VISUAL EXPLAINER</span>
-        <span>60 FPS</span>
+        <span>LOCAL OCR &amp; GEOMETRY</span>
+        <span>MCP PROTOCOL</span>
+        <span>PYPI &amp; NPM PACKAGE</span>
+        <span>100% PRIVATE</span>
       </div>
       <button type="button" class="dossier-btn" onclick="openModal(0)">
         <span>EXPLORE DOSSIER</span>
         <span class="plus">[ + ]</span>
       </button>
     </div>
-    <div class="project-showcase-plate" onclick="openModal(0)" data-cursor aria-label="Explore iGradeify Dossier">
+    <div class="project-showcase-plate" onclick="openModal(0)" data-cursor aria-label="Explore VI3ION Dossier">
       <div class="plate-fr">
         <img class="plate-img" src="shots/landing.png" alt="iGradeify Visual Showcase" loading="lazy">
         <span class="card-ar"><svg viewBox="0 0 14 14" fill="none"><path d="M3 11 11 3M5 3h6v6" stroke="#dfe7e0" stroke-width="1.3"/></svg></span>
         <i class="glow glow--flame" style="--gx:75%; --gy:32%; --gr:22%; --gt:4.2s; --gt2:6.8s; --gc1:rgba(255,142,60,0.55); --gc2:rgba(224,35,28,0.25)"></i>
         <div class="plate-overlay">
-          <div class="plate-tag"><span class="jp">学宮</span><b>IGRADEIFY</b></div>
+          <div class="plate-tag"><span class="jp">天眼</span><b>VI3ION</b></div>
           <span class="plate-pill">EXPLORE DOSSIER [ + ]</span>
         </div>
       </div>
       <div class="plate-meta">
-        <span>01 / 06 — BLUEPRINT &amp; STUDY ROOMS</span>
+        <span>01 / 06 — EYES FOR AI AGENTS // MCP</span>
         <span class="plate-view-hint">OPEN DOSSIER ↗</span>
       </div>
     </div>
@@ -2807,33 +3047,33 @@ body.loaded .hero-heading {
         <span class="dot"></span>
         <span>02 // SACRED CRAFT // 05 OF 06</span>
         <span class="rule"></span>
-        <span class="kanji-marker">天守閣</span>
+        <span class="kanji-marker">学宮</span>
       </div>
-      <h2 class="monumental-heading">GREATE ENGINE</h2>
-      <p class="editorial-sub">Visual scripting game engine IDE with real-time node graphs, hot-reloading preview compiler, and multi-platform bytecode compilation.</p>
+      <h2 class="monumental-heading">IGRADEIFY</h2>
+      <p class="editorial-sub">All-in-one CBSE study ecosystem with automated 80-mark blueprint generator, multi-chapter library, and animated visual explainers.</p>
       <div class="work-specs">
-        <span>VISUAL LEVEL EDITOR</span>
-        <span>2D KINEMATICS</span>
-        <span>PLAIN-ENGLISH AI</span>
-        <span>GAME EXPORT</span>
+        <span>BLUEPRINT GENERATOR</span>
+        <span>AI STUDY ROOMS</span>
+        <span>VISUAL EXPLAINER</span>
+        <span>60 FPS</span>
       </div>
       <button type="button" class="dossier-btn" onclick="openModal(4)">
         <span>EXPLORE DOSSIER</span>
         <span class="plus">[ + ]</span>
       </button>
     </div>
-    <div class="project-showcase-plate" onclick="openModal(4)" data-cursor aria-label="Explore Greate Engine Dossier">
+    <div class="project-showcase-plate" onclick="openModal(4)" data-cursor aria-label="Explore iGradeify Dossier">
       <div class="plate-fr">
-        <img class="plate-img" src="secret-pathways-assets/generated/kage-approach.webp" alt="Greate Engine Visual Showcase" loading="lazy">
+        <img class="plate-img" src="shots/landing.png" alt="iGradeify Visual Showcase" loading="lazy">
         <span class="card-ar"><svg viewBox="0 0 14 14" fill="none"><path d="M3 11 11 3M5 3h6v6" stroke="#dfe7e0" stroke-width="1.3"/></svg></span>
         <i class="glow glow--flame" style="--gx:68%; --gy:38%; --gr:22%; --gt:4.4s; --gt2:7.1s; --gc1:rgba(255,142,60,0.55); --gc2:rgba(224,35,28,0.25)"></i>
         <div class="plate-overlay">
-          <div class="plate-tag"><span class="jp">天守閣</span><b>GREATE ENGINE</b></div>
+          <div class="plate-tag"><span class="jp">学宮</span><b>IGRADEIFY</b></div>
           <span class="plate-pill">EXPLORE DOSSIER [ + ]</span>
         </div>
       </div>
       <div class="plate-meta">
-        <span>05 / 06 — VISUAL 2D GAME IDE</span>
+        <span>05 / 06 — BLUEPRINT &amp; STUDY ROOMS</span>
         <span class="plate-view-hint">OPEN DOSSIER ↗</span>
       </div>
     </div>
@@ -2971,9 +3211,9 @@ body.loaded .hero-heading {
           <span class="link-arrow">↗</span>
         </a>
         <span class="contact-sep" aria-hidden="true"></span>
-        <a href="https://www.instagram.com/theepanxub/" target="_blank" rel="noopener" class="contact-link" data-cursor aria-label="02 // Instagram">
+        <a href="https://www.linkedin.com/in/subadeepan-y-b8aa55448/" target="_blank" rel="noopener" class="contact-link" data-cursor aria-label="02 // LinkedIn">
           <span class="link-num">02 //</span>
-          <span class="link-label">INSTAGRAM</span>
+          <span class="link-label">LINKEDIN</span>
           <span class="link-arrow">↗</span>
         </a>
         <span class="contact-sep" aria-hidden="true"></span>
@@ -2982,19 +3222,70 @@ body.loaded .hero-heading {
           <span class="link-label">GITHUB</span>
           <span class="link-arrow">↗</span>
         </a>
-      </div>
+        <span class="contact-sep" aria-hidden="true"></span>
+        <a href="https://www.instagram.com/theepanxub/" target="_blank" rel="noopener" class="contact-link" data-cursor aria-label="04 // Instagram">
+          <span class="link-num">04 //</span>
+          <span class="link-label">INSTAGRAM</span>
+          <span class="link-arrow">↗</span>
+        </a>
     </div>
   </section>
+
+
+<!-- ============ MOBILE SWIPE TUTORIAL POPUP ============ -->
+<div id="mobileSwipeGuide" class="mobile-swipe-guide" role="dialog" aria-modal="true" aria-label="Mobile Navigation Guide">
+  <div class="mobile-guide-card">
+    <button type="button" class="mobile-guide-close" onclick="closeMobileSwipeGuide()" aria-label="Close Mobile Guide">✕</button>
+    <div class="mobile-guide-hanko">影</div>
+    <div class="mobile-guide-title">SWIPE TO EXPLORE</div>
+    <div class="mobile-guide-sub">KYOTO SANCTUARY // MOBILE NAVIGATION</div>
+    
+    <div class="swipe-animation-container">
+      <div class="phone-frame">
+        <div class="swipe-path">
+          <div class="swipe-arrow-up">▲</div>
+          <div class="swipe-trail"></div>
+          <div class="swipe-arrow-down">▼</div>
+        </div>
+        <div class="animated-hand-icon">
+          <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v3"></path>
+            <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v7"></path>
+            <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"></path>
+            <path d="M10 14v-1.5a2 2 0 0 1 2-2v0a2 2 0 0 1 2 2v1.5"></path>
+            <path d="M6 14v1a6 6 0 0 0 6 6h1a6 6 0 0 0 6-6v-3"></path>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="swipe-instructions">
+      <div class="swipe-step">
+        <span class="step-badge">▲ UP</span>
+        <span><b>Swipe Bottom to Top</b> to travel into the next house &amp; sanctum</span>
+      </div>
+      <div class="swipe-step">
+        <span class="step-badge">▼ DOWN</span>
+        <span><b>Swipe Top to Bottom</b> to scroll back to entrance</span>
+      </div>
+    </div>
+
+    <button type="button" class="mobile-guide-ack-btn" onclick="closeMobileSwipeGuide()">
+      <span>ENTER THE SANCTUARY</span>
+      <span class="guide-ack-arrow">→</span>
+    </button>
+  </div>
+</div>
 
 </main>
 
 <!-- Bottom Horizontal Stepper for Work Stages -->
 <div id="workStepper">
-  <button type="button" class="step-dot" onclick="jumpTo(2)">01 IGRADEIFY</button>
+  <button type="button" class="step-dot" onclick="jumpTo(2)">01 VI3ION</button>
   <button type="button" class="step-dot" onclick="jumpTo(3)">02 MANIM-TS</button>
   <button type="button" class="step-dot" onclick="jumpTo(4)">03 DUEL DECK</button>
   <button type="button" class="step-dot" onclick="jumpTo(5)">04 BUDDY</button>
-  <button type="button" class="step-dot" onclick="jumpTo(6)">05 GREATE</button>
+  <button type="button" class="step-dot" onclick="jumpTo(6)">05 IGRADEIFY</button>
   <button type="button" class="step-dot" onclick="jumpTo(7)">06 VAULT</button>
 </div>
 
@@ -6463,6 +6754,9 @@ ${modalHtml}
 
     const certImg = new Image();
     const certTex = new THREE.Texture(certImg);
+    certTex.generateMipmaps = true;
+    certTex.minFilter = THREE.LinearMipmapLinearFilter;
+    certTex.magFilter = THREE.LinearFilter;
     if (THREE.sRGBEncoding !== undefined) certTex.encoding = THREE.sRGBEncoding;
     else if (certTex.colorSpace !== undefined && THREE.SRGBColorSpace) certTex.colorSpace = THREE.SRGBColorSpace;
     // The certificate is viewed almost straight-on at high magnification:
@@ -6500,6 +6794,8 @@ ${modalHtml}
     });
     g.add(frame);
     frame.userData.isCertificate = true;
+    certMesh.userData.isCertificate = true;
+    window.__certFrame = frame;
 
     // ---- Presentation dais, uplight and brass nameplate -----------------
     const dais = new THREE.Mesh(new THREE.BoxGeometry(6.6, 0.34, 1.6), hinokiMat);
@@ -6923,11 +7219,11 @@ ${modalHtml}
   const SCENE_NAMES = [
     'THE HIDDEN GATE',
     'THE MAKER',
-    'IGRADEIFY',
+    'VI3ION',
     'MANIM-TS',
     'DUEL DECK',
     'DESKTOP BUDDY',
-    'GREATE ENGINE',
+    'IGRADEIFY',
     'PERSONAL CLOUD',
     'THE RITUAL',
     'THE INNER SANCTUM'
@@ -6936,11 +7232,11 @@ ${modalHtml}
   const KANJI_WATERMARKS = [
     '影の道',
     '門跡',
-    '学宮',
+    '天眼',
     '三重塔',
     '両極殿',
     '茶室',
-    '天守閣',
+    '学宮',
     '宝蔵',
     '作法',
     '内殿'
@@ -7056,6 +7352,31 @@ ${modalHtml}
     }
   }
   window.jumpTo = jumpTo;
+
+  // Mobile Swipe Tutorial Popup Controller
+  function initMobileSwipeGuide() {
+    const isMobile = window.innerWidth <= 900 || ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    const hasSeenGuide = localStorage.getItem('kage_seen_swipe_guide');
+    const guideEl = document.getElementById('mobileSwipeGuide');
+    if (isMobile && !hasSeenGuide && guideEl) {
+      setTimeout(() => {
+        guideEl.classList.add('show');
+      }, 900);
+    }
+  }
+
+  function closeMobileSwipeGuide() {
+    const guideEl = document.getElementById('mobileSwipeGuide');
+    if (guideEl) {
+      guideEl.classList.remove('show');
+      localStorage.setItem('kage_seen_swipe_guide', '1');
+      if (typeof playTactileClick === 'function') playTactileClick();
+    }
+  }
+  window.closeMobileSwipeGuide = closeMobileSwipeGuide;
+  window.addEventListener('DOMContentLoaded', initMobileSwipeGuide);
+  setTimeout(initMobileSwipeGuide, 1200);
+
   // Debug/QA hook: snap the scroll position without waiting for inertia.
   window.__setProgress = function (v) {
     const n = Math.max(0, Math.min(9, Number(v) || 0));
@@ -7159,39 +7480,56 @@ ${modalHtml}
   }, { passive: false });
 
   // Touch listener & Touch Safety Tracking
+  // CALIBRATED MOBILE SWIPE ENGINE (Effortless stage-by-stage house traversal)
   let touchStartX = 0, touchStartY = 0;
+  let touchStartTime = 0;
   let isTouchDragging = false;
   let touchDragTimeout = null;
-  window.addEventListener('touchstart', function (e) {
+  let touchSwipeHandled = false;
+
+  window.addEventListener("touchstart", function (e) {
     if (e.touches.length > 0) {
       touchStartX = e.touches[0].clientX;
       touchStartY = e.touches[0].clientY;
+      touchStartTime = Date.now();
     }
     isTouchDragging = false;
+    touchSwipeHandled = false;
   }, { passive: true });
-  window.addEventListener('touchmove', function (e) {
-    if (document.getElementById('modal').classList.contains('open')) return;
-    if (window.__isFlightActive && window.__isFlightActive()) window.__cancelFlight();
-    targetFocusAmt = 0.0;
+
+  window.addEventListener("touchmove", function (e) {
+    const modal = document.getElementById("modal");
+    if (modal && modal.classList.contains("open")) return;
+    const dossierModal = document.getElementById("dossierModal");
+    if (dossierModal && dossierModal.classList.contains("open")) return;
     if (e.touches.length > 0) {
-      const dist = Math.hypot(e.touches[0].clientX - touchStartX, e.touches[0].clientY - touchStartY);
-      if (dist > 8) {
+      const distY = e.touches[0].clientY - touchStartY;
+      const distX = e.touches[0].clientX - touchStartX;
+      if (Math.hypot(distX, distY) > 8) {
         isTouchDragging = true;
       }
-      const deltaY = (touchStartY - e.touches[0].clientY) * 0.0018;
-      touchStartY = e.touches[0].clientY;
-      targetProgress = Math.max(0.0, Math.min(9.0, targetProgress + deltaY));
+      if (!touchSwipeHandled && Math.abs(distY) > 42 && Math.abs(distY) > Math.abs(distX) * 1.2) {
+        touchSwipeHandled = true;
+        targetFocusAmt = 0.0;
+        if (window.__isFlightActive && window.__isFlightActive()) window.__cancelFlight();
+        const currentStage = Math.round(targetProgress);
+        if (distY < 0) {
+          jumpTo(Math.min(9, currentStage + 1));
+        } else {
+          jumpTo(Math.max(0, currentStage - 1));
+        }
+      }
     }
   }, { passive: true });
-  window.addEventListener('touchend', function () {
+
+  window.addEventListener("touchend", function () {
     if (touchDragTimeout) clearTimeout(touchDragTimeout);
     if (isTouchDragging) {
       touchDragTimeout = setTimeout(() => {
         isTouchDragging = false;
-      }, 350);
+      }, 300);
     }
   }, { passive: true });
-
   // Mouse Click-to-Open 3D House Landmark Dossier
   let pointerDownPos = { x: 0, y: 0, time: 0 };
   window.addEventListener('pointerdown', function (e) {
@@ -7218,6 +7556,19 @@ ${modalHtml}
       );
       const clickRaycaster = new THREE.Raycaster();
       clickRaycaster.setFromCamera(clickNdc, camera);
+      // Check certificate click in Inner Sanctum to open high-res lightbox
+      if (window.__certFrame && (currentProgress > 8.0 || activeStageIdx === 9)) {
+        const certHits = clickRaycaster.intersectObjects([window.__certFrame], true);
+        if (certHits.length > 0) {
+          if (typeof window.openLightbox === "function") {
+            window.openLightbox(
+              '${CERT_DATA_URI}',
+              'IIT Madras — Centre for Outreach and Digital Education (CODE) | Introduction to Data Science and AI'
+            );
+            return;
+          }
+        }
+      }
       const hits = clickRaycaster.intersectObjects(PROJECT_HOUSES, true);
       if (hits.length > 0) {
         let curr = hits[0].object;
