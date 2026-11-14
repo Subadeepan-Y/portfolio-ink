@@ -2292,19 +2292,7 @@ ${modalCss}
 }
 
 /* ============================================================= PRELOADER */
-#pre {
-  position: fixed;
-  inset: 0;
-  z-index: 10000;
-  background: #040507;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 1;
-  visibility: visible;
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.8s;
-  pointer-events: all;
-}
+#pre { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
 #pre.done {
   opacity: 0;
   visibility: hidden;
@@ -2705,12 +2693,7 @@ body.loaded .hero-heading {
 </head>
 <body>
 
-<!-- ============================================================ PRELOADER -->
-<div id="pre">
-  <div class="pre-in">
-    <div class="pre-hanko">影</div>
-    <div class="pre-jp">静寂の刻</div>
-    <div class="pre-bar"><div id="preFill" class="pre-fill"></div></div>
+<!-- PRELOADER REMOVED -->
     <div class="pre-meta">
       <span>SANCTUARY INITIALIZING // 2026</span>
       <b><span id="prePct">0</span>%</b>
@@ -3415,20 +3398,11 @@ ${modalHtml}
   window.setPreProgress = setPreProgress;
 
   function finishPreloader() {
-    if (preDone) return;
-    if (window.__preflight) {
-      setTimeout(finishPreloader, 120);
-      return;
+      window.__preflight = false;
+      document.body.classList.add('loaded');
+      const p = document.getElementById('pre');
+      if (p) { p.style.display = 'none'; p.remove(); }
     }
-    preDone = true;
-    if (preFill) preFill.style.width = '100%';
-    if (prePct) prePct.textContent = '100';
-    if (pre) {
-      pre.classList.add('done');
-      pre.style.pointerEvents = 'none';
-    }
-    document.body.classList.add('loaded');
-  }
   window.finishPreloader = finishPreloader;
 
   // --- 1. PROCEDURAL TEXTURES & GEOMETRY GENERATORS ---
@@ -9205,7 +9179,7 @@ ${modalHtml}
   // first-visit stutter at the entrance torii / houses).
   // The walk cancels the instant the user interacts (wheel/touch/click), so
   // it never fights the visitor.
-  window.__preflight = true;
+  window.__preflight = false;
   let preflightCancel = false;
   const cancelPreflight = () => { preflightCancel = true; };
   window.addEventListener('wheel', cancelPreflight, { once: true, passive: true });
