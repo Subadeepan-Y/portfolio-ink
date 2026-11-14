@@ -13,15 +13,10 @@ const PROJECTS = [
         "<b>Exact Coordinates & Layout:</b> Extracts text rows, columns, alignment relationships, and bounding box coordinates in original pixels.",
         "<b>Per-Element Colour & Contrast:</b> Measures exact foreground ink and background hex values with WCAG-compliant contrast computation."
       ],
-      art:'<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>' +
-        '<div style="background:#0b0f14;padding:24px;border-radius:6px;font-family:monospace;font-size:12px;color:#a8b3cf;line-height:1.6">' +
-          '<div style="color:#22c55e;font-weight:bold;margin-bottom:12px">// VI3ION MCP Server — Measurement Output</div>' +
-          '<div>Image 1280x800. Top bar: \"Settings\" <span style="color:#d4af37">ink:#f8f8f8 on:#1e3a8a contrast:9.8</span> @[44, 32, 168, 69]</div>' +
-          '<div>Centre: \"Save\" (verified) <span style="color:#38bdf8">ink:#f8f8f8 on:#2563eb contrast:4.9</span> @[373, 619, 421, 640]</div>' +
-          '<div>\"Cancel\" <span style="color:#94a3b8">ink:#384858 on:#ffffff contrast:9.4</span> @[557, 617, 620, 640]</div>' +
-          '<div style="margin-top:14px;color:#cbd5e1;border-top:1px solid #1e293b;padding-top:10px"><b>Claim Verification:</b> \"Save is aligned with Cancel\" → <span style="color:#22c55e">VERIFIED</span> (Δy: 2px)</div>' +
-        '</div>' +
-        '<div class="shotcap">● EYES FOR AI AGENTS // PYPI: vi3ion · NPM: @subadeepan_y/vi3ion-opencode</div></div>' },
+      art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
+        <img src="shots/vi3ion_evidence_ui.png" alt="VI3ION evidence table: OCR text, shapes, relations and colours with pixel bounding boxes and confidence" loading="lazy">
+        <img src="shots/vi3ion_viewer_ui.png" alt="VI3ION viewer running locally over a real UI with OCR text boxes and shape outlines drawn on the image" loading="lazy">
+        <div class="shotcap">● REAL VI3ION RUN — OCR + SHAPE EVIDENCE FROM THE LIVE LOCAL ENGINE</div></div>` },
     { feature:"Published PyPI Package & OpenCode Plugin", tech:"pip install vi3ion · npm i -D @subadeepan_y/vi3ion-opencode · Multi-Agent Adapters",
       desc:"Distributed as an official package on PyPI and an extensible companion plugin on npm. Features self-healing CLI diagnostics (vi3ion doctor), local LLM runtime detection, and multi-version visual screen diffing.",
       specs:[
@@ -30,13 +25,14 @@ const PROJECTS = [
         "<b>Model Agnostic:</b> Works with both proprietary models and local LLMs (Ollama, llama.cpp, LM Studio, vLLM).",
         "<b>Active Ecosystem:</b> Shipped with comprehensive agent rules, semantic plugins, and automated CI test suites."
       ],
-      art:'<div class="shot"><div class="bar"><i></i><i></i><i></i></div>' +
-        '<div class="kv"><span>📦 PyPI Package</span><b>vi3ion · v0.1.x</b></div>' +
+      art:`<div class="shot realshot"><div class="bar"><i></i><i></i><i></i></div>
+        <img src="shots/vi3ion_workspace.png" alt="VI3ION workspace with the local image store and engine status" loading="lazy">
+        <div class="kv"><span>📦 PyPI Package</span><b>vi3ion · v0.1.x</b></div>' +
         '<div class="kv"><span>📦 NPM Package</span><b>@subadeepan_y/vi3ion-opencode</b></div>' +
         '<div class="kv"><span>⚡ Protocol</span><b>Model Context Protocol (MCP)</b></div>' +
         '<div class="kv"><span>🔒 Privacy</span><b>100% Local · Loopback Bound</b></div>' +
-        '<div class="tagrow" style="justify-content:center;margin-top:14px"><span class="stag">PyPI</span><span class="stag">NPM</span><span class="stag">Claude Code</span><span class="stag">Cursor</span><span class="stag">Local LLMs</span></div>' +
-        '<div class="shotcap mock">○ OPEN SOURCE AI VISION ENGINE</div></div>' }
+        '<div class="tagrow" style="justify-content:center;margin-top:14px"><span class="stag">PyPI</span><span class="stag">NPM</span><span class="stag">Claude Code</span><span class="stag">Cursor</span><span class="stag">OpenCode</span></div>' +
+        '<div class="shotcap">● LOCAL IMAGE STORE — EVERY SCREENSHOT STAYS ON YOUR OWN MACHINE</div></div>` }
   ]
 },
 {

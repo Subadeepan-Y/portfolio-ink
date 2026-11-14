@@ -276,6 +276,35 @@ body.cinematic-flight #gl {
   transform: scale(1.055);
 }
 
+/* ---------- PERFORMANCE TIER (weak GPU / low power fallback) ---------- */
+body.perf-low #grain {
+  display: none !important;
+}
+body.perf-low #fg {
+  opacity: 0.55 !important;
+}
+body.perf-low .process-card,
+body.perf-low .work-specs span {
+  background: rgba(4, 6, 8, 0.95);
+}
+
+/* Entrance poster - hides the black canvas during the first shader compile */
+#scenePoster {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background-color: #040507;
+  background-image: url("secret-pathways-assets/generated/entrance-poster.jpg");
+  background-size: cover;
+  background-position: center;
+  opacity: 1;
+  transition: opacity 0.7s ease;
+}
+body.scene-live #scenePoster {
+  opacity: 0;
+}
+
 /* Atmospheric Overlays */
 #vignette {
   position: fixed;
@@ -283,8 +312,6 @@ body.cinematic-flight #gl {
   z-index: 2;
   pointer-events: none;
   background: radial-gradient(135% 105% at 50% 42%, transparent 35%, rgba(2, 3, 5, 0.82) 100%);
-  backdrop-filter: blur(1.5px);
-  -webkit-backdrop-filter: blur(1.5px);
   mask-image: radial-gradient(circle at 50% 45%, transparent 52%, black 100%);
   -webkit-mask-image: radial-gradient(circle at 50% 45%, transparent 52%, black 100%);
 }
@@ -642,8 +669,7 @@ body.blood-moon-active #filmGrain {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(4, 6, 8, 0.65);
-  backdrop-filter: blur(8px);
+  background: rgba(4, 6, 8, 0.9);
   cursor: pointer;
   color: var(--bone-dim);
   transition: all 0.3s ease;
@@ -1191,7 +1217,6 @@ body.blood-moon-active #filmGrain {
   border: 1px solid rgba(212, 175, 55, 0.45);
   padding: 6px 14px;
   border-radius: 2px;
-  backdrop-filter: blur(6px);
   transition: all 0.3s ease;
 }
 .project-showcase-plate:hover .plate-pill {
@@ -1308,7 +1333,6 @@ body.blood-moon-active #filmGrain {
   background: rgba(4, 6, 8, 0.65);
   border-radius: 2px;
   color: #e2ded4;
-  backdrop-filter: blur(8px);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
   transition: all 0.3s ease;
 }
@@ -1332,8 +1356,7 @@ body.blood-moon-active #filmGrain {
   gap: 14px;
   padding: 12px 28px;
   border: 1px solid rgba(212, 175, 55, 0.45);
-  background: rgba(4, 6, 8, 0.75);
-  backdrop-filter: blur(10px);
+  background: rgba(4, 6, 8, 0.93);
   border-radius: 2px;
   font-family: var(--font-mono);
   font-size: 10.5px;
@@ -1367,8 +1390,7 @@ body.blood-moon-active #filmGrain {
   display: flex;
   align-items: center;
   gap: 18px;
-  background: rgba(4, 6, 8, 0.65);
-  backdrop-filter: blur(12px);
+  background: rgba(4, 6, 8, 0.92);
   border: 1px solid var(--line);
   padding: 10px 24px;
   border-radius: 40px;
@@ -1407,11 +1429,10 @@ body.blood-moon-active #filmGrain {
 }
 .process-card {
   position: relative;
-  background: rgba(4, 7, 10, 0.72);
+  background: rgba(4, 7, 10, 0.93);
   border: 1px solid rgba(223, 231, 224, 0.14);
   border-radius: 3px;
   padding: clamp(22px, 2.5vw, 34px);
-  backdrop-filter: blur(14px);
   box-shadow: 0 20px 45px -15px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
@@ -1698,9 +1719,7 @@ body.blood-moon-active #filmGrain {
   align-items: center;
   gap: 8px;
   padding: 5px 12px;
-  background: rgba(4, 5, 7, 0.65);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(4, 5, 7, 0.92);
   border: 1px solid rgba(242, 245, 242, 0.12);
   border-radius: 2px;
   transition: opacity 0.3s ease, border-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
@@ -2141,9 +2160,7 @@ body.blood-moon-active #filmGrain {
     gap: 12px;
     font-size: 9.5px;
     letter-spacing: 0.2em;
-    background: rgba(4, 5, 7, 0.82);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(4, 5, 7, 0.93);
     padding: 6px 14px;
     border-radius: 20px;
     border: 1px solid rgba(242, 245, 242, 0.12);
@@ -2680,6 +2697,8 @@ ${modalCss}
 
 <!-- PRELOADER REMOVED -->
 
+<!-- Entrance poster: covers the canvas while the GPU compiles shaders -->
+<div id="scenePoster" aria-hidden="true"></div>
 <canvas id="gl" aria-hidden="true"></canvas>
 <div id="cursorRing" aria-hidden="true"></div>
 <div id="cursorDot" aria-hidden="true"></div>
@@ -2838,7 +2857,7 @@ ${modalCss}
     </div>
     <div class="project-showcase-plate" onclick="openModal(0)" data-cursor aria-label="Explore VI3ION Dossier">
       <div class="plate-fr">
-        <img class="plate-img" src="shots/landing.png" alt="iGradeify Visual Showcase" loading="lazy">
+        <img class="plate-img" src="shots/vi3ion_viewer_ui.png" alt="VI3ION Visual Showcase" loading="lazy">
         <span class="card-ar"><svg viewBox="0 0 14 14" fill="none"><path d="M3 11 11 3M5 3h6v6" stroke="#dfe7e0" stroke-width="1.3"/></svg></span>
         <i class="glow glow--flame" style="--gx:75%; --gy:32%; --gr:22%; --gt:4.2s; --gt2:6.8s; --gc1:rgba(255,142,60,0.55); --gc2:rgba(224,35,28,0.25)"></i>
         <div class="plate-overlay">
@@ -3578,10 +3597,12 @@ ${modalHtml}
 
   let rafId = null;
   let isContextLost = false;
+  let qualityTier = 'high';
 
   canvas.addEventListener('webglcontextlost', function (e) {
     e.preventDefault();
     isContextLost = true;
+    document.body.classList.remove('scene-live');
     console.warn('WebGL context lost. Pausing render loop.');
     if (rafId) {
       cancelAnimationFrame(rafId);
@@ -6960,35 +6981,53 @@ ${modalHtml}
   leafShape.quadraticCurveTo(-0.12, 0.08, 0, 0.16);
   const leafGeo = new THREE.ShapeGeometry(leafShape);
 
+  // PERF: every falling leaf used to be its own mesh (55 draw calls, 55
+  // materials). They now live in one InstancedMesh per palette, so the whole
+  // shower costs five draw calls and five materials.
+  const _instMatrix = new THREE.Matrix4();
+  const _instQuat = new THREE.Quaternion();
+  const _instScale = new THREE.Vector3();
+
+  const LEAF_PALETTES = leafPalettes.length;
+  const leafPerPalette = Math.ceil(leafCount / LEAF_PALETTES);
+  const leafBaseMat = new THREE.MeshBasicMaterial({
+    color: 0xffffff,
+    side: THREE.DoubleSide,
+    transparent: true,
+    opacity: 0.9,
+    depthWrite: false
+  });
+  const leafMeshes = [];
+  for (let p = 0; p < LEAF_PALETTES; p++) {
+    const im = new THREE.InstancedMesh(leafGeo, leafBaseMat.clone(), leafPerPalette);
+    im.material.color.setHex(leafPalettes[p]);
+    im.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    im.frustumCulled = false;
+    im.count = 0;
+    LEAVES_GROUP.add(im);
+    leafMeshes.push(im);
+  }
+
   const leafData = [];
   for (let i = 0; i < leafCount; i++) {
-    const col = leafPalettes[i % leafPalettes.length];
-    const mat = new THREE.MeshBasicMaterial({
-      color: col,
-      side: THREE.DoubleSide,
-      transparent: true,
-      opacity: 0.82 + Math.random() * 0.16,
-      depthWrite: false
-    });
-    const leaf = new THREE.Mesh(leafGeo, mat);
-
-    // Spread across upper courtyard frustum (x: -25..25, y: 0..22, z: -35..10)
-    leaf.position.set(
-      (Math.random() - 0.5) * 50,
-      Math.random() * 22,
-      -35 + Math.random() * 45
-    );
-    leaf.rotation.set(
-      Math.random() * Math.PI,
-      Math.random() * Math.PI,
-      Math.random() * Math.PI
-    );
+    const p = i % LEAF_PALETTES;
+    const inst = leafMeshes[p];
+    const slot = inst.count++;
     const scale = 0.75 + Math.random() * 0.65;
-    leaf.scale.set(scale, scale, scale);
-
-    LEAVES_GROUP.add(leaf);
     leafData.push({
-      mesh: leaf,
+      inst: inst,
+      slot: slot,
+      pos: new THREE.Vector3(
+        (Math.random() - 0.5) * 50,
+        Math.random() * 22,
+        -35 + Math.random() * 45
+      ),
+      rot: new THREE.Euler(
+        Math.random() * Math.PI,
+        Math.random() * Math.PI,
+        Math.random() * Math.PI
+      ),
+      scale: scale,
       speed: 0.8 + Math.random() * 0.8,
       seed: Math.random() * 10,
       spinX: (Math.random() - 0.5) * 0.03,
@@ -6998,6 +7037,7 @@ ${modalHtml}
   }
   scene.add(LEAVES_GROUP);
   window.__leafData = leafData;
+  window.__leafMeshes = leafMeshes;
 
   // --- 5B. 24 3D SAKURA PETAL PARTICLES (CHERRY BLOSSOM SWIRL & WIND VORTEX) ---
   const SAKURA_GROUP = new THREE.Group();
@@ -7016,34 +7056,46 @@ ${modalHtml}
   const sakuraData = [];
   const sakuraCount = 24;
 
+  // PERF: same treatment for the sakura swirl - 24 draw calls -> 4.
+  const SAKURA_PALETTES = sakuraColors.length;
+  const sakuraPerPalette = Math.ceil(sakuraCount / SAKURA_PALETTES);
+  const sakuraBaseMat = new THREE.MeshBasicMaterial({
+    color: 0xffffff,
+    side: THREE.DoubleSide,
+    transparent: true,
+    opacity: 0.88,
+    depthWrite: false
+  });
+  const sakuraMeshes = [];
+  for (let p = 0; p < SAKURA_PALETTES; p++) {
+    const im = new THREE.InstancedMesh(sakuraGeo, sakuraBaseMat.clone(), sakuraPerPalette);
+    im.material.color.setHex(sakuraColors[p]);
+    im.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    im.frustumCulled = false;
+    im.count = 0;
+    SAKURA_GROUP.add(im);
+    sakuraMeshes.push(im);
+  }
+
   for (let i = 0; i < sakuraCount; i++) {
-    const col = sakuraColors[i % sakuraColors.length];
-    const mat = new THREE.MeshBasicMaterial({
-      color: col,
-      side: THREE.DoubleSide,
-      transparent: true,
-      opacity: 0.84,
-      depthWrite: false
-    });
-    const petal = new THREE.Mesh(sakuraGeo, mat);
-
-    petal.position.set(
-      (Math.random() - 0.5) * 22,
-      2.0 + Math.random() * 8.0,
-      10.0 - Math.random() * 95.0
-    );
-    petal.rotation.set(
-      Math.random() * Math.PI * 2,
-      Math.random() * Math.PI * 2,
-      Math.random() * Math.PI * 2
-    );
+    const p = i % SAKURA_PALETTES;
+    const inst = sakuraMeshes[p];
+    const slot = inst.count++;
     const sc = 0.55 + Math.random() * 0.45;
-    petal.scale.set(sc, sc, sc);
-
-    SAKURA_GROUP.add(petal);
-    sakuraPetals.push(petal);
     sakuraData.push({
-      mesh: petal,
+      inst: inst,
+      slot: slot,
+      pos: new THREE.Vector3(
+        (Math.random() - 0.5) * 22,
+        2.0 + Math.random() * 8.0,
+        10.0 - Math.random() * 95.0
+      ),
+      rot: new THREE.Euler(
+        Math.random() * Math.PI * 2,
+        Math.random() * Math.PI * 2,
+        Math.random() * Math.PI * 2
+      ),
+      scale: sc,
       baseRadius: 2.2 + Math.random() * 2.6,
       angle: (i / sakuraCount) * Math.PI * 2,
       vortexSpeed: 1.4 + Math.random() * 1.6,
@@ -7054,8 +7106,10 @@ ${modalHtml}
       seed: Math.random() * 100
     });
   }
+  sakuraPetals.push.apply(sakuraPetals, sakuraMeshes);
   window.__sakuraPetals = sakuraPetals;
   window.__sakuraData = sakuraData;
+  window.__sakuraMeshes = sakuraMeshes;
 
   // --- 5C. SNOWFALL EMITTER: snow textures flying out of the white hero Torii ---
   function texSnowFlake() {
@@ -7436,8 +7490,9 @@ ${modalHtml}
     if (window.__isFlightActive && window.__isFlightActive()) window.__cancelFlight();
     targetFocusAmt = 0.0;
     e.preventDefault();
-    // Gentle calibrated pacing across 10 stages
-    const delta = e.deltaY * 0.0009;
+    // Calibrated pacing across 10 stages: one mouse notch moves ~15% of a
+    // stage, so a normal flick always travels and never feels ignored.
+    const delta = e.deltaY * 0.0015;
     targetProgress = Math.max(0.0, Math.min(9.0, targetProgress + delta));
   }, { passive: false });
 
@@ -7887,7 +7942,7 @@ ${modalHtml}
       if (Math.abs(d) < 0.0002) {
         currentProgress = targetProgress;
       } else {
-        currentProgress += d * (1 - Math.exp(-dt * 4.6));
+        currentProgress += d * (1 - Math.exp(-dt * 6.0));
       }
     }
     const diff = targetProgress - currentProgress;
@@ -8073,42 +8128,45 @@ ${modalHtml}
     }
 
     // Drifting 3D Autumn Maple Leaves with rotational turbulence & kinetic breeze
-    leafData.forEach(d => {
-      const m = d.mesh;
-      m.position.y -= d.speed * 0.030 * windBreeze;
-      m.position.x += (Math.sin(clock * 1.2 + d.seed) * 0.020 + 0.008) * windBreeze;
-      m.position.z += Math.cos(clock * 0.9 + d.seed) * 0.012 * windBreeze;
+    for (let i = 0; i < leafData.length; i++) {
+      const d = leafData[i];
+      d.pos.y -= d.speed * 0.030 * windBreeze;
+      d.pos.x += (Math.sin(clock * 1.2 + d.seed) * 0.020 + 0.008) * windBreeze;
+      d.pos.z += Math.cos(clock * 0.9 + d.seed) * 0.012 * windBreeze;
 
-      m.rotation.z += d.spinZ * windBreeze;
-      m.rotation.x += d.spinX * windBreeze;
-      m.rotation.y += d.spinY * windBreeze;
+      d.rot.z += d.spinZ * windBreeze;
+      d.rot.x += d.spinX * windBreeze;
+      d.rot.y += d.spinY * windBreeze;
 
       // Wrap back to top y=22 when dropping below ground
-      if (m.position.y < 0) {
-        m.position.y = 22;
-        m.position.x = (Math.random() - 0.5) * 50;
-        m.position.z = -35 + Math.random() * 45;
+      if (d.pos.y < 0) {
+        d.pos.y = 22;
+        d.pos.x = (Math.random() - 0.5) * 50;
+        d.pos.z = -35 + Math.random() * 45;
       }
-    });
+      _instMatrix.compose(d.pos, _instQuat.setFromEuler(d.rot), _instScale.setScalar(d.scale));
+      d.inst.setMatrixAt(d.slot, _instMatrix);
+    }
+    for (let i = 0; i < leafMeshes.length; i++) leafMeshes[i].instanceMatrix.needsUpdate = true;
 
     // 3D Sakura Petal Swirl & Wind Vortex
     if (typeof sakuraData !== 'undefined' && sakuraData.length) {
       const vortexWeight = Math.min(1.0, scrollVelocity * 38.0);
       const camP = camera.position;
 
-      sakuraData.forEach(d => {
-        const m = d.mesh;
+      for (let i = 0; i < sakuraData.length; i++) {
+        const d = sakuraData[i];
 
         // Base drift and fluttering gravity
-        m.position.y -= d.driftSpeed * windBreeze;
-        m.position.x += Math.sin(clock * 1.5 + d.seed) * 0.016 * windBreeze;
-        m.position.z += Math.cos(clock * 1.2 + d.seed) * 0.012 * windBreeze;
+        d.pos.y -= d.driftSpeed * windBreeze;
+        d.pos.x += Math.sin(clock * 1.5 + d.seed) * 0.016 * windBreeze;
+        d.pos.z += Math.cos(clock * 1.2 + d.seed) * 0.012 * windBreeze;
 
         // Multi-axis tumbling rotation
         const spinBoost = 1.0 + vortexWeight * 2.8;
-        m.rotation.x += d.spinX * windBreeze * spinBoost;
-        m.rotation.y += d.spinY * windBreeze * spinBoost;
-        m.rotation.z += d.spinZ * windBreeze * spinBoost;
+        d.rot.x += d.spinX * windBreeze * spinBoost;
+        d.rot.y += d.spinY * windBreeze * spinBoost;
+        d.rot.z += d.spinZ * windBreeze * spinBoost;
 
         // Dynamic atmospheric wind vortex swirling around camera path during scroll
         if (vortexWeight > 0.02) {
@@ -8117,18 +8175,21 @@ ${modalHtml}
           const targetY = camP.y + Math.sin(d.angle * 1.4) * 0.9 + Math.sin(clock * 1.8 + d.seed) * 0.35;
           const targetZ = camP.z - 3.5 + Math.sin(d.angle) * 2.8;
 
-          m.position.x += (targetX - m.position.x) * (0.065 * vortexWeight);
-          m.position.y += (targetY - m.position.y) * (0.065 * vortexWeight);
-          m.position.z += (targetZ - m.position.z) * (0.065 * vortexWeight);
+          d.pos.x += (targetX - d.pos.x) * (0.065 * vortexWeight);
+          d.pos.y += (targetY - d.pos.y) * (0.065 * vortexWeight);
+          d.pos.z += (targetZ - d.pos.z) * (0.065 * vortexWeight);
         }
 
         // Boundary recycle: wrap when dropped below ground or passed behind camera
-        if (m.position.y < 0.1 || m.position.z > camP.z + 8.0) {
-          m.position.y = camP.y + 2.5 + Math.random() * 5.5;
-          m.position.z = camP.z - 8.0 - Math.random() * 25.0;
-          m.position.x = camP.x + (Math.random() - 0.5) * 16.0;
+        if (d.pos.y < 0.1 || d.pos.z > camP.z + 8.0) {
+          d.pos.y = camP.y + 2.5 + Math.random() * 5.5;
+          d.pos.z = camP.z - 8.0 - Math.random() * 25.0;
+          d.pos.x = camP.x + (Math.random() - 0.5) * 16.0;
         }
-      });
+        _instMatrix.compose(d.pos, _instQuat.setFromEuler(d.rot), _instScale.setScalar(d.scale));
+        d.inst.setMatrixAt(d.slot, _instMatrix);
+      }
+      for (let i = 0; i < sakuraMeshes.length; i++) sakuraMeshes[i].instanceMatrix.needsUpdate = true;
     }
 
     // Lantern Flickering & Synchronous Ground Light Pool Decal Modulation
@@ -8476,17 +8537,20 @@ ${modalHtml}
       checkIdleFluteBreath();
     }
 
+    // --- Light pool: hand the real lights to whatever is closest ---------
+    if ((frameCount & 1) === 0) updateLightPool();
+
     // --- Adaptive Resolution Governor: trade pixels for a steady frame time ---
     frameAccum += dt * 1000;
     frameCount++;
-    if (frameCount >= 96) {
+    if (frameCount >= 30) {
       const avgMs = frameAccum / frameCount;
       frameAccum = 0;
       frameCount = 0;
       const cap = Math.min(window.devicePixelRatio || 1, window.innerWidth < 900 ? 1.1 : 1.25);
       let target = currentPixelRatio;
-      if (avgMs > 20 && target > 0.6) target = Math.max(0.6, target - 0.2);
-      else if (avgMs < 14 && target < cap) target = Math.min(cap, target + 0.08);
+      if (avgMs > 21 && target > 0.5) target = Math.max(0.5, target - 0.15);
+      else if (avgMs < 14.5 && target < cap) target = Math.min(cap, target + 0.06);
       if (Math.abs(target - currentPixelRatio) > 0.01) {
         currentPixelRatio = target;
         renderer.setPixelRatio(currentPixelRatio);
@@ -8494,9 +8558,40 @@ ${modalHtml}
         if (wispMat && wispMat.uniforms && wispMat.uniforms.uPx) wispMat.uniforms.uPx.value = window.innerHeight;
         if (snowMat && snowMat.uniforms && snowMat.uniforms.uPx) snowMat.uniforms.uPx.value = window.innerHeight;
       }
+      // Quality tier: weak GPUs lose the film grain and the heavy overlay
+      // treatment instead of crawling at 20fps.
+      const tier = avgMs > 30 ? 'low' : (avgMs > 21 ? 'mid' : 'high');
+      if (tier !== qualityTier) {
+        qualityTier = tier;
+        document.body.classList.toggle('perf-low', tier === 'low');
+        window.__perfTier = tier;
+      }
+    }
+
+    // One warm-up chunk per frame, with the camera restored right after so
+    // the player never sees the warm-up pose.
+    if (warmState.active) {
+      const _warmPos = camera.position.clone();
+      const _warmQuat = camera.quaternion.clone();
+      warmChunk();
+      camera.position.copy(_warmPos);
+      camera.quaternion.copy(_warmQuat);
     }
 
     renderer.render(scene, camera);
+
+    // The entrance poster has done its job once a real frame is on screen.
+    if (!window.__posterDone) {
+      window.__posterDone = true;
+      requestAnimationFrame(function () {
+        document.body.classList.add('scene-live');
+        setTimeout(function () {
+          const poster = document.getElementById('scenePoster');
+          if (poster && poster.parentNode) poster.parentNode.removeChild(poster);
+        }, 900);
+      });
+    }
+
     rafId = requestAnimationFrame(tick);
   }
 
@@ -9094,40 +9189,237 @@ ${modalHtml}
   window.__LIGHT_KEEPER = LIGHT_KEEPER;
   window.__LIGHT_COUNT = lightsToKeep.length;
 
-  // Pre-warm the GPU pipeline before the first tick so the initial scroll
-  // doesn't stall on lazy shader-program compiles / texture uploads.
-  // Two passes:
+  // --- LIGHT POOL ----------------------------------------------------------
+  // 26 real point lights meant every fragment of every material evaluated 26
+  // light sources. Only the handful nearest the camera can be seen at all, so
+  // the rest are demoted to plain data holders and a small pool of real lights
+  // follows the camera. The light COUNT never changes, so no shader ever has
+  // to be relinked mid-journey.
+  const LIGHT_POOL_SIZE = 8;
+  const lightPool = [];
+  const lightSources = [];
+  LIGHT_KEEPER.children.slice().forEach(function (l) {
+    if (!l.isPointLight) return;
+    lightSources.push(l);
+    l.removeFromParent();
+  });
+  for (let i = 0; i < LIGHT_POOL_SIZE; i++) {
+    const pl = new THREE.PointLight(0xffffff, 0, 10, 2);
+    pl.position.set(0, -400, 0);
+    LIGHT_KEEPER.add(pl);
+    lightPool.push(pl);
+  }
+  const _poolOrder = [];
+  function updateLightPool() {
+    const cp = camera.position;
+    _poolOrder.length = 0;
+    for (let i = 0; i < lightSources.length; i++) {
+      const s = lightSources[i];
+      const dx = s.position.x - cp.x;
+      const dy = s.position.y - cp.y;
+      const dz = s.position.z - cp.z;
+      const dist2 = dx * dx + dy * dy + dz * dz;
+      const reach = Math.max(1, s.distance || 10);
+      s._poolScore = (s.intensity * reach) / (1 + dist2 * 0.05);
+      _poolOrder.push(s);
+    }
+    _poolOrder.sort(function (a, b) { return b._poolScore - a._poolScore; });
+    for (let i = 0; i < lightPool.length; i++) {
+      const pl = lightPool[i];
+      const src = _poolOrder[i];
+      if (!src) { pl.intensity = 0; continue; }
+      pl.position.copy(src.position);
+      pl.color.copy(src.color);
+      pl.intensity = src.intensity;
+      pl.distance = src.distance;
+      pl.decay = src.decay;
+    }
+  }
+  window.__LIGHT_POOL_SIZE = LIGHT_POOL_SIZE;
+  window.__lightSources = lightSources;
+
+  // --- STATIC GEOMETRY BATCHING -------------------------------------------
+  // The scene is authored as ~1500 tiny procedural meshes, i.e. ~1500 draw
+  // calls per frame. Everything that never moves is baked into one merged
+  // geometry per material, so a whole house (or the whole temple) is drawn in
+  // a handful of calls. Animated / raycast-critical objects are excluded.
+  function mergeGeometries(geos) {
+    let vCount = 0, iCount = 0;
+    for (let i = 0; i < geos.length; i++) {
+      const g = geos[i];
+      vCount += g.attributes.position.count;
+      iCount += g.index ? g.index.count : g.attributes.position.count;
+    }
+    const position = new Float32Array(vCount * 3);
+    const normal = new Float32Array(vCount * 3);
+    const uv = new Float32Array(vCount * 2);
+    const index = vCount > 65535 ? new Uint32Array(iCount) : new Uint16Array(iCount);
+    let vo = 0, io = 0;
+    for (let i = 0; i < geos.length; i++) {
+      const g = geos[i];
+      const p = g.attributes.position.array;
+      const n = g.attributes.normal.array;
+      const u = g.attributes.uv.array;
+      position.set(p, vo * 3);
+      normal.set(n, vo * 3);
+      uv.set(u, vo * 2);
+      const count = g.attributes.position.count;
+      if (g.index) {
+        const gi = g.index.array;
+        for (let k = 0; k < gi.length; k++) index[io + k] = gi[k] + vo;
+        io += gi.length;
+      } else {
+        for (let k = 0; k < count; k++) index[io + k] = k + vo;
+        io += count;
+      }
+      vo += count;
+    }
+    const out = new THREE.BufferGeometry();
+    out.setAttribute('position', new THREE.BufferAttribute(position, 3));
+    out.setAttribute('normal', new THREE.BufferAttribute(normal, 3));
+    out.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+    out.setIndex(new THREE.BufferAttribute(index, 1));
+    out.computeBoundingSphere();
+    out.computeBoundingBox();
+    return out;
+  }
+
+  function mergeStaticBatches(root, excluded) {
+    if (!root) return { merged: 0, removed: 0 };
+    root.updateMatrixWorld(true);
+    const rootInverse = new THREE.Matrix4().copy(root.matrixWorld).invert();
+    const rel = new THREE.Matrix4();
+    const buckets = new Map();
+
+    root.traverse(function (o) {
+      if (!o.isMesh || !o.geometry || !o.material) return;
+      if (Array.isArray(o.material)) return;
+      // Transparent surfaces keep their own draw order unless they are purely
+      // additive (order independent) glows.
+      if (o.material.transparent && o.material.blending !== THREE.AdditiveBlending) return;
+      if (o.userData && o.userData.noMerge) return;
+      const attrs = o.geometry.attributes;
+      if (!attrs || !attrs.position || !attrs.normal || !attrs.uv) return;
+      if (Object.keys(attrs).sort().join(',') !== 'normal,position,uv') return;
+      let p = o.parent;
+      while (p && p !== root) {
+        if (excluded && excluded.has(p)) return;
+        p = p.parent;
+      }
+      const key = o.material.uuid + '|' + (o.material.transparent ? 'a' : 'o');
+      let b = buckets.get(key);
+      if (!b) {
+        b = { material: o.material, geos: [], meshes: [], userData: o.userData, renderOrder: o.renderOrder, receiveShadow: o.receiveShadow };
+        buckets.set(key, b);
+      }
+      b.geos.push(o.geometry);
+      b.meshes.push(o);
+    });
+
+    let merged = 0, removed = 0;
+    buckets.forEach(function (b) {
+      if (b.meshes.length < 2) return;
+      const prepared = [];
+      for (let i = 0; i < b.meshes.length; i++) {
+        rel.copy(rootInverse).multiply(b.meshes[i].matrixWorld);
+        const g = b.geos[i].clone();
+        g.applyMatrix4(rel);
+        prepared.push(g);
+      }
+      const batch = new THREE.Mesh(mergeGeometries(prepared), b.material);
+      batch.userData = b.userData;
+      batch.renderOrder = b.renderOrder;
+      batch.receiveShadow = b.receiveShadow;
+      batch.castShadow = false;
+      batch.frustumCulled = true;
+      root.add(batch);
+      merged++;
+      for (let i = 0; i < b.meshes.length; i++) {
+        const mesh = b.meshes[i];
+        if (mesh.parent) mesh.parent.remove(mesh);
+        removed++;
+      }
+      for (let i = 0; i < prepared.length; i++) prepared[i].dispose();
+    });
+    return { merged: merged, removed: removed };
+  }
+
+  const mergeExcluded = new Set();
+  function excludeFromMerge(o) {
+    if (!o) return;
+    mergeExcluded.add(o);
+    if (o.traverse) o.traverse(function (c) { mergeExcluded.add(c); });
+  }
+  if (typeof lanterns !== 'undefined' && lanterns) {
+    lanterns.forEach(function (l) { excludeFromMerge(l.fire); });
+  }
+  if (typeof SANCTUM !== 'undefined' && SANCTUM) {
+    excludeFromMerge(SANCTUM.doorL);
+    excludeFromMerge(SANCTUM.doorR);
+  }
+  if (typeof moonDisc !== 'undefined') excludeFromMerge(moonDisc);
+  if (typeof moonHalo !== 'undefined') excludeFromMerge(moonHalo);
+  if (window.__certFrame) excludeFromMerge(window.__certFrame);
+  if (window.__moonwaterLantern && window.__moonwaterLantern.fire) excludeFromMerge(window.__moonwaterLantern.fire);
+  if (typeof PROJECT_HOUSES !== 'undefined' && PROJECT_HOUSES) {
+    PROJECT_HOUSES.forEach(function (h) {
+      if (h.userData && h.userData.shojiMeshes) h.userData.shojiMeshes.forEach(function (m) { excludeFromMerge(m); });
+      if (h.userData && h.userData.lanternLights) h.userData.lanternLights.forEach(function (l) { excludeFromMerge(l); });
+    });
+  }
+  scene.traverse(function (o) {
+    if (o.isMesh && o.userData && o.userData.isCertificate) excludeFromMerge(o);
+  });
+
+  try {
+    let mergeStats = { merged: 0, removed: 0 };
+    if (typeof PROJECT_HOUSES !== 'undefined' && PROJECT_HOUSES) {
+      PROJECT_HOUSES.forEach(function (h) {
+        const st = mergeStaticBatches(h, mergeExcluded);
+        mergeStats.merged += st.merged;
+        mergeStats.removed += st.removed;
+      });
+    }
+    if (typeof WORLD_BG !== 'undefined') {
+      const st = mergeStaticBatches(WORLD_BG, mergeExcluded);
+      mergeStats.merged += st.merged;
+      mergeStats.removed += st.removed;
+    }
+    if (typeof SANCTUM !== 'undefined' && SANCTUM && SANCTUM.group) {
+      const st = mergeStaticBatches(SANCTUM.group, mergeExcluded);
+      mergeStats.merged += st.merged;
+      mergeStats.removed += st.removed;
+    }
+    window.__mergeStats = mergeStats;
+  } catch (mergeErr) {
+    window.__mergeStats = { error: String(mergeErr) };
+  }
+
+  // --- GPU PIPELINE WARM-UP (sliced across frames) ------------------------
+  // The warm-up used to run as ONE blocking chunk before the first frame,
+  // which left the entrance a black canvas for ~1.8s and made the site feel
+  // dead on load. It now runs inside the render loop, one small chunk per
+  // frame, so the scene is on screen immediately and the page never freezes
+  // while shaders and textures compile.
   //   1) Per-pose renders (all 10 chapters + a god view) upload textures and
   //      compile programs for anything visible in those views.
   //   2) An exhaustive material sweep: every unique material in the scene is
   //      bound once via a dummy mesh, so even never-seen programs are linked
   //      ahead of time (entrance torii & houses were the worst offenders).
+  const warmProxies = [];
+  const warmSeenMats = new Set();
+  const warmGroup = new THREE.Group();
+  warmGroup.visible = false;
+  const WARM_BATCH = 24;
+  const warmState = { active: true, pose: 0, batch: 0 };
   try {
-    const warmPos = new THREE.Vector3(), warmTgt = new THREE.Vector3();
-    CAM_WAYPOINTS.forEach(w => {
-      warmPos.copy(w.p); warmTgt.copy(w.t);
-      camera.position.copy(warmPos);
-      camera.lookAt(warmTgt);
-      renderer.render(scene, camera);
-    });
-    camera.position.set(0, 70, 6);
-    camera.lookAt(0, 0, -70);
-    renderer.render(scene, camera);
-
-    const warmGroup = new THREE.Group();
-    const seenMats = new Set();
     const pairSet = new Set();
-    const visRestore = [];
     scene.traverse(o => {
-      if (o.isObject3D) {
-        visRestore.push([o, o.visible]);
-        o.visible = true;
-      }
       if (!o.isMesh || !o.geometry || !o.material) return;
       const mats = Array.isArray(o.material) ? o.material : [o.material];
       mats.forEach(m => {
         if (!m) return;
-        seenMats.add(m);
+        warmSeenMats.add(m);
         const key = m.uuid + '|' + o.geometry.uuid;
         if (pairSet.has(key)) return;
         pairSet.add(key);
@@ -9136,23 +9428,50 @@ ${modalHtml}
         // it will be used later.
         const proxy = new THREE.Mesh(o.geometry, m);
         proxy.frustumCulled = false;
-        const ang = (pairSet.size / 120) * Math.PI * 2;
-        proxy.position.set(Math.cos(ang) * 45, (pairSet.size % 9) * 8 - 32, Math.sin(ang) * 45);
-        proxy.lookAt(0, 0, 0);
-        warmGroup.add(proxy);
+        warmProxies.push(proxy);
       });
     });
     scene.add(warmGroup);
-    camera.position.set(0, 0, 0.1);
-    camera.lookAt(0, 0, 0);
-    renderer.render(scene, camera);
-    scene.remove(warmGroup);
-    visRestore.forEach(pair => { pair[0].visible = pair[1]; });
-    window.__warmMaterials = seenMats.size;
-    window.__warmRenders = CAM_WAYPOINTS.length + 1;
-    camera.position.copy(CAM_WAYPOINTS[0].p);
-    camera.lookAt(CAM_WAYPOINTS[0].t);
   } catch (e) {}
+
+  function warmChunk() {
+    if (warmState.pose < CAM_WAYPOINTS.length) {
+      const w = CAM_WAYPOINTS[warmState.pose++];
+      camera.position.copy(w.p);
+      camera.lookAt(w.t);
+      renderer.render(scene, camera);
+      return;
+    }
+    if (warmState.pose === CAM_WAYPOINTS.length) {
+      warmState.pose++;
+      camera.position.set(0, 70, 6);
+      camera.lookAt(0, 0, -70);
+      renderer.render(scene, camera);
+      return;
+    }
+    const start = warmState.batch * WARM_BATCH;
+    if (start < warmProxies.length) {
+      const batch = warmProxies.slice(start, start + WARM_BATCH);
+      for (let i = 0; i < batch.length; i++) {
+        const ang = ((start + i) / 120) * Math.PI * 2;
+        batch[i].position.set(Math.cos(ang) * 45, ((start + i) % 9) * 8 - 32, Math.sin(ang) * 45);
+        batch[i].lookAt(0, 0, 0);
+        warmGroup.add(batch[i]);
+      }
+      warmGroup.visible = true;
+      camera.position.set(0, 0, 0.1);
+      camera.lookAt(0, 0, 0);
+      renderer.render(scene, camera);
+      for (let i = 0; i < batch.length; i++) warmGroup.remove(batch[i]);
+      warmGroup.visible = false;
+      warmState.batch++;
+      return;
+    }
+    warmState.active = false;
+    scene.remove(warmGroup);
+    window.__warmMaterials = warmSeenMats.size;
+    window.__warmRenders = CAM_WAYPOINTS.length + 2 + Math.ceil(warmProxies.length / WARM_BATCH);
+  }
 
   tick();
 
