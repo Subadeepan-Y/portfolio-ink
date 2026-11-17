@@ -348,7 +348,7 @@ body.scene-live #scenePoster {
   letter-spacing: clamp(0.18em, 2.5vw, 0.35em);
   text-transform: uppercase;
   color: #fbfaf6;
-  opacity: 0.04;
+  opacity: 0.035;
   pointer-events: none;
   z-index: 2;
   white-space: nowrap;
@@ -366,10 +366,10 @@ body.scene-live #scenePoster {
   font-size: clamp(38px, 4.6vw, 72px);
   letter-spacing: 0.42em;
   color: #fbfaf6;
-  opacity: 0.16;
+  opacity: 0.045;
   pointer-events: none;
   z-index: 2;
-  text-shadow: 0 0 24px rgba(224, 35, 28, 0.35), 0 0 35px rgba(0, 0, 0, 0.95);
+  text-shadow: 0 0 24px rgba(224, 35, 28, 0.2), 0 0 35px rgba(0, 0, 0, 0.95);
   transform-origin: center center;
   transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), left 0.7s cubic-bezier(0.16, 1, 0.3, 1), right 0.7s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -392,7 +392,7 @@ body.scene-live #scenePoster {
   100% {
     transform: scale(1.0);
     filter: blur(0px);
-    opacity: 0.16;
+    opacity: 0.045;
   }
 }
 
@@ -748,7 +748,7 @@ body.blood-moon-active #filmGrain {
   top: 50%;
   transform: translateY(-50%);
   z-index: 45;
-  display: flex;
+  display: none;
   flex-direction: column;
   gap: 14px;
   align-items: flex-end;
@@ -940,6 +940,29 @@ body.blood-moon-active #filmGrain {
 }
 
 /* Scene 0: HERO */
+#secHero::before {
+  content: '';
+  position: absolute;
+  inset: -40% -10% -40% -12%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 68% 78% at 22% 50%, rgba(0, 0, 0, 0.82) 0%, rgba(0, 0, 0, 0.55) 45%, transparent 78%);
+}
+#secHero > .chapter-eyebrow,
+#secHero > h1,
+#secHero > .editorial-sub,
+#secHero > .hero-actions {
+  position: relative;
+  z-index: 1;
+}
+#secHero .editorial-sub {
+  display: inline-block;
+  background: linear-gradient(90deg, rgba(3, 5, 8, 0.82), rgba(3, 5, 8, 0.42) 72%, transparent);
+  padding: 10px 18px 10px 12px;
+  border-radius: 4px;
+  box-shadow: 0 2px 28px rgba(0, 0, 0, 0.55);
+  margin-left: -12px;
+}
 #secHero .hero-actions {
   display: flex;
   align-items: center;
@@ -2731,7 +2754,7 @@ ${modalCss}
     <button type="button" class="nav-link" onclick="jumpTo(8)" aria-label="Process">PROCESS</button>
     <button type="button" class="nav-link" onclick="jumpTo(9)" aria-label="Contact">CONTACT</button>
   </nav>
-  <button type="button" id="soundBtn" title="Toggle Sound" aria-label="Toggle Sound">
+  <button type="button" id="soundBtn" class="muted" title="Toggle Sound" aria-label="Toggle Sound">
     <div class="sound-icon">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
@@ -3278,20 +3301,14 @@ ${modalCss}
 </div>
 
 <!-- Whisper-thin Minimalist Keyboard Guide -->
-<div id="keyGuide" onclick="openHotkeyModal()" aria-label="Open Keyboard Shortcuts" role="button" tabindex="0">
-  <span>[0-9] JUMP</span>
-  <span class="sep">·</span>
-  <span>[M] AUDIO</span>
-  <span class="sep">·</span>
-  <span>[SPACE] DOSSIER</span>
-  <span class="sep">·</span>
-  <span class="key-hint">[?] ALL</span>
+<div id="keyGuide" onclick="openHotkeyModal()" aria-label="Keyboard shortcuts" role="button" tabindex="0">
+  <span class="key-hint">[?] SHORTCUTS</span>
 </div>
 
 <!-- Bottom Edge Editorial Metadata Coordinates HUD -->
 <div id="hankoToast" aria-live="polite">COPIED // SY</div>
   <div id="bottomMetaHud" class="bottom-meta-hud" aria-hidden="true">
-  <div class="meta-left">— BUILT FROM SCRATCH // 2026</div>
+  <div class="meta-left" style="visibility:hidden">— BUILT FROM SCRATCH // 2026</div>
   <div class="meta-center">
     <span class="meta-yr">2020</span>
     <span class="meta-inf">∞</span>
@@ -3299,7 +3316,7 @@ ${modalCss}
     <span class="meta-inf">∞</span>
     <span class="meta-yr">2026</span>
   </div>
-  <div class="meta-right">EST. 2020 // ALWAYS SHIPPING</div>
+  <div class="meta-right" style="visibility:hidden">EST. 2020 // ALWAYS SHIPPING</div>
 </div>
 
 <!-- ==================== MINIMALIST KYOTO HOTKEY HUD MODAL ==================== -->
@@ -4081,14 +4098,14 @@ ${modalHtml}
   const frostTex = texFrostSurface();
   frostTex.repeat.set(1, 3);
   const snowPillarMat = new THREE.MeshStandardMaterial({
-    color: 0xffffff,
-    roughness: 0.92,
+    color: 0xb9b4a8,
+    roughness: 0.96,
     metalness: 0.0,
     map: frostTex,
     bumpMap: frostTex,
-    bumpScale: 0.05,
-    emissive: 0xeef6ff,
-    emissiveIntensity: 1.0
+    bumpScale: 0.08,
+    emissive: 0x33404a,
+    emissiveIntensity: 0.18
   });
   window.__snowPillarMat = snowPillarMat;
   const purpleLacquerMat = new THREE.MeshStandardMaterial({ color: 0x4c1d6b, roughness: 0.45, metalness: 0.25 });
@@ -4249,7 +4266,7 @@ ${modalHtml}
     x.font = 'bold 216px serif';
     x.textAlign = 'center';
     x.textBaseline = 'middle';
-    x.fillText('\u5b78\u5bae', W / 2, H / 2 + 8);
+    x.fillText('SY', W / 2, H / 2 + 8);
     const tex = new THREE.CanvasTexture(c);
     tex.wrapS = THREE.ClampToEdgeWrapping;
     tex.wrapT = THREE.ClampToEdgeWrapping;
@@ -4381,18 +4398,67 @@ ${modalHtml}
     return bayGroup;
   }
 
+
+  // --- Soil + grass courtyard texture (no repeating grid / ripple pattern) ---
+  function texSoilGrass() {
+    const W = 512, H = 512;
+    const c = cvs(W, H), x = c.getContext('2d');
+    const nc = cvs(W, H), nx = nc.getContext('2d');
+    const img = x.createImageData(W, H), nimg = nx.createImageData(W, H);
+    const hash = (i, j) => {
+      let h = (Math.imul(i, 374761393) + Math.imul(j, 668265263)) | 0;
+      h = Math.imul(h ^ (h >>> 13), 1274126177);
+      return ((h ^ (h >>> 16)) >>> 0) / 4294967295;
+    };
+    for (let y = 0; y < H; y++) {
+      for (let i = 0; i < W; i++) {
+        const idx = (y * W + i) * 4;
+        const coarse = hash(i >> 2, y >> 2);
+        const fine = hash(i, y);
+        const patch = Math.sin(i * 0.016) * Math.sin(y * 0.019) + Math.sin(i * 0.005 + y * 0.008);
+        const grass = patch > 0.38;
+        let r, g, b;
+        if (grass) {
+          const shade = 0.7 + coarse * 0.55;
+          r = Math.floor(34 * shade); g = Math.floor(62 * shade); b = Math.floor(28 * shade);
+          if (fine > 0.90) { r += 16; g += 30; b += 10; }
+        } else {
+          const shade = 0.65 + coarse * 0.7;
+          r = Math.floor(44 * shade); g = Math.floor(33 * shade); b = Math.floor(23 * shade);
+          if (fine > 0.986) { r = 92; g = 86; b = 74; }
+        }
+        img.data[idx] = r; img.data[idx + 1] = g; img.data[idx + 2] = b; img.data[idx + 3] = 255;
+        const gx = hash((i + 1) >> 1, y >> 1) - hash((i - 1) >> 1, y >> 1);
+        const gy = hash(i >> 1, (y + 1) >> 1) - hash(i >> 1, (y - 1) >> 1);
+        nimg.data[idx] = Math.floor(128 + gx * 34);
+        nimg.data[idx + 1] = Math.floor(128 + gy * 34);
+        nimg.data[idx + 2] = 255; nimg.data[idx + 3] = 255;
+      }
+    }
+    x.putImageData(img, 0, 0);
+    nx.putImageData(nimg, 0, 0);
+    const diffuse = new THREE.CanvasTexture(c);
+    const normal = new THREE.CanvasTexture(nc);
+    [diffuse, normal].forEach(t => {
+      t.wrapS = THREE.RepeatWrapping; t.wrapT = THREE.RepeatWrapping;
+      t.repeat.set(10, 14);
+    });
+    return { diffuse, normal };
+  }
+
   // --- 4. THE GRAND BACKGROUND TEMPLE SANCTUARY ---
   const WORLD_BG = new THREE.Group();
   scene.add(WORLD_BG);
 
-  // Wet Stone Courtyard Ground
-  const wetStoneNormal = texWetStoneNormal();
+  // Soil + grass courtyard ground
+  const soilGrass = texSoilGrass();
   const groundMat = new THREE.MeshStandardMaterial({
-    color: 0x070b10,
-    metalness: 0.25,
-    roughness: 0.35,
-    normalMap: wetStoneNormal,
-    normalScale: new THREE.Vector2(0.25, 0.25)
+    color: 0xffffff,
+    map: soilGrass.diffuse,
+    normalMap: soilGrass.normal,
+    normalScale: new THREE.Vector2(0.5, 0.5),
+    metalness: 0.0,
+    roughness: 0.96
   });
   const groundMesh = new THREE.Mesh(
     new THREE.PlaneGeometry(160, 220, 32, 48),
@@ -4403,12 +4469,12 @@ ${modalHtml}
   WORLD_BG.add(groundMesh);
   window.__groundMesh = groundMesh;
 
-  // Central Sacred Stone Pathway (参道 - Sandō) along the entire mountain avenue (z = 20 down to z = -105)
+  // Central Sacred Stone Pathway (stone path - Sandō) along the entire mountain avenue (z = 20 down to z = -105)
   const pathMat = new THREE.MeshStandardMaterial({
     color: 0x181d24,
     metalness: 0.22,
     roughness: 0.68,
-    normalMap: wetStoneNormal,
+    normalMap: soilGrass.normal,
     normalScale: new THREE.Vector2(0.3, 0.3)
   });
   const pathGeo = new THREE.PlaneGeometry(5.6, 130, 8, 64);
@@ -4704,7 +4770,7 @@ ${modalHtml}
     sanmonOnigawara.push(oni);
   });
 
-  // 4 Procedural Bronze Wind Bells (Fūrin 風鈴) on Sanmon Eaves
+  // 4 Procedural Bronze Wind Bells (Fūrin wind bells) on Sanmon Eaves
   const furinBells = [];
   const furinTanzaku = [];
   // bronzeBellMat is already declared above
@@ -4741,7 +4807,7 @@ ${modalHtml}
     clapper.position.y = -0.42;
     furin.add(clapper);
 
-    // Tanzaku (短冊) Paper Wind Strip Group (Pivot at suspension bead)
+    // Tanzaku (paper strips) Paper Wind Strip Group (Pivot at suspension bead)
     const tanzakuGroup = new THREE.Group();
     tanzakuGroup.position.set(0, -0.42, 0);
 
@@ -4825,7 +4891,7 @@ ${modalHtml}
     copperRidgeGroup.add(bead);
   }
 
-  // Central Sacred Flaming Pearl Jewel Finial (Hōju 宝珠) at roof apex
+  // Central Sacred Flaming Pearl Jewel Finial (Hōju flaming jewel) at roof apex
   const hojuBase = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.30, 0.12, 12), copperMat);
   hojuBase.position.set(0, 18.12, 0);
   copperRidgeGroup.add(hojuBase);
@@ -4866,27 +4932,28 @@ ${modalHtml}
     const tGroup = new THREE.Group();
     const lq = bodyMat || redLacquerMat;
     const pillarGeo = new THREE.CylinderGeometry(0.42 * scale, 0.50 * scale, 12 * scale, 16);
-    const pL = new THREE.Mesh(pillarGeo, lq); pL.position.set(-5.2 * scale, 6 * scale, 0); tGroup.add(pL);
-    const pR = new THREE.Mesh(pillarGeo, lq); pR.position.set(5.2 * scale, 6 * scale, 0); tGroup.add(pR);
+    const pillarSpread = z === -2.0 ? 8.2 : 5.2;
+    const pL = new THREE.Mesh(pillarGeo, lq); pL.position.set(-pillarSpread * scale, 6 * scale, 0); tGroup.add(pL);
+    const pR = new THREE.Mesh(pillarGeo, lq); pR.position.set(pillarSpread * scale, 6 * scale, 0); tGroup.add(pR);
     tGroup.userData.pillars = [pL, pR];
 
     [-1, 1].forEach(side => {
       const ring = new THREE.Mesh(new THREE.CylinderGeometry(0.46 * scale, 0.46 * scale, 0.4 * scale, 16), goldBrassMat);
-      ring.position.set(side * 5.2 * scale, 9.8 * scale, 0);
+      ring.position.set(side * pillarSpread * scale, 9.8 * scale, 0);
       tGroup.add(ring);
     });
 
-    const kasagi = new THREE.Mesh(new THREE.BoxGeometry(15 * scale, 0.85 * scale, 1.0 * scale), lq);
+    const kasagi = new THREE.Mesh(new THREE.BoxGeometry((pillarSpread * 2 + 4.6) * scale, 0.85 * scale, 1.0 * scale), lq);
     kasagi.position.set(0, 12.2 * scale, 0);
     tGroup.add(kasagi);
 
     [-1, 1].forEach(side => {
       const cap = new THREE.Mesh(new THREE.BoxGeometry(0.7 * scale, 0.95 * scale, 1.1 * scale), goldBrassMat);
-      cap.position.set(side * 7.5 * scale, 12.2 * scale, 0);
+      cap.position.set(side * (pillarSpread + 2.3) * scale, 12.2 * scale, 0);
       tGroup.add(cap);
     });
 
-    const nuki = new THREE.Mesh(new THREE.BoxGeometry(12.8 * scale, 0.6 * scale, 0.7 * scale), lq);
+    const nuki = new THREE.Mesh(new THREE.BoxGeometry((pillarSpread * 2 + 2.4) * scale, 0.6 * scale, 0.7 * scale), lq);
     nuki.position.set(0, 10.4 * scale, 0);
     tGroup.add(nuki);
 
@@ -4926,7 +4993,7 @@ ${modalHtml}
     toriiFront.add(endTie);
   });
 
-  // 4 Hanging Japanese zigzag paper streamers (Shide 紙垂)
+  // 4 Hanging Japanese zigzag paper streamers (Shide paper streamers)
   const shideStreamers = [];
   const shideXPositions = [-3.0, -1.0, 1.0, 3.0];
   shideXPositions.forEach((x, idx) => {
@@ -4963,7 +5030,7 @@ ${modalHtml}
   });
   window.__shideStreamers = shideStreamers;
 
-  // --- TORII ENTRANCE PERIMETER STONE WALLS (TSUIJIBEI 築地塀, z = 9.5) ---
+  // --- TORII ENTRANCE PERIMETER STONE WALLS (TSUIJIBEI perimeter walls, z = 9.5) ---
   const darkBaseStoneMat = new THREE.MeshStandardMaterial({ color: 0x22262a, roughness: 0.88, metalness: 0.12 });
   const toriiPerimeterWalls = [];
 
@@ -5274,7 +5341,7 @@ ${modalHtml}
   WORLD_BG.add(pagodaHalo);
   window.__pagodaHalo = pagodaHalo;
 
-  // --- 4A-2. ZEN GARDEN RAKED SAND RIPPLES (SAMON 砂紋) AROUND 13 LANTERN BASES ---
+  // --- 4A-2. ZEN GARDEN RAKED SAND RIPPLES (SAMON raked sand) AROUND 13 LANTERN BASES ---
   function texSamonDiffuse() {
     const W = 512, H = 512;
     const c = cvs(W, H), ctx = c.getContext('2d');
@@ -5398,6 +5465,7 @@ ${modalHtml}
     samonRings.push(ring);
   });
   window.__samonRings = samonRings;
+  samonRings.forEach(function (ring) { ring.visible = false; });
 
   // --- 4A-3. LANTERN GROUND LIGHT POOL DECALS ---
   function texLanternLightPool() {
@@ -7143,9 +7211,9 @@ ${modalHtml}
     snowPos[i3 + 0] = side * SNOW_PILLAR_X + Math.cos(ang) * rad;
     snowPos[i3 + 1] = atTop ? SNOW_TOP - Math.random() * 2.5 : Math.random() * SNOW_TOP;
     snowPos[i3 + 2] = SNOW_PILLAR_Z + Math.sin(ang) * rad;
-    snowVel[i3 + 0] = Math.cos(ang) * (0.22 + Math.random() * 0.40);
-    snowVel[i3 + 1] = -(0.28 + Math.random() * 0.50);
-    snowVel[i3 + 2] = Math.sin(ang) * (0.18 + Math.random() * 0.34) + 0.10;
+    snowVel[i3 + 0] = Math.cos(ang) * (0.35 + Math.random() * 0.55);
+    snowVel[i3 + 1] = -(0.85 + Math.random() * 1.15);
+    snowVel[i3 + 2] = Math.sin(ang) * (0.28 + Math.random() * 0.46) + 0.10;
     snowSize[i] = 0.11 + Math.random() * 0.24;
     snowAlpha[i] = 0.45 + Math.random() * 0.5;
     snowSeed[i] = Math.random() * 100;
@@ -7169,6 +7237,8 @@ ${modalHtml}
 
   const snowPoints = new THREE.Points(snowGeo, snowMat);
   snowPoints.frustumCulled = true;
+  snowPoints.renderOrder = -1;
+  snowMat.depthTest = true;
   scene.add(snowPoints);
   window.__snowPoints = snowPoints;
 
@@ -7918,6 +7988,7 @@ ${modalHtml}
   let lastTickNow = 0;
   let frameAccum = 0;
   let frameCount = 0;
+  let warmFrameTick = 0;
   let currentPixelRatio = renderer.getPixelRatio();
   let interiorAmt = 0;
 
@@ -7933,6 +8004,9 @@ ${modalHtml}
     if (dt > 0.05) dt = 0.05;
     lastTickNow = timeNow;
     clock += dt;
+    // Particle motion tuned at 60fps; normalise to real time so it looks the
+    // same on 60Hz and 144Hz displays, and give the fall a little more life.
+    const particleStep = Math.min(2.5, dt * 60 * 1.7);
 
     // Fluid Inertia LERP (Guarded against NaN). Frozen while a direct flight owns the camera.
     if (!flight) {
@@ -8109,7 +8183,7 @@ ${modalHtml}
     // Drifting Embers
     const positions = emberGeo.attributes.position.array;
     for (let i = 1; i < emberCount * 3; i += 3) {
-      positions[i] += 0.024;
+      positions[i] += 0.024 * particleStep;
       if (positions[i] > 24) positions[i] = 0;
     }
     emberGeo.attributes.position.needsUpdate = true;
@@ -8130,13 +8204,13 @@ ${modalHtml}
     // Drifting 3D Autumn Maple Leaves with rotational turbulence & kinetic breeze
     for (let i = 0; i < leafData.length; i++) {
       const d = leafData[i];
-      d.pos.y -= d.speed * 0.030 * windBreeze;
-      d.pos.x += (Math.sin(clock * 1.2 + d.seed) * 0.020 + 0.008) * windBreeze;
-      d.pos.z += Math.cos(clock * 0.9 + d.seed) * 0.012 * windBreeze;
+      d.pos.y -= d.speed * 0.030 * windBreeze * particleStep;
+      d.pos.x += (Math.sin(clock * 1.2 + d.seed) * 0.020 + 0.008) * windBreeze * particleStep;
+      d.pos.z += Math.cos(clock * 0.9 + d.seed) * 0.012 * windBreeze * particleStep;
 
-      d.rot.z += d.spinZ * windBreeze;
-      d.rot.x += d.spinX * windBreeze;
-      d.rot.y += d.spinY * windBreeze;
+      d.rot.z += d.spinZ * windBreeze * particleStep;
+      d.rot.x += d.spinX * windBreeze * particleStep;
+      d.rot.y += d.spinY * windBreeze * particleStep;
 
       // Wrap back to top y=22 when dropping below ground
       if (d.pos.y < 0) {
@@ -8158,19 +8232,19 @@ ${modalHtml}
         const d = sakuraData[i];
 
         // Base drift and fluttering gravity
-        d.pos.y -= d.driftSpeed * windBreeze;
-        d.pos.x += Math.sin(clock * 1.5 + d.seed) * 0.016 * windBreeze;
-        d.pos.z += Math.cos(clock * 1.2 + d.seed) * 0.012 * windBreeze;
+        d.pos.y -= d.driftSpeed * windBreeze * particleStep;
+        d.pos.x += Math.sin(clock * 1.5 + d.seed) * 0.016 * windBreeze * particleStep;
+        d.pos.z += Math.cos(clock * 1.2 + d.seed) * 0.012 * windBreeze * particleStep;
 
         // Multi-axis tumbling rotation
         const spinBoost = 1.0 + vortexWeight * 2.8;
-        d.rot.x += d.spinX * windBreeze * spinBoost;
-        d.rot.y += d.spinY * windBreeze * spinBoost;
-        d.rot.z += d.spinZ * windBreeze * spinBoost;
+        d.rot.x += d.spinX * windBreeze * spinBoost * particleStep;
+        d.rot.y += d.spinY * windBreeze * spinBoost * particleStep;
+        d.rot.z += d.spinZ * windBreeze * spinBoost * particleStep;
 
         // Dynamic atmospheric wind vortex swirling around camera path during scroll
         if (vortexWeight > 0.02) {
-          d.angle += (d.vortexSpeed + scrollVelocity * 75.0) * 0.022;
+          d.angle += (d.vortexSpeed + scrollVelocity * 75.0) * 0.022 * particleStep;
           const targetX = camP.x + Math.cos(d.angle) * (d.baseRadius + Math.sin(clock * 2.2 + d.seed) * 0.6);
           const targetY = camP.y + Math.sin(d.angle * 1.4) * 0.9 + Math.sin(clock * 1.8 + d.seed) * 0.35;
           const targetZ = camP.z - 3.5 + Math.sin(d.angle) * 2.8;
@@ -8235,12 +8309,9 @@ ${modalHtml}
       mistPlane.scale.set(s, s, 1.0);
     }
 
-    // Wet stone normal shimmer & specular ripple
+    // Soil normal stays steady - no moving grid shimmer
     if (groundMesh && groundMesh.material && groundMesh.material.normalScale) {
-      groundMesh.material.normalScale.set(
-        0.25 + Math.sin(clock * 0.8) * 0.05,
-        0.25 + Math.cos(clock * 0.7) * 0.05
-      );
+      groundMesh.material.normalScale.set(0.5, 0.5);
     }
 
     // Imperial Gold Leaf Specular Glint on Torii Gate Brass Caps & Fittings
@@ -8255,7 +8326,7 @@ ${modalHtml}
       s.rotation.x = swayX;
     });
 
-    // Breeze dynamics on Sanmon Fūrin (風鈴) Tanzaku paper strips (amplified by kinetic breeze)
+    // Breeze dynamics on Sanmon Fūrin (wind bells) Tanzaku paper strips (amplified by kinetic breeze)
     furinTanzaku.forEach((t, idx) => {
       const swayZ = (Math.sin(clock * 2.2 + idx * 1.3) * 0.14 + Math.cos(clock * 3.7 + idx * 0.9) * 0.05) * (1.0 + windBoost * 0.75);
       const swayX = (Math.cos(clock * 1.9 + idx * 1.1) * 0.18 + Math.sin(clock * 4.1 + idx * 1.7) * 0.06) * (1.0 + windBoost * 0.75);
@@ -8570,7 +8641,8 @@ ${modalHtml}
 
     // One warm-up chunk per frame, with the camera restored right after so
     // the player never sees the warm-up pose.
-    if (warmState.active) {
+    warmFrameTick++;
+    if (warmState.active && (warmFrameTick % 3) === 0) {
       const _warmPos = camera.position.clone();
       const _warmQuat = camera.quaternion.clone();
       warmChunk();
@@ -8598,7 +8670,7 @@ ${modalHtml}
   // --- 9. PROCEDURAL WEB AUDIO AMBIENT SOUNDSCAPE & REACTIVE EQUALIZER ENGINE ---
   const bgm = document.getElementById('bgm');
   const soundBtn = document.getElementById('soundBtn');
-  let isMuted = false;
+  let isMuted = true;
   const TARGET_VOL = 0.35;
   const TARGET_AMBIENT_VOL = 0.28;
   let fadeTimer = null;
@@ -8786,20 +8858,12 @@ ${modalHtml}
   }
   window.forceAudioPlay = forceAudioPlay;
 
-  // Best-effort immediate playback on load. Browsers that permit autoplay
-  // (high media engagement, installed PWA, relaxed settings) start the music
-  // right away; otherwise the first gesture listeners below unlock it.
+  // No autoplay, no start-on-any-gesture. Sound is opt-in via #soundBtn only.
+  // (forceAudioPlay remains exposed for explicit programmatic use/tests.)
   if (bgm) {
-    bgm.muted = false;
+    bgm.muted = true;
     bgm.volume = TARGET_VOL;
-    const autoplayAttempt = bgm.play();
-    if (autoplayAttempt && autoplayAttempt.catch) autoplayAttempt.catch(function () {});
   }
-
-  // Capture phase: fires even if a control's handler calls stopPropagation().
-  ['click', 'pointerdown', 'touchend', 'keydown', 'touchstart', 'wheel', 'scroll'].forEach(function (evt) {
-    window.addEventListener(evt, forceAudioPlay, { passive: true, capture: true });
-  });
 
   // Zen bell resonance on chapter transitions (432Hz + 864Hz octave with exponential decay)
   // Custom House Arrival Sound Effect (Base64 data URI for zero network delay)
@@ -9064,7 +9128,7 @@ ${modalHtml}
       e.stopPropagation();
       // If audio never actually started (autoplay policy blocked it), the first
       // click must start sound instead of silently flipping to "muted".
-      if (isMuted || !bgmStarted) {
+      if (isMuted) {
         unmuteSound();
       } else {
         muteSound();

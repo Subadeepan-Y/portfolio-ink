@@ -39,9 +39,12 @@ class CDP {
     document.querySelectorAll('[aria-label],[title],[alt]').forEach(el => {
       ['aria-label','title','alt'].forEach(a => { if (el.getAttribute(a)) attrs.push(el.getAttribute(a)); });
     });
+    const source = require('fs').readFileSync('D:/PROJECTS/portfolio-ink/build_kage_editorial.js', 'utf8');
+    const escapedCjk = /\\u[3-9][0-9a-f]{3}/gi.test(source);
     const badText = texts.filter(t => cjk.test(t) || themed.test(t));
     const badAttrs = attrs.filter(t => cjk.test(t) || themed.test(t));
     return {
+      escapedCjkInSource: escapedCjk,
       title: document.title,
       textCount: texts.length,
       badText: badText.slice(0, 30),
