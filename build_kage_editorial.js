@@ -1030,8 +1030,8 @@ body.blood-moon-active #filmGrain {
   gap: clamp(24px, 4vw, 56px);
   max-width: 1080px;
   border-top: 1px solid var(--line);
-  padding: 36px clamp(20px, 2.4vw, 34px) 30px;
-  margin-top: 10px;
+  padding: 20px clamp(20px, 2.4vw, 34px) 18px;
+  margin-top: 8px;
   background: linear-gradient(180deg, rgba(3, 5, 8, 0.78) 0%, rgba(3, 5, 8, 0.46) 70%, rgba(3, 5, 8, 0.18) 100%);
   border-radius: 3px;
   box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
@@ -1051,7 +1051,7 @@ body.blood-moon-active #filmGrain {
 }
 .maker-col h4 {
   font-family: var(--font-display);
-  font-size: 13.5px;
+  font-size: 12.5px;
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -1066,7 +1066,7 @@ body.blood-moon-active #filmGrain {
   text-shadow: 0 0 20px rgba(212, 175, 55, 0.4), 0 2px 28px rgba(0, 0, 0, 0.85);
 }
 .maker-col p {
-  font-size: 15px;
+  font-size: 12.5px;
   line-height: 1.75;
   color: #d8d2c6;
   font-weight: 350;
@@ -1360,6 +1360,91 @@ body.blood-moon-active #filmGrain {
   .scene-layer.flank-right .work-flank, .scene-layer.flank-left .work-flank {
     max-width: 100%;
   }
+}
+.personal-intro {
+  max-width: 720px;
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  background: rgba(3, 5, 8, 0.78);
+  border-left: 2px solid rgba(224, 35, 28, 0.75);
+  border-radius: 3px;
+}
+.personal-intro p {
+  font-size: 13px;
+  line-height: 1.55;
+  color: #d8d2c6;
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.9);
+  margin: 8px 0 0;
+}
+.personal-intro .intro-focus {
+  color: #fbfaf6;
+}
+.about-extra {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  max-width: 1080px;
+  margin-top: 10px;
+}
+.about-extra-item {
+  padding: 8px 12px;
+  border: 1px solid rgba(212, 175, 55, 0.16);
+  border-radius: 3px;
+  background: rgba(3, 5, 8, 0.62);
+}
+.mini-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.24em;
+  color: var(--red);
+  margin-bottom: 6px;
+}
+.about-extra-item p,
+.decision-note p,
+.next-step p {
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: #d8d2c6;
+  margin: 0;
+}
+.decision-note {
+  margin: 12px 0 0;
+  padding: 9px 14px;
+  border-left: 2px solid rgba(212, 175, 55, 0.6);
+  background: rgba(4, 6, 8, 0.66);
+}
+.decision-note .mini-label {
+  color: #d4af37;
+}
+.next-step {
+  max-width: 620px;
+  margin: 0 auto 6px;
+  padding: 12px 18px;
+  border: 1px solid rgba(212, 175, 55, 0.22);
+  border-radius: 4px;
+  background: rgba(3, 5, 8, 0.84);
+}
+.placeholder-inline {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 2px 7px;
+  border: 1px dashed rgba(212, 175, 55, 0.7);
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: #d4af37;
+  background: rgba(212, 175, 55, 0.08);
+}
+.contact-link.placeholder {
+  border-style: dashed;
+  border-color: rgba(212, 175, 55, 0.65);
+  opacity: 0.85;
+  cursor: default;
+}
+.contact-link.placeholder .link-label {
+  color: #d4af37;
 }
 .learned-note {
   margin: 20px 0 4px;
@@ -2191,6 +2276,18 @@ body.blood-moon-active #filmGrain {
     word-break: break-word;
     overflow-wrap: break-word;
   }
+  .about-extra { display: none; }
+  .personal-intro {
+    margin-bottom: 12px;
+    padding: 9px 12px;
+  }
+  .personal-intro p {
+    font-size: 11px;
+    line-height: 1.45;
+  }
+  #sec1 .monumental-heading { font-size: clamp(1.7rem, 7vw, 2.4rem) !important; }
+  #sec1 .maker-grid { gap: 12px; }
+  #sec1 .maker-col p { font-size: 11px; line-height: 1.45; }
   .maker-grid {
     grid-template-columns: 1fr;
     gap: 18px;
@@ -2889,7 +2986,12 @@ ${modalCss}
       <span class="rule"></span>
       <span class="kanji-marker">PROFILE</span>
     </div>
-    <h2 class="monumental-heading bebas-display" style="font-size: clamp(3rem, 7vw, 5.5rem);">TOOLS OTHER PEOPLE<br>WISH EXISTED<span class="dot-red">.</span></h2>
+    <h2 class="monumental-heading bebas-display" style="font-size: clamp(2.1rem, 4.4vw, 3.5rem);">TOOLS OTHER PEOPLE<br>WISH EXISTED<span class="dot-red">.</span></h2>
+    <div class="personal-intro">
+      <span class="mini-label">WHO I AM</span>
+      <p>I'm Subadeepan. I build tools from scratch — AI vision systems, animation engines, games, and cloud software. Six shipped systems so far, with packages published on PyPI and npm.</p>
+      <p class="intro-focus">Currently looking for <span class="placeholder-inline">[ADD: ROLES / COLLABORATIONS YOU'RE OPEN TO]</span></p>
+    </div>
     <div class="maker-grid">
       <div class="maker-col">
         <span class="num">01 // PRINCIPLE</span>
@@ -2905,6 +3007,20 @@ ${modalCss}
         <span class="num">03 // RECORD</span>
         <h4>6 Shipped Systems</h4>
         <p>From visual education platforms to local agent vision runtimes and bytecode compilers deployed to global users.</p>
+      </div>
+    </div>
+    <div class="about-extra">
+      <div class="about-extra-item">
+        <span class="mini-label">TOOLS I REACH FOR</span>
+        <p>Python → TypeScript · Canvas / WebGL · MCP · PyPI / npm</p>
+      </div>
+      <div class="about-extra-item">
+        <span class="mini-label">HOW I WORK</span>
+        <p>Small honest versions. Hand-tuned loops. Real feedback.</p>
+      </div>
+      <div class="about-extra-item">
+        <span class="mini-label">LEARNING</span>
+        <p>IIT Madras — 8-week Data Science &amp; AI certification, Aug 2026.</p>
       </div>
     </div>
   </section>
@@ -2937,6 +3053,10 @@ ${modalCss}
       <div class="learned-note">
         <span class="learned-label">WHAT I LEARNED</span>
         <p>Built and shipped an MCP server — learned how MCP servers are created and how they work, and what an AI model actually sees when you paste an image.</p>
+      </div>
+      <div class="decision-note">
+        <span class="mini-label">DECISION</span>
+        <p>Keep every image on the machine — no cloud, no API keys.</p>
       </div>
       <button type="button" class="dossier-btn" onclick="openModal(0)">
         <span>EXPLORE DOSSIER</span>
@@ -2989,6 +3109,10 @@ ${modalCss}
         <span class="learned-label">WHAT I LEARNED</span>
         <p>Ported a Python animation package to TypeScript and added new features of my own — problem-solving across two languages.</p>
       </div>
+      <div class="decision-note">
+        <span class="mini-label">DECISION</span>
+        <p>Move the engine into the browser so it runs with zero install.</p>
+      </div>
       <button type="button" class="dossier-btn" onclick="openModal(1)">
         <span>EXPLORE DOSSIER</span>
         <span class="plus">[ + ]</span>
@@ -3039,6 +3163,10 @@ ${modalCss}
       <div class="learned-note">
         <span class="learned-label">WHAT I LEARNED</span>
         <p>Gave me real insight into backends and gameplay logic.</p>
+      </div>
+      <div class="decision-note">
+        <span class="mini-label">DECISION</span>
+        <p>Draw and animate everything in the DOM — no external assets.</p>
       </div>
       <button type="button" class="dossier-btn" onclick="openModal(2)">
         <span>EXPLORE DOSSIER</span>
@@ -3091,6 +3219,10 @@ ${modalCss}
         <span class="learned-label">WHAT I LEARNED</span>
         <p>Learned how AI models are trained — especially with datasets and voice.</p>
       </div>
+      <div class="decision-note">
+        <span class="mini-label">DECISION</span>
+        <p>Keep it fully offline and private on the desktop.</p>
+      </div>
       <button type="button" class="dossier-btn" onclick="openModal(3)">
         <span>EXPLORE DOSSIER</span>
         <span class="plus">[ + ]</span>
@@ -3142,6 +3274,10 @@ ${modalCss}
         <span class="learned-label">WHAT I LEARNED</span>
         <p>API-related skills and a real leap in UI craft.</p>
       </div>
+      <div class="decision-note">
+        <span class="mini-label">DECISION</span>
+        <p>Put the whole CBSE study workflow into one workspace.</p>
+      </div>
       <button type="button" class="dossier-btn" onclick="openModal(4)">
         <span>EXPLORE DOSSIER</span>
         <span class="plus">[ + ]</span>
@@ -3192,6 +3328,10 @@ ${modalCss}
       <div class="learned-note">
         <span class="learned-label">WHAT I LEARNED</span>
         <p>Backend strengthening — proxies, packet-level data handling, and understanding how the cloud actually works.</p>
+      </div>
+      <div class="decision-note">
+        <span class="mini-label">DECISION</span>
+        <p>Chunk and encrypt client-side before anything leaves the device.</p>
       </div>
       <button type="button" class="dossier-btn" onclick="openModal(5)">
         <span>EXPLORE DOSSIER</span>
@@ -3287,6 +3427,11 @@ ${modalCss}
       </div>
       <h2 class="monumental-heading sanctum-heading bebas-display"><span>LET'S BUILD</span><br><span>SOMETHING<span class="dot-red">.</span></span></h2>
       <p class="editorial-sub">Framed, hung, and finished. AI tutors, animation engines, game compilers — open for the next commission.</p>
+      <div class="next-step">
+        <span class="mini-label">NEXT STEP</span>
+        <p>Have something in mind? Email me directly — or open any dossier to see how I work.</p>
+        <span class="placeholder-inline">[ADD: AVAILABILITY — OPEN TO FULL-TIME / FREELANCE / COLLABS]</span>
+      </div>
       <div class="contact-links">
         <a href="https://mail.google.com/mail/?view=cm&fs=1&to=subadeepankgm@gmail.com&su=Hello%20Subadeepan&body=I%20visited%20your%20website%20and..." target="_blank" rel="noopener" onclick="if (typeof copyInquiryContact === 'function') copyInquiryContact('subadeepankgm@gmail.com', 'EMAIL COPIED // OPENING GMAIL')" class="contact-link" data-cursor aria-label="01 // Mail">
           <span class="link-num">01 //</span>
@@ -3317,6 +3462,12 @@ ${modalCss}
           <span class="link-label">INSTAGRAM</span>
           <span class="link-arrow">↗</span>
         </a>
+        <span class="contact-sep" aria-hidden="true"></span>
+        <!-- TODO: replace this placeholder with a real résumé URL and label -->
+        <span class="contact-link placeholder" aria-label="05 // Résumé — add link">
+          <span class="link-num">05 //</span>
+          <span class="link-label">RÉSUMÉ — ADD LINK</span>
+        </span>
     </div>
   </section>
 

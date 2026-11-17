@@ -113,8 +113,10 @@ function check(name, pass, detail) { results.push({ name, pass: pass ? 'PASS' : 
   check('modal closes', closed === false, { stillOpen: closed });
 
   // contact links
-  const links = await c.eval(`(() => Array.from(document.querySelectorAll('.contact-link')).map(a => a.getAttribute('href')))()`);
+  const links = await c.eval(`(() => Array.from(document.querySelectorAll('a.contact-link[href]')).map(a => a.getAttribute('href')))()`);
   check('contact links present (4)', Array.isArray(links) && links.length === 4, links);
+  const placeholders = await c.eval(`document.querySelectorAll('.contact-link.placeholder, .placeholder-inline').length`);
+  check('personal placeholders visible', placeholders === 3, { placeholders });
 
   // hotkey modal (key "?" = Shift+/)
   await c.send('Input.dispatchKeyEvent', { type: 'rawKeyDown', key: '?', code: 'Slash', windowsVirtualKeyCode: 191, modifiers: 8 });
