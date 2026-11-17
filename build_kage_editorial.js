@@ -3416,6 +3416,8 @@ ${modalHtml}
   let hoveredHouseIdx = -1;
   let isMoonHovered = false;
   let hoverFrameCount = 0;
+  let lastHoverPointerX = -999, lastHoverPointerY = -999;
+  let hoverNeedsRefresh = true;
   const houseRaycaster = new THREE.Raycaster();
   const houseRayMouse = new THREE.Vector2(-999, -999);
   window.__houseRaycaster = houseRaycaster;
@@ -7642,7 +7644,7 @@ ${modalHtml}
     e.preventDefault();
     // Calibrated pacing across 10 stages: one mouse notch moves ~15% of a
     // stage, so a normal flick always travels and never feels ignored.
-    const delta = e.deltaY * 0.0015;
+    const delta = e.deltaY * 0.0019;
     targetProgress = Math.max(0.0, Math.min(9.0, targetProgress + delta));
   }, { passive: false });
 
@@ -8096,7 +8098,7 @@ ${modalHtml}
       if (Math.abs(d) < 0.0002) {
         currentProgress = targetProgress;
       } else {
-        currentProgress += d * (1 - Math.exp(-dt * 6.0));
+        currentProgress += d * (1 - Math.exp(-dt * 7.5));
       }
     }
     const diff = targetProgress - currentProgress;
@@ -8587,7 +8589,10 @@ ${modalHtml}
       visibleHouses = [];
       for (let i = 0; i < PROJECT_HOUSES.length; i++) {
         const h = PROJECT_HOUSES[i];
-        h.visible = Math.abs(h.position.z - camZ) < 130;
+        // Houses span ~62 units; 90 keeps the whole avenue in view at the
+        // entrance but drops houses well behind the camera as you travel.
+        const dz = h.position.z - camZ;
+        h.visible = dz < 14 && Math.abs(dz) < 90;
         if (h.visible) visibleHouses.push(h);
       }
       if (SANCTUM.group) SANCTUM.group.visible = camZ < -96;
@@ -8605,9 +8610,18 @@ ${modalHtml}
     // Hover picking is throttled to every other frame (~30 Hz). The last result is
     // reused on skipped frames so nothing flickers.
     hoverFrameCount++;
-    if ((hoverFrameCount & 1) === 0) {
+    // Raycasting walks every triangle of every visible house. Skip it entirely
+    // while the camera is moving (scroll/flight), and when it does run, cap it
+    // to ~10Hz and only re-pick when the pointer or camera actually changed.
+    const hoverSettled = Math.abs(diff) < 0.015 && !flight;
+    const pointerMoved = Math.abs(houseRayMouse.x - lastHoverPointerX) > 0.006 ||
+                         Math.abs(houseRayMouse.y - lastHoverPointerY) > 0.006;
+    if ((hoverFrameCount % 6) === 0 && hoverSettled && (pointerMoved || hoverNeedsRefresh)) {
+      lastHoverPointerX = houseRayMouse.x;
+      lastHoverPointerY = houseRayMouse.y;
+      hoverNeedsRefresh = false;
       let pick = -1;
-      if (!modalIsOpen && !flight && houseRayMouse.x > -900 && PROJECT_HOUSES && PROJECT_HOUSES.length > 0) {
+      if (!modalIsOpen && houseRayMouse.x > -900 && PROJECT_HOUSES && PROJECT_HOUSES.length > 0) {
         houseRaycaster.setFromCamera(houseRayMouse, camera);
         const intersects = houseRaycaster.intersectObjects(visibleHouses, true);
         if (intersects.length > 0) {
@@ -8630,7 +8644,7 @@ ${modalHtml}
       isHouseHovered = (pick !== -1);
 
       let moonHover = false;
-      if (!modalIsOpen && typeof moonDisc !== 'undefined' && moonDisc && houseRayMouse.x > -900) {
+      if (!modalIsOpen && typeof moonDisc !== 'undefined' && moonDisc && houseRayMouse.x > -900 && pointerMoved) {
         moonHover = houseRaycaster.intersectObjects([moonDisc, moonHalo], true).length > 0;
       }
       isMoonHovered = moonHover;
@@ -8725,6 +8739,9 @@ ${modalHtml}
     // One warm-up chunk per frame, with the camera restored right after so
     // the player never sees the warm-up pose.
     warmFrameTick++;
+    // Abandon the warm-up the moment the visitor scrolls or interacts - the
+    // extra renders would compete with scroll and cause early stutter.
+    if (warmState.active && Math.abs(diff) > 0.01) warmState.active = false;
     if (warmState.active && (warmFrameTick % 5) === 0) {
       const _warmPos = camera.position.clone();
       const _warmQuat = camera.quaternion.clone();
