@@ -862,6 +862,13 @@ body.blood-moon-active #filmGrain {
 .scene-layer.active > * {
   pointer-events: auto;
 }
+.scene-layer.flank-right > .work-flank {
+  position: relative;
+  padding: 30px clamp(20px, 2.6vw, 40px);
+  border-radius: 4px;
+  background: linear-gradient(90deg, rgba(3, 5, 8, 0.88) 0%, rgba(3, 5, 8, 0.72) 62%, rgba(3, 5, 8, 0.35) 100%);
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.5);
+}
 @keyframes stageRise {
   from { opacity: 0; transform: translate3d(0, 18px, 0); }
   to   { opacity: 1; transform: translate3d(0, 0, 0); }
@@ -3630,7 +3637,7 @@ ${modalHtml}
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, window.innerWidth < 900 ? 1.1 : 1.25));
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.15;
+  renderer.toneMappingExposure = 1.3;
   window.renderer = renderer;
   window.__glRenderer = renderer;
 
@@ -3676,7 +3683,7 @@ ${modalHtml}
   const camera = new THREE.PerspectiveCamera(46, window.innerWidth / window.innerHeight, 0.1, 280);
 
   // --- 3. ATMOSPHERIC LIGHTING WITH DYNAMIC CHROMATIC HARMONY ---
-  const ambientLight = new THREE.AmbientLight(0x0d121a, 1.4);
+  const ambientLight = new THREE.AmbientLight(0x2b3038, 2.4);
   scene.add(ambientLight);
   scene.add(camera);
 
@@ -4156,7 +4163,7 @@ ${modalHtml}
   const paperMat = new THREE.MeshStandardMaterial({
     color: 0xffaa48,
     emissive: 0xffaa48,
-    emissiveIntensity: 0.85,
+    emissiveIntensity: 1.5,
     roughness: 0.9,
     metalness: 0.0
   });
@@ -5286,10 +5293,10 @@ ${modalHtml}
   // Distant hillside pagoda silhouette filling the right-hand horizon at the hero
   function createDistantPagoda() {
     const g = new THREE.Group();
-    const bodyMat = new THREE.MeshBasicMaterial({ color: 0x0d1420, fog: false });
-    const roofMat = new THREE.MeshBasicMaterial({ color: 0x080c14, fog: false });
-    const eaveMat = new THREE.MeshBasicMaterial({ color: 0x2a1710, fog: false });
-    const glowMat = new THREE.MeshBasicMaterial({ color: 0xe08a42, fog: false });
+    const bodyMat = new THREE.MeshBasicMaterial({ color: 0x3b4657, fog: false });
+    const roofMat = new THREE.MeshBasicMaterial({ color: 0x323d4d, fog: false });
+    const eaveMat = new THREE.MeshBasicMaterial({ color: 0x6b4030, fog: false });
+    const glowMat = new THREE.MeshBasicMaterial({ color: 0xffb066, fog: false });
 
     const plinth = new THREE.Mesh(new THREE.BoxGeometry(5.6, 0.9, 5.6), bodyMat);
     plinth.position.y = 0.45;
@@ -5333,7 +5340,7 @@ ${modalHtml}
   // Dark hillside mound so the distant pagoda is seated on the ridge line
   const pagodaHill = new THREE.Mesh(
     new THREE.ConeGeometry(15, 7.5, 10),
-    new THREE.MeshBasicMaterial({ color: 0x070b12, fog: false })
+    new THREE.MeshBasicMaterial({ color: 0x2a3444, fog: false })
   );
   pagodaHill.position.set(36, -1.4, -62);
   pagodaHill.scale.set(1.6, 0.8, 1);
@@ -6447,12 +6454,12 @@ ${modalHtml}
 
     house.traverse(obj => {
       if (obj.isPointLight) {
-        obj.userData.baseIntensity = obj.intensity;
+        obj.userData.baseIntensity = obj.intensity * 1.5;
         lanternLights.push(obj);
       }
       if (obj.isMesh && obj.userData && obj.userData.isShoji) {
         if (obj.material && typeof obj.material.emissiveIntensity !== 'undefined') {
-          obj.userData.baseEmissive = obj.userData.baseEmissive || obj.material.emissiveIntensity || 0.85;
+          obj.userData.baseEmissive = obj.userData.baseEmissive || obj.material.emissiveIntensity || 1.5;
           shojiMeshes.push(obj);
         }
       }
@@ -6460,6 +6467,17 @@ ${modalHtml}
 
     house.userData.shojiMeshes = shojiMeshes;
     house.userData.lanternLights = lanternLights;
+  });
+  // Every house mesh gets a low emissive floor so its own detail stays legible
+  // even where the pooled point lights cannot reach.
+  PROJECT_HOUSES.forEach(function (h) {
+    h.traverse(function (o) {
+      if (!o.isMesh || !o.material || !o.material.isMeshStandardMaterial) return;
+      if (o.material.emissive && o.material.emissive.getHex() === 0) {
+        o.material.emissive.setHex(0x3a3026);
+        o.material.emissiveIntensity = Math.max(o.material.emissiveIntensity || 0, 0.14);
+      }
+    });
   });
   window.PROJECT_HOUSES = PROJECT_HOUSES;
   window.HOUSES_GROUP = HOUSES_GROUP;
@@ -9284,7 +9302,7 @@ ${modalHtml}
   // the rest are demoted to plain data holders and a small pool of real lights
   // follows the camera. The light COUNT never changes, so no shader ever has
   // to be relinked mid-journey.
-  const LIGHT_POOL_SIZE = 8;
+  const LIGHT_POOL_SIZE = 14;
   const lightPool = [];
   const lightSources = [];
   LIGHT_KEEPER.children.slice().forEach(function (l) {
