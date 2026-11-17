@@ -288,6 +288,9 @@ body.perf-low .work-specs span {
   background: rgba(4, 6, 8, 0.95);
 }
 
+#keyGuide { opacity: 0.45 !important; }
+#keyGuide:hover { opacity: 1 !important; }
+
 /* Entrance poster - hides the black canvas during the first shader compile */
 #scenePoster {
   position: fixed;
@@ -777,7 +780,7 @@ body.blood-moon-active #filmGrain {
   text-transform: uppercase;
   opacity: 1;
   transform: none;
-  transition: color 0.3s ease, letter-spacing 0.35s ease;
+  transition: color 0.2s ease, letter-spacing 0.35s ease, text-shadow 0.25s ease;
   pointer-events: auto;
   white-space: nowrap;
   color: rgba(242, 245, 242, 0.42);
@@ -859,6 +862,18 @@ body.blood-moon-active #filmGrain {
 .scene-layer.active > * {
   pointer-events: auto;
 }
+@keyframes stageRise {
+  from { opacity: 0; transform: translate3d(0, 18px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+.scene-layer.active > .chapter-eyebrow { animation: stageRise 0.55s cubic-bezier(0.16,1,0.3,1) 0.05s both; }
+.scene-layer.active > h1,
+.scene-layer.active > h2 { animation: stageRise 0.65s cubic-bezier(0.16,1,0.3,1) 0.12s both; }
+.scene-layer.active > .editorial-sub { animation: stageRise 0.6s cubic-bezier(0.16,1,0.3,1) 0.2s both; }
+.scene-layer.active > .hero-actions,
+.scene-layer.active > .maker-grid,
+.scene-layer.active > .work-actions,
+.scene-layer.active > .process-grid { animation: stageRise 0.6s cubic-bezier(0.16,1,0.3,1) 0.28s both; }
 
 /* Typography Primitives (Editorial Gravity) */
 .chapter-eyebrow {
@@ -914,12 +929,12 @@ body.blood-moon-active #filmGrain {
   font-size: clamp(34px, 5.0vw, 80px);
   font-weight: 400;
   line-height: 1.05;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.015em;
   text-transform: uppercase;
   color: #fbfaf6;
   text-shadow: 0 2px 28px rgba(0, 0, 0, 0.85), 0 1px 4px rgba(0, 0, 0, 0.95);
   margin-bottom: clamp(18px, 3vh, 32px);
-  max-width: 920px;
+  max-width: 820px;
   transition: letter-spacing 0.5s cubic-bezier(0.16, 1, 0.3, 1), text-shadow 0.4s ease, color 0.3s ease;
   cursor: default;
 }
@@ -930,10 +945,10 @@ body.blood-moon-active #filmGrain {
 }
 
 .editorial-sub {
-  font-size: clamp(14.5px, 1.15vw, 18px);
+  font-size: clamp(15.5px, 1.25vw, 19px);
   font-weight: 350;
-  line-height: 1.75;
-  color: #e2ded4;
+  line-height: 1.7;
+  color: #cfc9be;
   max-width: 620px;
   text-shadow: 0 2px 24px rgba(0, 0, 0, 0.85);
   margin-bottom: 40px;
@@ -1008,8 +1023,11 @@ body.blood-moon-active #filmGrain {
   gap: clamp(24px, 4vw, 56px);
   max-width: 1080px;
   border-top: 1px solid var(--line);
-  padding-top: 36px;
+  padding: 36px clamp(20px, 2.4vw, 34px) 30px;
   margin-top: 10px;
+  background: linear-gradient(180deg, rgba(3, 5, 8, 0.78) 0%, rgba(3, 5, 8, 0.46) 70%, rgba(3, 5, 8, 0.18) 100%);
+  border-radius: 3px;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
 }
 .maker-col {
   display: flex;
@@ -1017,10 +1035,10 @@ body.blood-moon-active #filmGrain {
 }
 .maker-col .num {
   font-family: var(--font-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.26em;
+  font-size: 13px;
+  letter-spacing: 0.28em;
   color: var(--red);
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   font-weight: 500;
   text-shadow: 0 0 8px rgba(224, 35, 28, 0.4);
 }
@@ -1041,9 +1059,9 @@ body.blood-moon-active #filmGrain {
   text-shadow: 0 0 20px rgba(212, 175, 55, 0.4), 0 2px 28px rgba(0, 0, 0, 0.85);
 }
 .maker-col p {
-  font-size: 13.5px;
-  line-height: 1.7;
-  color: #e2ded4;
+  font-size: 15px;
+  line-height: 1.75;
+  color: #d8d2c6;
   font-weight: 350;
   text-shadow: 0 1px 12px rgba(0, 0, 0, 0.8);
 }
@@ -2432,10 +2450,10 @@ ${modalCss}
 }
 .hero-heading.bebas-display {
   font-family: 'Integral CF', 'Arial Black', Impact, sans-serif !important;
-  font-size: clamp(42px, 8.5vw, 118px);
+  font-size: clamp(40px, 6.6vw, 88px);
   font-weight: 700 !important;
   line-height: 0.92;
-  letter-spacing: 0.015em;
+  letter-spacing: -0.01em;
   color: #fbfaf6;
   text-shadow: 0 4px 40px rgba(0, 0, 0, 0.85);
 }
@@ -3302,7 +3320,7 @@ ${modalCss}
 
 <!-- Whisper-thin Minimalist Keyboard Guide -->
 <div id="keyGuide" onclick="openHotkeyModal()" aria-label="Keyboard shortcuts" role="button" tabindex="0">
-  <span class="key-hint">[?] SHORTCUTS</span>
+  <span class="key-hint">[?]</span>
 </div>
 
 <!-- Bottom Edge Editorial Metadata Coordinates HUD -->
@@ -3354,6 +3372,10 @@ ${modalCss}
       <div class="hotkey-row">
         <span class="hotkey-key">[ ESC ]</span>
         <span class="hotkey-desc">CLOSE ACTIVE MODAL</span>
+      </div>
+      <div class="hotkey-row">
+        <span class="hotkey-key">[ 3x CLICK ]</span>
+        <span class="hotkey-desc">TRIPLE-CLICK THE SEAL — TOTALITY</span>
       </div>
     </div>
     <div class="hotkey-foot">
@@ -4416,15 +4438,15 @@ ${modalHtml}
         const coarse = hash(i >> 2, y >> 2);
         const fine = hash(i, y);
         const patch = Math.sin(i * 0.016) * Math.sin(y * 0.019) + Math.sin(i * 0.005 + y * 0.008);
-        const grass = patch > 0.38;
+        const grass = patch > 0.18;
         let r, g, b;
         if (grass) {
           const shade = 0.7 + coarse * 0.55;
-          r = Math.floor(34 * shade); g = Math.floor(62 * shade); b = Math.floor(28 * shade);
+          r = Math.floor(42 * shade); g = Math.floor(74 * shade); b = Math.floor(36 * shade);
           if (fine > 0.90) { r += 16; g += 30; b += 10; }
         } else {
           const shade = 0.65 + coarse * 0.7;
-          r = Math.floor(44 * shade); g = Math.floor(33 * shade); b = Math.floor(23 * shade);
+          r = Math.floor(38 * shade); g = Math.floor(36 * shade); b = Math.floor(28 * shade);
           if (fine > 0.986) { r = 92; g = 86; b = 74; }
         }
         img.data[idx] = r; img.data[idx + 1] = g; img.data[idx + 2] = b; img.data[idx + 3] = 255;
@@ -4453,7 +4475,7 @@ ${modalHtml}
   // Soil + grass courtyard ground
   const soilGrass = texSoilGrass();
   const groundMat = new THREE.MeshStandardMaterial({
-    color: 0xffffff,
+    color: 0xb9c4b4,
     map: soilGrass.diffuse,
     normalMap: soilGrass.normal,
     normalScale: new THREE.Vector2(0.5, 0.5),
@@ -4932,7 +4954,7 @@ ${modalHtml}
     const tGroup = new THREE.Group();
     const lq = bodyMat || redLacquerMat;
     const pillarGeo = new THREE.CylinderGeometry(0.42 * scale, 0.50 * scale, 12 * scale, 16);
-    const pillarSpread = z === -2.0 ? 8.2 : 5.2;
+    const pillarSpread = z === 9.5 ? 9.2 : (z === -2.0 ? 11.0 : 5.2);
     const pL = new THREE.Mesh(pillarGeo, lq); pL.position.set(-pillarSpread * scale, 6 * scale, 0); tGroup.add(pL);
     const pR = new THREE.Mesh(pillarGeo, lq); pR.position.set(pillarSpread * scale, 6 * scale, 0); tGroup.add(pR);
     tGroup.userData.pillars = [pL, pR];
@@ -5490,7 +5512,7 @@ ${modalHtml}
     const decalMat = new THREE.MeshBasicMaterial({
       map: decalTex,
       transparent: true,
-      opacity: 0.65,
+      opacity: 0.42,
       blending: THREE.AdditiveBlending,
       depthWrite: false
     });
@@ -5520,11 +5542,11 @@ ${modalHtml}
 
   const KANJI_CHARS = ['MAKE', 'BUILD', 'SHIP', 'CODE', 'CREATE'];
   const KANJI_POSITIONS = [
-    { x: -5.2, y: 5.4, z: -18, scale: 5.2, baseOpacity: 0.055 },
-    { x: 5.0, y: 7.2, z: -28, scale: 6.8, baseOpacity: 0.060 },
-    { x: -5.8, y: 9.0, z: -38, scale: 8.4, baseOpacity: 0.050 },
-    { x: 5.4, y: 11.2, z: -48, scale: 10.2, baseOpacity: 0.055 },
-    { x: 0.0, y: 13.5, z: -58, scale: 12.5, baseOpacity: 0.065 }
+    { x: -6.8, y: 5.4, z: -30, scale: 5.2, baseOpacity: 0.032 },
+    { x: 6.4, y: 7.2, z: -40, scale: 6.8, baseOpacity: 0.034 },
+    { x: -7.4, y: 9.0, z: -50, scale: 8.4, baseOpacity: 0.030 },
+    { x: 6.8, y: 11.2, z: -60, scale: 10.2, baseOpacity: 0.032 },
+    { x: 0.0, y: 13.5, z: -72, scale: 12.5, baseOpacity: 0.038 }
   ];
 
   const kanjiPlanes = [];
@@ -7018,7 +7040,7 @@ ${modalHtml}
   window.__MOUNTAIN_SHELL = MOUNTAIN_SHELL;
 
   // Floating Embers
-  const emberCount = 650;
+  const emberCount = 380;
   const emberGeo = new THREE.BufferGeometry();
   const emberPositions = new Float32Array(emberCount * 3);
   for (let i = 0; i < emberCount * 3; i += 3) {
@@ -7037,7 +7059,7 @@ ${modalHtml}
   scene.add(embers);
 
   // --- 5B. 3D TUMBLING AUTUMN MAPLE LEAVES & PETALS ---
-  const leafCount = 55;
+  const leafCount = 34;
   const LEAVES_GROUP = new THREE.Group();
   const leafPalettes = [0xe0231c, 0xc0392b, 0x991b1b, 0xd43f33, 0xa8201a];
 
@@ -7122,7 +7144,7 @@ ${modalHtml}
   const sakuraColors = [0xffe4e8, 0xffd2dc, 0xfff0f4, 0xfecad6];
   const sakuraPetals = [];
   const sakuraData = [];
-  const sakuraCount = 24;
+  const sakuraCount = 16;
 
   // PERF: same treatment for the sakura swirl - 24 draw calls -> 4.
   const SAKURA_PALETTES = sakuraColors.length;
@@ -7192,8 +7214,8 @@ ${modalHtml}
     return new THREE.CanvasTexture(c);
   }
 
-  const SNOW_COUNT = 240;
-  const SNOW_PILLAR_X = 5.2 * 1.15;   // hero Torii pillar offsets (x = +/-5.98)
+  const SNOW_COUNT = 140;
+  const SNOW_PILLAR_X = 11.0 * 1.15;  // mid gate pillars sit at +/-12.65
   const SNOW_PILLAR_Z = -2.0;
   const SNOW_TOP = 12 * 1.15;
   const snowGeo = new THREE.BufferGeometry();
@@ -8006,7 +8028,7 @@ ${modalHtml}
     clock += dt;
     // Particle motion tuned at 60fps; normalise to real time so it looks the
     // same on 60Hz and 144Hz displays, and give the fall a little more life.
-    const particleStep = Math.min(2.5, dt * 60 * 1.7);
+    const particleStep = Math.min(2.5, dt * 60 * 1.25);
 
     // Fluid Inertia LERP (Guarded against NaN). Frozen while a direct flight owns the camera.
     if (!flight) {
@@ -8036,9 +8058,12 @@ ${modalHtml}
     }
 
     // Subtle Mouse Tilt / Gyroscope Parallax (Kage-style)
+    const settled = Math.abs(diff) < 0.02;
+    const tiltX = settled ? 0.12 : 0.35;
+    const tiltY = settled ? 0.09 : 0.25;
     if (mouse.active) {
-      camOffset.x += (mouse.x * 0.35 - camOffset.x) * 0.05;
-      camOffset.y += (-mouse.y * 0.25 - camOffset.y) * 0.05;
+      camOffset.x += (mouse.x * tiltX - camOffset.x) * 0.05;
+      camOffset.y += (-mouse.y * tiltY - camOffset.y) * 0.05;
     } else {
       camOffset.x += (0 - camOffset.x) * 0.05;
       camOffset.y += (0 - camOffset.y) * 0.05;
