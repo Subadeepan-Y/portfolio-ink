@@ -7788,16 +7788,35 @@ body.blood-moon-active #filmGrain {
   });
   window.getTargetProgress = function() { return targetProgress; };
 
-  // DAMPED DELIBERATE SCROLL WHEEL LISTENER (Fixes "scrolls too fast" completely!)
+  // WHEEL: normalised input, bounded queue, immediate reversal.
+  // Browsers report wheel deltas in pixels (0), lines (1) or pages (2). Convert
+  // everything to pixels first so one notch feels the same everywhere.
+  let lastWheelSign = 0;
   window.addEventListener('wheel', function (e) {
     if (document.getElementById('modal').classList.contains('open')) return;
     if (window.__isFlightActive && window.__isFlightActive()) window.__cancelFlight();
     targetFocusAmt = 0.0;
     e.preventDefault();
-    // Calibrated pacing across 10 stages: one mouse notch moves ~15% of a
-    // stage, so a normal flick always travels and never feels ignored.
-    const delta = e.deltaY * 0.0019;
-    targetProgress = Math.max(0.0, Math.min(9.0, targetProgress + delta));
+
+    let dy = e.deltaY;
+    if (e.deltaMode === 1) dy *= 16;                  // lines -> pixels
+    else if (e.deltaMode === 2) dy *= window.innerHeight; // pages -> pixels
+    if (!isFinite(dy) || dy === 0) return;
+    dy = Math.max(-240, Math.min(240, dy));           // ignore absurd spikes
+    const sign = dy > 0 ? 1 : -1;
+
+    // A direction change drops any travel queued by the old direction, so the
+    // camera turns around on this event instead of finishing a stale queue.
+    if (lastWheelSign && sign !== lastWheelSign) targetProgress = currentProgress;
+    lastWheelSign = sign;
+
+    const delta = dy * 0.0019;
+    // Trackpad momentum fires many events after the fingers stop. Limit how
+    // far the target can run ahead of the camera so nothing is left queued.
+    const limit = 0.45;
+    targetProgress = Math.max(currentProgress - limit,
+                       Math.min(currentProgress + limit, targetProgress + delta));
+    targetProgress = Math.max(0, Math.min(9, targetProgress));
   }, { passive: false });
 
   // Touch listener & Touch Safety Tracking
@@ -8233,9 +8252,13 @@ body.blood-moon-active #filmGrain {
     }
     // Frame-rate independent delta (clamped so tab-switch resumes never jump)
     const timeNow = typeof now === 'number' ? now : performance.now();
-    let dt = lastTickNow ? (timeNow - lastTickNow) / 1000 : 0.016;
-    if (!isFinite(dt) || dt <= 0) dt = 0.016;
-    if (dt > 0.05) dt = 0.05;
+    let rawDt = lastTickNow ? (timeNow - lastTickNow) / 1000 : 0.016;
+    if (!isFinite(rawDt) || rawDt <= 0) rawDt = 0.016;
+    // Camera easing uses REAL elapsed time (only huge tab-switch gaps capped),
+    // so slow frames never make the camera lag further behind in wall time.
+    // Particle physics keeps the tighter 50ms clamp for stability.
+    const progressDt = Math.min(0.12, rawDt);
+    let dt = Math.min(0.05, rawDt);
     lastTickNow = timeNow;
     clock += dt;
     // Particle motion tuned at 60fps; normalise to real time so it looks the
@@ -8250,7 +8273,7 @@ body.blood-moon-active #filmGrain {
       if (Math.abs(d) < 0.0002) {
         currentProgress = targetProgress;
       } else {
-        currentProgress += d * (1 - Math.exp(-dt * 7.5));
+        currentProgress += d * (1 - Math.exp(-progressDt * 13));
       }
     }
     const diff = targetProgress - currentProgress;
