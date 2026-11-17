@@ -7658,10 +7658,10 @@ ${modalHtml}
     if (lastWheelSign && sign !== lastWheelSign) targetProgress = currentProgress;
     lastWheelSign = sign;
 
-    const delta = dy * 0.0019;
+    const delta = dy * 0.001;
     // Trackpad momentum fires many events after the fingers stop. Limit how
     // far the target can run ahead of the camera so nothing is left queued.
-    const limit = 0.45;
+    const limit = 0.3;
     targetProgress = Math.max(currentProgress - limit,
                        Math.min(currentProgress + limit, targetProgress + delta));
     targetProgress = Math.max(0, Math.min(9, targetProgress));
@@ -8121,7 +8121,7 @@ ${modalHtml}
       if (Math.abs(d) < 0.0002) {
         currentProgress = targetProgress;
       } else {
-        currentProgress += d * (1 - Math.exp(-progressDt * 13));
+        currentProgress += d * (1 - Math.exp(-progressDt * 11));
       }
     }
     const diff = targetProgress - currentProgress;
