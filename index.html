@@ -8003,6 +8003,7 @@ body.blood-moon-active #filmGrain {
   // Browsers report wheel deltas in pixels (0), lines (1) or pages (2). Convert
   // everything to pixels first so one notch feels the same everywhere.
   let lastWheelSign = 0;
+  let lastWheelTime = 0;
   window.addEventListener('wheel', function (e) {
     if (document.getElementById('modal').classList.contains('open')) return;
     if (window.__isFlightActive && window.__isFlightActive()) window.__cancelFlight();
@@ -8021,10 +8022,18 @@ body.blood-moon-active #filmGrain {
     if (lastWheelSign && sign !== lastWheelSign) targetProgress = currentProgress;
     lastWheelSign = sign;
 
-    const delta = dy * 0.001;
-    // Trackpad momentum fires many events after the fingers stop. Limit how
-    // far the target can run ahead of the camera so nothing is left queued.
-    const limit = 0.3;
+    // Non-linear response: gentle trackpad movement crawls (smooth, precise),
+    // while a deliberate wheel notch or hard flick still travels quickly.
+    const absDy = Math.abs(dy);
+    const speed = 0.00045 + 0.00075 * Math.min(1, absDy / 200);
+    const delta = dy * speed;
+
+    // Rapid input means the user is deliberately scrolling far; slow input
+    // keeps a tight queue so nothing coasts after the fingers stop.
+    const nowMs = performance.now();
+    const rapid = lastWheelTime > 0 && (nowMs - lastWheelTime) < 70;
+    lastWheelTime = nowMs;
+    const limit = rapid ? 0.45 : 0.24;
     targetProgress = Math.max(currentProgress - limit,
                        Math.min(currentProgress + limit, targetProgress + delta));
     targetProgress = Math.max(0, Math.min(9, targetProgress));
