@@ -2,7 +2,7 @@ const fs = require('fs');
 
 // Embed the certificate image into the generated HTML itself (data URI) so
 // the frame never depends on a runtime HTTP request for the texture.
-const CERT_FILE = 'D:/PROJECTS/portfolio-ink/assettt/certificate-official-2048.jpg';
+const CERT_FILE = 'D:/PROJECTS/portfolio-ink/assettt/certificate-sharp.jpg';
 const CERT_DATA_URI = 'data:image/jpeg;base64,' + fs.readFileSync(CERT_FILE).toString('base64');
 
 // Read the modal HTML, CSS, and PROJECTS data from index.html.v2.bak
@@ -3457,7 +3457,7 @@ ${modalHtml}
   }
 
   function texWetStoneNormal() {
-    const W = 128, H = 128, c = cvs(W, H), x = c.getContext('2d');
+    const W = 256, H = 256, c = cvs(W, H), x = c.getContext('2d');
     const imgData = x.createImageData(W, H);
     for (let y = 0; y < H; y++) {
       for (let i = 0; i < W; i++) {
@@ -3635,7 +3635,7 @@ ${modalHtml}
     powerPreference: 'high-performance'
   });
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, window.innerWidth < 900 ? 1.1 : 1.25));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, window.innerWidth < 900 ? 1.2 : 1.5));
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.2;
   window.renderer = renderer;
@@ -3863,6 +3863,15 @@ ${modalHtml}
   scene.add(moonLight);
   window.moonLight = moonLight;
 
+  // Warm directional fill reaches EVERY house equally, regardless of distance,
+  // so every building shows its full texture detail without emissive wash-out.
+  const avenueFill = new THREE.DirectionalLight(0xffd9b0, 1.55);
+  avenueFill.position.set(2, 16, 42);
+  avenueFill.target.position.set(0, 1.6, -42);
+  scene.add(avenueFill);
+  scene.add(avenueFill.target);
+  window.avenueFill = avenueFill;
+
   // Dynamic Shrine Light Color Palette for Project-Specific 3D Lighting Modulation
   const STAGE_LIGHT_COLORS = [
     0xff5a3c, // Stage 0 (Hero): Vermilion Moon glow
@@ -3963,7 +3972,7 @@ ${modalHtml}
   }
 
   function texRoofTiles() {
-    const W = 256, H = 256, c = cvs(W, H), x = c.getContext('2d');
+    const W = 512, H = 512, c = cvs(W, H), x = c.getContext('2d');
     x.fillStyle = '#8d99a3';
     x.fillRect(0, 0, W, H);
     const rows = 8, cols = 8, tw = W / cols, th = H / rows;
@@ -3998,7 +4007,7 @@ ${modalHtml}
   }
 
   function texStoneBlocks() {
-    const W = 256, H = 256, c = cvs(W, H), x = c.getContext('2d');
+    const W = 512, H = 512, c = cvs(W, H), x = c.getContext('2d');
     x.fillStyle = '#4c535b';
     x.fillRect(0, 0, W, H);
     const rows = 6, rowH = H / rows;
@@ -4097,7 +4106,7 @@ ${modalHtml}
 
   // Pure-white snow-frost lacquer for the hero Torii gate (snow textures fly out of it)
   function texFrostSurface() {
-    const W = 256, H = 256, c = cvs(W, H), x = c.getContext('2d');
+    const W = 512, H = 512, c = cvs(W, H), x = c.getContext('2d');
     x.fillStyle = '#ffffff';
     x.fillRect(0, 0, W, H);
     for (let i = 0; i < 240; i++) {
@@ -5293,10 +5302,21 @@ ${modalHtml}
   // Distant hillside pagoda silhouette filling the right-hand horizon at the hero
   function createDistantPagoda() {
     const g = new THREE.Group();
-    const bodyMat = new THREE.MeshBasicMaterial({ color: 0x1b2533, fog: false });
-    const roofMat = new THREE.MeshBasicMaterial({ color: 0x121a26, fog: false });
-    const eaveMat = new THREE.MeshBasicMaterial({ color: 0x3a2216, fog: false });
-    const glowMat = new THREE.MeshBasicMaterial({ color: 0xe08a42, fog: false });
+    const bodyMat = new THREE.MeshStandardMaterial({
+      color: 0x5b6672, roughness: 0.88,
+      map: plasterTex, bumpMap: plasterTex, bumpScale: 0.035
+    });
+    const roofMat = new THREE.MeshStandardMaterial({
+      color: 0x44525f, roughness: 0.7, metalness: 0.1,
+      map: roofTileTex, bumpMap: roofTileTex, bumpScale: 0.05
+    });
+    const eaveMat = new THREE.MeshStandardMaterial({
+      color: 0x8a5538, roughness: 0.8,
+      map: woodTex, bumpMap: woodTex, bumpScale: 0.03
+    });
+    const glowMat = new THREE.MeshStandardMaterial({
+      color: 0xffd9a0, emissive: 0xffb45c, emissiveIntensity: 1.4, roughness: 0.85
+    });
 
     const plinth = new THREE.Mesh(new THREE.BoxGeometry(5.6, 0.9, 5.6), bodyMat);
     plinth.position.y = 0.45;
@@ -5340,7 +5360,7 @@ ${modalHtml}
   // Dark hillside mound so the distant pagoda is seated on the ridge line
   const pagodaHill = new THREE.Mesh(
     new THREE.ConeGeometry(15, 7.5, 10),
-    new THREE.MeshBasicMaterial({ color: 0x101824, fog: false })
+    new THREE.MeshStandardMaterial({ color: 0x2b3646, roughness: 0.9, map: woodTex, bumpMap: woodTex, bumpScale: 0.03 })
   );
   pagodaHill.position.set(36, -1.4, -62);
   pagodaHill.scale.set(1.6, 0.8, 1);
@@ -6818,7 +6838,7 @@ ${modalHtml}
     // Framed certificate hung on the back wall — sized and placed so the
     // document fills a large part of the stage-09 frame and the small print
     // stays legible at the default viewing distance.
-    const certW = 5.0;
+    const certW = 5.8;
     const certH = certW * (1446 / 2048);
     const frame = new THREE.Group();
     frame.position.set(0, 3.95, zB + 0.36);
@@ -6826,7 +6846,7 @@ ${modalHtml}
     const certImg = new Image();
     const certTex = new THREE.Texture(certImg);
     certTex.generateMipmaps = true;
-    certTex.minFilter = THREE.LinearMipmapLinearFilter;
+    certTex.minFilter = THREE.LinearFilter;
     certTex.magFilter = THREE.LinearFilter;
     if (THREE.sRGBEncoding !== undefined) certTex.encoding = THREE.sRGBEncoding;
     else if (certTex.colorSpace !== undefined && THREE.SRGBColorSpace) certTex.colorSpace = THREE.SRGBColorSpace;
@@ -8650,10 +8670,10 @@ ${modalHtml}
       const avgMs = frameAccum / frameCount;
       frameAccum = 0;
       frameCount = 0;
-      const cap = Math.min(window.devicePixelRatio || 1, window.innerWidth < 900 ? 1.1 : 1.25);
+      const cap = Math.min(window.devicePixelRatio || 1, window.innerWidth < 900 ? 1.2 : 1.5);
       let target = currentPixelRatio;
-      if (avgMs > 21 && target > 0.5) target = Math.max(0.5, target - 0.15);
-      else if (avgMs < 14.5 && target < cap) target = Math.min(cap, target + 0.06);
+      if (avgMs > 24 && target > 0.85) target = Math.max(0.85, target - 0.1);
+      else if (avgMs < 16 && target < cap) target = Math.min(cap, target + 0.05);
       if (Math.abs(target - currentPixelRatio) > 0.01) {
         currentPixelRatio = target;
         renderer.setPixelRatio(currentPixelRatio);
@@ -8663,7 +8683,7 @@ ${modalHtml}
       }
       // Quality tier: weak GPUs lose the film grain and the heavy overlay
       // treatment instead of crawling at 20fps.
-      const tier = avgMs > 30 ? 'low' : (avgMs > 21 ? 'mid' : 'high');
+      const tier = avgMs > 33 ? 'low' : (avgMs > 25 ? 'mid' : 'high');
       if (tier !== qualityTier) {
         qualityTier = tier;
         document.body.classList.toggle('perf-low', tier === 'low');
@@ -8674,7 +8694,7 @@ ${modalHtml}
     // One warm-up chunk per frame, with the camera restored right after so
     // the player never sees the warm-up pose.
     warmFrameTick++;
-    if (warmState.active && (warmFrameTick % 3) === 0) {
+    if (warmState.active && (warmFrameTick % 5) === 0) {
       const _warmPos = camera.position.clone();
       const _warmQuat = camera.quaternion.clone();
       warmChunk();
@@ -9291,7 +9311,7 @@ ${modalHtml}
   // the rest are demoted to plain data holders and a small pool of real lights
   // follows the camera. The light COUNT never changes, so no shader ever has
   // to be relinked mid-journey.
-  const LIGHT_POOL_SIZE = 20;
+  const LIGHT_POOL_SIZE = 8;
   const lightPool = [];
   const lightSources = [];
   LIGHT_KEEPER.children.slice().forEach(function (l) {
@@ -9332,6 +9352,19 @@ ${modalHtml}
     }
   }
   window.__LIGHT_POOL_SIZE = LIGHT_POOL_SIZE;
+
+  // Crisp textures at grazing angles (roofs, tiled walls, distant shoji).
+  const maxAniso = renderer.capabilities && renderer.capabilities.getMaxAnisotropy
+    ? Math.min(8, renderer.capabilities.getMaxAnisotropy()) : 1;
+  scene.traverse(function (o) {
+    if (!o.isMesh || !o.material) return;
+    const mats = Array.isArray(o.material) ? o.material : [o.material];
+    mats.forEach(function (m) {
+      ['map', 'normalMap', 'bumpMap', 'roughnessMap', 'emissiveMap'].forEach(function (k) {
+        if (m[k] && m[k].anisotropy !== maxAniso) m[k].anisotropy = maxAniso;
+      });
+    });
+  });
   window.__lightSources = lightSources;
 
   // --- STATIC GEOMETRY BATCHING -------------------------------------------
@@ -9506,7 +9539,7 @@ ${modalHtml}
   const warmSeenMats = new Set();
   const warmGroup = new THREE.Group();
   warmGroup.visible = false;
-  const WARM_BATCH = 24;
+  const WARM_BATCH = 32;
   const warmState = { active: true, pose: 0, batch: 0 };
   try {
     const pairSet = new Set();
