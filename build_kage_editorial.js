@@ -1361,6 +1361,28 @@ body.blood-moon-active #filmGrain {
     max-width: 100%;
   }
 }
+.learned-note {
+  margin: 20px 0 4px;
+  padding: 12px 16px;
+  border-left: 2px solid var(--red);
+  background: linear-gradient(90deg, rgba(224, 35, 28, 0.11), rgba(4, 6, 8, 0.45));
+  max-width: 620px;
+}
+.learned-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.28em;
+  color: var(--red);
+  margin-bottom: 6px;
+}
+.learned-note p {
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: #d8d2c6;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.9);
+  margin: 0;
+}
 .work-specs {
   display: flex;
   flex-wrap: wrap;
@@ -2898,6 +2920,10 @@ ${modalCss}
         <span>PYPI &amp; NPM PACKAGE</span>
         <span>100% PRIVATE</span>
       </div>
+      <div class="learned-note">
+        <span class="learned-label">WHAT I LEARNED</span>
+        <p>Built and shipped an MCP server — learned how MCP servers are created and how they work, and what an AI model actually sees when you paste an image.</p>
+      </div>
       <button type="button" class="dossier-btn" onclick="openModal(0)">
         <span>EXPLORE DOSSIER</span>
         <span class="plus">[ + ]</span>
@@ -2944,6 +2970,10 @@ ${modalCss}
         <span>MATH ANIMATION</span>
         <span>VECTOR MORPHING</span>
         <span>ZERO INSTALL</span>
+      </div>
+      <div class="learned-note">
+        <span class="learned-label">WHAT I LEARNED</span>
+        <p>Ported a Python animation package to TypeScript and added new features of my own — problem-solving across two languages.</p>
       </div>
       <button type="button" class="dossier-btn" onclick="openModal(1)">
         <span>EXPLORE DOSSIER</span>
@@ -2992,6 +3022,10 @@ ${modalCss}
         <span>MULTIPLAYER ARENA</span>
         <span>ZERO ASSET</span>
       </div>
+      <div class="learned-note">
+        <span class="learned-label">WHAT I LEARNED</span>
+        <p>Gave me real insight into backends and gameplay logic.</p>
+      </div>
       <button type="button" class="dossier-btn" onclick="openModal(2)">
         <span>EXPLORE DOSSIER</span>
         <span class="plus">[ + ]</span>
@@ -3038,6 +3072,10 @@ ${modalCss}
         <span>5 LANGUAGES</span>
         <span>TRANSPARENT HUD</span>
         <span>100% OFFLINE</span>
+      </div>
+      <div class="learned-note">
+        <span class="learned-label">WHAT I LEARNED</span>
+        <p>Learned how AI models are trained — especially with datasets and voice.</p>
       </div>
       <button type="button" class="dossier-btn" onclick="openModal(3)">
         <span>EXPLORE DOSSIER</span>
@@ -3086,6 +3124,10 @@ ${modalCss}
         <span>VISUAL EXPLAINER</span>
         <span>60 FPS</span>
       </div>
+      <div class="learned-note">
+        <span class="learned-label">WHAT I LEARNED</span>
+        <p>API-related skills and a real leap in UI craft.</p>
+      </div>
       <button type="button" class="dossier-btn" onclick="openModal(4)">
         <span>EXPLORE DOSSIER</span>
         <span class="plus">[ + ]</span>
@@ -3132,6 +3174,10 @@ ${modalCss}
         <span>9MB CHUNKED UPLOADS</span>
         <span>SHA-256 INTEGRITY</span>
         <span>PRIVATE LOCK</span>
+      </div>
+      <div class="learned-note">
+        <span class="learned-label">WHAT I LEARNED</span>
+        <p>Backend strengthening — proxies, packet-level data handling, and understanding how the cloud actually works.</p>
       </div>
       <button type="button" class="dossier-btn" onclick="openModal(5)">
         <span>EXPLORE DOSSIER</span>
