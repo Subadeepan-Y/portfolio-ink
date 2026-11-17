@@ -3637,7 +3637,7 @@ ${modalHtml}
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, window.innerWidth < 900 ? 1.1 : 1.25));
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.3;
+  renderer.toneMappingExposure = 1.2;
   window.renderer = renderer;
   window.__glRenderer = renderer;
 
@@ -3677,13 +3677,13 @@ ${modalHtml}
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x040507);
-  scene.fog = new THREE.FogExp2(0x06080c, 0.022);
+  scene.fog = new THREE.FogExp2(0x06080c, 0.007);
   window.scene = scene;
 
   const camera = new THREE.PerspectiveCamera(46, window.innerWidth / window.innerHeight, 0.1, 280);
 
   // --- 3. ATMOSPHERIC LIGHTING WITH DYNAMIC CHROMATIC HARMONY ---
-  const ambientLight = new THREE.AmbientLight(0x2b3038, 2.4);
+  const ambientLight = new THREE.AmbientLight(0x1a202b, 1.95);
   scene.add(ambientLight);
   scene.add(camera);
 
@@ -3880,16 +3880,16 @@ ${modalHtml}
 
   // Stage-Specific Atmospheric Fog Density Curve (Mountain Temple Depth Dynamics)
   const STAGE_FOG_DENSITIES = [
-    0.022, // Stage 0 (The Hidden Gate): distant Sanmon palace softly veiled in mountain fog
-    0.020, // Stage 1 (The Maker): gently thinning atmospheric mist
-    0.016, // Stage 2 (iGradeify): cleared mist for razor-sharp artifact details
-    0.016, // Stage 3 (manim-ts): cleared mist for razor-sharp artifact details
-    0.016, // Stage 4 (Duel Deck): cleared mist for razor-sharp artifact details
-    0.016, // Stage 5 (Desktop Buddy): cleared mist for razor-sharp artifact details
-    0.016, // Stage 6 (Greate Engine): cleared mist for razor-sharp artifact details
-    0.016, // Stage 7 (Personal Cloud): cleared mist for razor-sharp artifact details
-    0.024, // Stage 8 (The Ritual): deeper temple precinct fog
-    0.011  // Stage 9 (Inner Sanctum): clear interior air
+    0.007, // Stage 0 (The Hidden Gate): distant Sanmon palace softly veiled in mountain fog
+    0.007, // Stage 1 (The Maker): gently thinning atmospheric mist
+    0.006, // Stage 2 (iGradeify): cleared mist for razor-sharp artifact details
+    0.006, // Stage 3 (manim-ts): cleared mist for razor-sharp artifact details
+    0.006, // Stage 4 (Duel Deck): cleared mist for razor-sharp artifact details
+    0.006, // Stage 5 (Desktop Buddy): cleared mist for razor-sharp artifact details
+    0.006, // Stage 6 (Greate Engine): cleared mist for razor-sharp artifact details
+    0.006, // Stage 7 (Personal Cloud): cleared mist for razor-sharp artifact details
+    0.008, // Stage 8 (The Ritual): deeper temple precinct fog
+    0.005  // Stage 9 (Inner Sanctum): clear interior air
   ];
   window.STAGE_FOG_DENSITIES = STAGE_FOG_DENSITIES;
 
@@ -4163,7 +4163,7 @@ ${modalHtml}
   const paperMat = new THREE.MeshStandardMaterial({
     color: 0xffaa48,
     emissive: 0xffaa48,
-    emissiveIntensity: 1.5,
+    emissiveIntensity: 0.85,
     roughness: 0.9,
     metalness: 0.0
   });
@@ -5293,10 +5293,10 @@ ${modalHtml}
   // Distant hillside pagoda silhouette filling the right-hand horizon at the hero
   function createDistantPagoda() {
     const g = new THREE.Group();
-    const bodyMat = new THREE.MeshBasicMaterial({ color: 0x3b4657, fog: false });
-    const roofMat = new THREE.MeshBasicMaterial({ color: 0x323d4d, fog: false });
-    const eaveMat = new THREE.MeshBasicMaterial({ color: 0x6b4030, fog: false });
-    const glowMat = new THREE.MeshBasicMaterial({ color: 0xffb066, fog: false });
+    const bodyMat = new THREE.MeshBasicMaterial({ color: 0x1b2533, fog: false });
+    const roofMat = new THREE.MeshBasicMaterial({ color: 0x121a26, fog: false });
+    const eaveMat = new THREE.MeshBasicMaterial({ color: 0x3a2216, fog: false });
+    const glowMat = new THREE.MeshBasicMaterial({ color: 0xe08a42, fog: false });
 
     const plinth = new THREE.Mesh(new THREE.BoxGeometry(5.6, 0.9, 5.6), bodyMat);
     plinth.position.y = 0.45;
@@ -5340,7 +5340,7 @@ ${modalHtml}
   // Dark hillside mound so the distant pagoda is seated on the ridge line
   const pagodaHill = new THREE.Mesh(
     new THREE.ConeGeometry(15, 7.5, 10),
-    new THREE.MeshBasicMaterial({ color: 0x2a3444, fog: false })
+    new THREE.MeshBasicMaterial({ color: 0x101824, fog: false })
   );
   pagodaHill.position.set(36, -1.4, -62);
   pagodaHill.scale.set(1.6, 0.8, 1);
@@ -6454,12 +6454,12 @@ ${modalHtml}
 
     house.traverse(obj => {
       if (obj.isPointLight) {
-        obj.userData.baseIntensity = obj.intensity * 1.5;
+        obj.userData.baseIntensity = obj.intensity * 1.25;
         lanternLights.push(obj);
       }
       if (obj.isMesh && obj.userData && obj.userData.isShoji) {
         if (obj.material && typeof obj.material.emissiveIntensity !== 'undefined') {
-          obj.userData.baseEmissive = obj.userData.baseEmissive || obj.material.emissiveIntensity || 1.5;
+          obj.userData.baseEmissive = obj.userData.baseEmissive || obj.material.emissiveIntensity || 0.85;
           shojiMeshes.push(obj);
         }
       }
@@ -6467,17 +6467,6 @@ ${modalHtml}
 
     house.userData.shojiMeshes = shojiMeshes;
     house.userData.lanternLights = lanternLights;
-  });
-  // Every house mesh gets a low emissive floor so its own detail stays legible
-  // even where the pooled point lights cannot reach.
-  PROJECT_HOUSES.forEach(function (h) {
-    h.traverse(function (o) {
-      if (!o.isMesh || !o.material || !o.material.isMeshStandardMaterial) return;
-      if (o.material.emissive && o.material.emissive.getHex() === 0) {
-        o.material.emissive.setHex(0x3a3026);
-        o.material.emissiveIntensity = Math.max(o.material.emissiveIntensity || 0, 0.14);
-      }
-    });
   });
   window.PROJECT_HOUSES = PROJECT_HOUSES;
   window.HOUSES_GROUP = HOUSES_GROUP;
@@ -8440,7 +8429,7 @@ ${modalHtml}
     }
 
     // Dynamic Atmospheric Fog Density Modulation (Mountain Temple Depth Dynamics)
-    const targetFogDensity = typeof STAGE_FOG_DENSITIES !== 'undefined' && STAGE_FOG_DENSITIES[primaryStage] !== undefined ? STAGE_FOG_DENSITIES[primaryStage] : 0.022;
+    const targetFogDensity = typeof STAGE_FOG_DENSITIES !== 'undefined' && STAGE_FOG_DENSITIES[primaryStage] !== undefined ? STAGE_FOG_DENSITIES[primaryStage] : 0.007;
     if (scene && scene.fog) {
       scene.fog.density += (targetFogDensity - scene.fog.density) * 0.05;
     }
@@ -8547,10 +8536,10 @@ ${modalHtml}
       visibleHouses = [];
       for (let i = 0; i < PROJECT_HOUSES.length; i++) {
         const h = PROJECT_HOUSES[i];
-        h.visible = Math.abs(h.position.z - camZ) < 66;
+        h.visible = Math.abs(h.position.z - camZ) < 130;
         if (h.visible) visibleHouses.push(h);
       }
-      if (SANCTUM.group) SANCTUM.group.visible = camZ < -66;
+      if (SANCTUM.group) SANCTUM.group.visible = camZ < -96;
       const shellHidden = camZ < -108;
       if (window.__shellHidden !== shellHidden) {
         window.__shellHidden = shellHidden;
@@ -9302,7 +9291,7 @@ ${modalHtml}
   // the rest are demoted to plain data holders and a small pool of real lights
   // follows the camera. The light COUNT never changes, so no shader ever has
   // to be relinked mid-journey.
-  const LIGHT_POOL_SIZE = 14;
+  const LIGHT_POOL_SIZE = 20;
   const lightPool = [];
   const lightSources = [];
   LIGHT_KEEPER.children.slice().forEach(function (l) {
