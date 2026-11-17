@@ -137,7 +137,7 @@ body.perf-low .work-specs span {
   background-size: cover;
   background-position: center;
   opacity: 1;
-  transition: opacity 0.7s ease;
+  transition: opacity 0.28s ease;
 }
 body.scene-live #scenePoster {
   opacity: 0;
@@ -3782,7 +3782,7 @@ body.blood-moon-active #filmGrain {
   const canvas = document.getElementById('gl');
   const renderer = new THREE.WebGLRenderer({
     canvas: canvas,
-    antialias: (window.devicePixelRatio || 1) < 1.35,
+    antialias: false,
     alpha: false,
     powerPreference: 'high-performance'
   });
@@ -5455,11 +5455,12 @@ body.blood-moon-active #filmGrain {
   function createDistantPagoda() {
     const g = new THREE.Group();
     const bodyMat = new THREE.MeshStandardMaterial({
-      color: 0x5b6672, roughness: 0.88,
-      map: plasterTex, bumpMap: plasterTex, bumpScale: 0.035
+      color: 0x9a7050, roughness: 0.86,
+      map: woodTex, bumpMap: woodTex, bumpScale: 0.035,
+      emissive: 0x2a1a10, emissiveIntensity: 0.22
     });
     const roofMat = new THREE.MeshStandardMaterial({
-      color: 0x44525f, roughness: 0.7, metalness: 0.1,
+      color: 0x7a3a38, roughness: 0.72, metalness: 0.08,
       map: roofTileTex, bumpMap: roofTileTex, bumpScale: 0.05
     });
     const eaveMat = new THREE.MeshStandardMaterial({
@@ -5469,6 +5470,7 @@ body.blood-moon-active #filmGrain {
     const glowMat = new THREE.MeshStandardMaterial({
       color: 0xffd9a0, emissive: 0xffb45c, emissiveIntensity: 1.4, roughness: 0.85
     });
+    const trimMat = new THREE.MeshStandardMaterial({ color: 0x3a2318, roughness: 0.8, map: woodTex });
 
     const plinth = new THREE.Mesh(new THREE.BoxGeometry(5.6, 0.9, 5.6), bodyMat);
     plinth.position.y = 0.45;
@@ -5495,9 +5497,38 @@ body.blood-moon-active #filmGrain {
       eaveR.position.x = pw * 0.80;
       g.add(eaveR);
 
-      const win = new THREE.Mesh(new THREE.PlaneGeometry(pw * 0.22, 0.55), glowMat);
-      win.position.set(0, py + 0.72, pw / 2 + 0.02);
+      // Framed, divided shoji window instead of a bare glowing square.
+      const winW = pw * 0.26, winH = 0.62;
+      const frame = new THREE.Mesh(new THREE.BoxGeometry(winW + 0.16, winH + 0.16, 0.08), trimMat);
+      frame.position.set(0, py + 0.74, pw / 2 + 0.02);
+      g.add(frame);
+      const win = new THREE.Mesh(new THREE.PlaneGeometry(winW, winH), glowMat);
+      win.position.set(0, py + 0.74, pw / 2 + 0.07);
       g.add(win);
+      // shoji mullions
+      for (const mx of [-winW * 0.24, winW * 0.24]) {
+        const bar = new THREE.Mesh(new THREE.BoxGeometry(0.035, winH, 0.02), trimMat);
+        bar.position.set(mx, py + 0.74, pw / 2 + 0.085);
+        g.add(bar);
+      }
+      const cross = new THREE.Mesh(new THREE.BoxGeometry(winW, 0.035, 0.02), trimMat);
+      cross.position.set(0, py + 0.74, pw / 2 + 0.085);
+      g.add(cross);
+
+      // Corner posts + balcony railing give each tier real structure.
+      [-1, 1].forEach(sx => {
+        const post = new THREE.Mesh(new THREE.BoxGeometry(0.11, 1.45, 0.11), trimMat);
+        post.position.set(sx * (pw / 2 - 0.08), py + 0.75, pw / 2 - 0.06);
+        g.add(post);
+      });
+      const railTop = new THREE.Mesh(new THREE.BoxGeometry(pw * 0.94, 0.055, 0.055), trimMat);
+      railTop.position.set(0, py + 0.42, pw * 0.54);
+      g.add(railTop);
+      for (let k = -3; k <= 3; k++) {
+        const picket = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.3, 0.035), trimMat);
+        picket.position.set(k * pw * 0.13, py + 0.26, pw * 0.54);
+        g.add(picket);
+      }
 
       py += 1.95;
       pw *= 0.74;
@@ -7219,7 +7250,7 @@ body.blood-moon-active #filmGrain {
   window.__MOUNTAIN_SHELL = MOUNTAIN_SHELL;
 
   // Floating Embers
-  const emberCount = 380;
+  const emberCount = 240;
   const emberGeo = new THREE.BufferGeometry();
   const emberPositions = new Float32Array(emberCount * 3);
   for (let i = 0; i < emberCount * 3; i += 3) {
@@ -7238,7 +7269,7 @@ body.blood-moon-active #filmGrain {
   scene.add(embers);
 
   // --- 5B. 3D TUMBLING AUTUMN MAPLE LEAVES & PETALS ---
-  const leafCount = 34;
+  const leafCount = 24;
   const LEAVES_GROUP = new THREE.Group();
   const leafPalettes = [0xe0231c, 0xc0392b, 0x991b1b, 0xd43f33, 0xa8201a];
 
@@ -7323,7 +7354,7 @@ body.blood-moon-active #filmGrain {
   const sakuraColors = [0xffe4e8, 0xffd2dc, 0xfff0f4, 0xfecad6];
   const sakuraPetals = [];
   const sakuraData = [];
-  const sakuraCount = 16;
+  const sakuraCount = 12;
 
   // PERF: same treatment for the sakura swirl - 24 draw calls -> 4.
   const SAKURA_PALETTES = sakuraColors.length;
@@ -7393,7 +7424,7 @@ body.blood-moon-active #filmGrain {
     return new THREE.CanvasTexture(c);
   }
 
-  const SNOW_COUNT = 140;
+  const SNOW_COUNT = 100;
   const SNOW_PILLAR_X = 11.0 * 1.15;  // mid gate pillars sit at +/-12.65
   const SNOW_PILLAR_Z = -2.0;
   const SNOW_TOP = 12 * 1.15;
@@ -8207,7 +8238,7 @@ body.blood-moon-active #filmGrain {
     clock += dt;
     // Particle motion tuned at 60fps; normalise to real time so it looks the
     // same on 60Hz and 144Hz displays, and give the fall a little more life.
-    const particleStep = Math.min(2.5, dt * 60 * 1.25);
+    const particleStep = Math.min(2.5, dt * 60 * 1.6);
 
     // Fluid Inertia LERP (Guarded against NaN). Frozen while a direct flight owns the camera.
     if (!flight) {
@@ -9463,7 +9494,7 @@ body.blood-moon-active #filmGrain {
   // the rest are demoted to plain data holders and a small pool of real lights
   // follows the camera. The light COUNT never changes, so no shader ever has
   // to be relinked mid-journey.
-  const LIGHT_POOL_SIZE = 8;
+  const LIGHT_POOL_SIZE = 4;
   const lightPool = [];
   const lightSources = [];
   LIGHT_KEEPER.children.slice().forEach(function (l) {
@@ -9504,6 +9535,36 @@ body.blood-moon-active #filmGrain {
     }
   }
   window.__LIGHT_POOL_SIZE = LIGHT_POOL_SIZE;
+
+  // PERF: swap standard PBR shading for Lambert on the bulk of the scene.
+  // Lambert still gets maps, bump, emissive, fog and shadows but skips the
+  // expensive PBR BRDF and metal/roughness maths on every fragment. Keep the
+  // few metals / glowing surfaces on Standard where specular actually shows.
+  const keepStandard = new Set([goldBrassMat, paperMat, paperVioletMat, snowPillarMat]);
+  const lambertCache = new Map();
+  scene.traverse(function (o) {
+    if (!o.isMesh || !o.material) return;
+    const mats = Array.isArray(o.material) ? o.material : [o.material];
+    const replacement = mats.map(function (m) {
+      if (!m || !m.isMeshStandardMaterial || keepStandard.has(m)) return m;
+      if (m.metalness > 0.3) return m;
+      let lm = lambertCache.get(m.uuid);
+      if (!lm) {
+        lm = new THREE.MeshLambertMaterial({
+          color: m.color ? m.color.clone() : 0xffffff,
+          map: m.map, bumpMap: m.bumpMap, bumpScale: m.bumpScale,
+          emissive: m.emissive ? m.emissive.clone() : 0x000000,
+          emissiveIntensity: m.emissiveIntensity !== undefined ? m.emissiveIntensity : 1,
+          transparent: m.transparent, opacity: m.opacity, side: m.side,
+          depthWrite: m.depthWrite, fog: m.fog, blending: m.blending,
+          alphaTest: m.alphaTest, vertexColors: m.vertexColors
+        });
+        lambertCache.set(m.uuid, lm);
+      }
+      return lm;
+    });
+    o.material = Array.isArray(o.material) ? replacement : replacement[0];
+  });
 
   // Crisp textures at grazing angles (roofs, tiled walls, distant shoji).
   const maxAniso = renderer.capabilities && renderer.capabilities.getMaxAnisotropy
